@@ -54,11 +54,11 @@ enum GAME_MAP_KIND
 	s = 25,	//中壁
 	g = 33,	//下壁
 	n = 196, // 虚無
-	d = 151, // ダンボール
-	a = 67, //左窓上
-	b = 68, // 右窓上
-	c = 75, //左窓下
-	d = 76, // 右窓下
+	d = 150, // ダンボール
+	a = 66, //左窓上
+	b = 67, // 右窓上
+	c = 74, //左窓下
+	h = 75, // 右窓下
 	e = 350, //カーペット左
 	f = 351 //カーペット真ん中
 };	//マップの種類
@@ -146,9 +146,9 @@ GAME_MAP_KIND MapData[MAP_HEIGHT_MAX][MAP_WIDTH_MAX] =
 	k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k
 };
 
-int MapData_Object[MAP_WIDTH_MAX][MAP_HEIGHT_MAX] =
+GAME_MAP_KIND MapData_Object[MAP_HEIGHT_MAX][MAP_WIDTH_MAX] =
 {	
-	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+	/*0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 	0,0,0,67,68,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 	0,0,0,75,76,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 	151,151,151,151,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,350,351,
@@ -167,7 +167,28 @@ int MapData_Object[MAP_WIDTH_MAX][MAP_HEIGHT_MAX] =
 	0,0,0,0,0,0,0,0,151,151,0,151,151,151,0,0,0,151,151,151,0,0,0,0,0,
 	151,151,151,151,0,0,0,0,0,151,151,151,0,0,0,0,0,0,0,0,0,0,0,0,0,
 	0,0,0,0,0,0,0,0,0,0,0,0,0,0,151,151,151,0,0,0,0,0,0,0,0,
-	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,151,0
+	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,151,0*/
+
+	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
+	n,n,n,a,b,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
+	n,n,n,c,h,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
+	d,d,d,d,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,e,f,
+	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
+	d,d,d,d,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
+	n,n,n,n,n,d,d,d,d,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
+	d,d,d,d,n,n,n,n,n,n,n,n,n,d,d,d,n,n,n,n,n,n,n,n,n,
+	n,n,n,n,n,n,n,d,d,d,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
+	d,d,d,d,n,n,n,n,n,n,n,n,d,d,d,n,n,n,n,n,n,n,n,n,n,
+	n,n,n,n,n,n,n,n,n,n,n,n,n,n,d,n,n,n,n,d,d,n,n,n,n,
+	d,d,d,d,n,n,n,n,n,n,n,n,n,n,d,n,n,d,n,n,n,d,n,n,n,
+	n,n,n,n,n,n,d,d,d,d,n,n,n,n,n,n,n,n,n,n,n,d,n,n,n,
+	d,d,d,d,n,n,n,n,n,d,d,n,n,n,n,n,n,n,n,n,d,d,n,n,n,
+	n,n,n,n,n,n,n,n,n,n,n,n,n,n,d,n,d,d,n,n,d,n,n,n,n,
+	d,d,d,d,n,n,n,n,n,n,n,n,n,d,d,n,n,d,n,d,d,n,n,n,n,
+	n,n,n,n,n,n,n,n,d,d,n,d,d,d,n,n,n,d,d,d,n,n,n,n,n,
+	d,d,d,d,n,n,n,n,n,d,d,d,n,n,n,n,n,n,n,n,n,n,n,n,n,
+	n,n,n,n,n,n,n,n,n,n,n,n,n,n,d,d,d,n,n,n,n,n,n,n,n,
+	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,d,n
 };
 
 GAME_MAP_KIND MapData_NoWalk[MAP_HEIGHT_MAX][MAP_WIDTH_MAX] =
@@ -210,6 +231,8 @@ MAPCHIP mapChip_Object;
 
 //マップの場所を管理
 MAP map[MAP_HEIGHT_MAX][MAP_WIDTH_MAX];
+MAP map2[MAP_HEIGHT_MAX][MAP_WIDTH_MAX];
+MAP map3[MAP_HEIGHT_MAX][MAP_WIDTH_MAX];
 int GameScene;		//ゲームシーンを管理
 //キーボードの入力を取得
 char AllKeyState[KEY_CODE_KIND] = { '\0' };		//すべてのキーの状態が入る
@@ -520,18 +543,36 @@ VOID MY_PLAY_DRAW(VOID)
 		}
 	}
 
+	
+
+
+
 	for (int tate = 0; tate < MAP_HEIGHT_MAX; tate++)
 	{
 		for (int yoko = 0; yoko < MAP_WIDTH_MAX; yoko++)
 		{
 			//マップを描画
 			DrawGraph(
-				map[tate][yoko].x,
-				map[tate][yoko].y,
-				mapChip_Nowalk.handle[map[tate][yoko].kind],
+				map2[tate][yoko].x,
+				map2[tate][yoko].y,
+				mapChip_Nowalk.handle[map2[tate][yoko].kind],
 				TRUE);
 		}
 	}
+
+	for (int tate = 0; tate < MAP_HEIGHT_MAX; tate++)
+	{
+		for (int yoko = 0; yoko < MAP_WIDTH_MAX; yoko++)
+		{
+			//マップを描画
+			DrawGraph(
+				map3[tate][yoko].x,
+				map3[tate][yoko].y,
+				mapChip_Object.handle[map3[tate][yoko].kind],
+				TRUE);
+		}
+	}
+
 
 	return;
 }
@@ -652,50 +693,53 @@ BOOL LOAD_IMAGE(VOID)
 			mapDataInit_Nowalk[tate][yoko] = MapData_NoWalk[tate][yoko];
 
 			//マップの種類をコピー
-			map[tate][yoko].kind = MapData_NoWalk[tate][yoko];
+			map2[tate][yoko].kind = MapData_NoWalk[tate][yoko];
 
 			//マップの幅と高さをコピー
-			map[tate][yoko].width = mapChip.width;
-			map[tate][yoko].height = mapChip.height;
+			map2[tate][yoko].width = mapChip.width;
+			map2[tate][yoko].height = mapChip.height;
 
 			//マップの座標を設定
-			map[tate][yoko].x = yoko * map[tate][yoko].width;
-			map[tate][yoko].y = tate * map[tate][yoko].height;
+			map2[tate][yoko].x = yoko * map2[tate][yoko].width;
+			map2[tate][yoko].y = tate * map2[tate][yoko].height;
 		}
 	}
 
 
-	int mapRes = LoadDivGraph(
+	
+
+
+	int mapRes3 = LoadDivGraph(
 		GAME_MAP_PATH,										//赤弾のパス
 		MAP_DIV_NUM, MAP_DIV_TATE, MAP_DIV_YOKO,			//赤弾を分割する数
 		MAP_DIV_WIDTH, MAP_DIV_HEIGHT,						//画像を分割するの幅と高さ
-		&mapChip_Nowalk.handle[0]);								//分割した画像が入るハンドル
+		&mapChip_Object.handle[0]);								//分割した画像が入るハンドル
 
-	if (mapRes2 == -1)
+	if (mapRes3 == -1)
 	{
 		//エラーメッセージ表示
 		MessageBox(GetMainWindowHandle(), GAME_MAP_PATH, IMAGE_LOAD_ERR_TITLE, MB_OK);
 		return FALSE;
 	}
 
-	GetGraphSize(mapChip_Nowalk.handle[0], &mapChip_Nowalk.width, &mapChip_Nowalk.height);
+	GetGraphSize(mapChip_Object.handle[0], &mapChip_Object.width, &mapChip_Object.height);
 	for (int tate = 0; tate < MAP_HEIGHT_MAX; tate++)
 	{
 		for (int yoko = 0; yoko < MAP_WIDTH_MAX; yoko++)
 		{
 			//マップデータ初期化用に情報をコピー
-			mapDataInit_Nowalk[tate][yoko] = MapData_NoWalk[tate][yoko];
+			mapDataInit_Object[tate][yoko] = MapData_Object[tate][yoko];
 
 			//マップの種類をコピー
-			map[tate][yoko].kind = MapData_NoWalk[tate][yoko];
+			map3[tate][yoko].kind = MapData_Object[tate][yoko];
 
 			//マップの幅と高さをコピー
-			map[tate][yoko].width = mapChip.width;
-			map[tate][yoko].height = mapChip.height;
+			map3[tate][yoko].width = mapChip.width;
+			map3[tate][yoko].height = mapChip.height;
 
 			//マップの座標を設定
-			map[tate][yoko].x = yoko * map[tate][yoko].width;
-			map[tate][yoko].y = tate * map[tate][yoko].height;
+			map3[tate][yoko].x = yoko * map3[tate][yoko].width;
+			map3[tate][yoko].y = tate * map3[tate][yoko].height;
 		}
 	}
 
@@ -709,6 +753,7 @@ VOID DELETE_IMAGE(VOID)
 	DeleteGraph(ImageSetumei.handle);
 	for (int i_num = 0; i_num < MAP_DIV_NUM; i_num++) { DeleteGraph(mapChip.handle[i_num]); }
 	for (int i_num = 0; i_num < MAP_DIV_NUM; i_num++) { DeleteGraph(mapChip_Nowalk.handle[i_num]); }
+	for (int i_num = 0; i_num < MAP_DIV_NUM; i_num++) { DeleteGraph(mapChip_Object.handle[i_num]); }
 	return;
 }
 
