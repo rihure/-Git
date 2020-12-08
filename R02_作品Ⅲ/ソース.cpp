@@ -18,12 +18,19 @@
 #define MAP_DIV_YOKO		50	//画像を横に分割する数50
 #define MAP_DIV_NUM	MAP_DIV_TATE * MAP_DIV_YOKO	//画像を分割する総数 400
 
+#define PLAYER_DIV_WIDTH 32 //プレイヤーの横幅32ビット
+#define PLAYER_DIV_HEIGHT 32 //プレイヤー立幅32ビット
+#define PLAYER_DIV_TATE 4 //タテ分割数4
+#define PLAYER_DIV_YOKO 4 //ヨコ分割数4
+#define PLAYER_DIV_NUM PLAYER_DIV_TATE * PLAYER_DIV_YOKO //16
+
 #define GAME_FPS			60	//FPSの数値	
 
 //画像のパス設定
 #define TITLE_BACK_PATH TEXT(".\\IMAGE\\ダウンロード (2).png") //タイトルの画像
 #define IMAGE_SETUMEI_PATH		TEXT(".\\IMAGE\\操作説明2.png") //説明画面の画像
 #define GAME_MAP_PATH TEXT(".\\IMAGE\\ST-Town-I01.png")
+#define GAME_PLAYER_PATH TEXT(".\\IMAGE\\joshi03.png")
 
 //エラーメッセージ
 #define IMAGE_LOAD_ERR_TITLE	TEXT("画像読み込みエラー")
@@ -35,6 +42,9 @@
 //キーボードの種類
 #define KEY_CODE_KIND		256	//256種類
 
+//スタートエラー
+#define START_ERR_TITLE		TEXT("スタート位置エラー")
+#define START_ERR_CAPTION	TEXT("スタート位置が決まっていません")
 //閉じるボタンを押したとき
 #define MSG_CLOSE_TITLE			TEXT("終了メッセージ")
 #define MSG_CLOSE_CAPTION		TEXT("ゲームを終了しますか？")
@@ -60,7 +70,8 @@ enum GAME_MAP_KIND
 	c = 74, //左窓下
 	h = 75, // 右窓下
 	e = 350, //カーペット左
-	f = 351 //カーペット真ん中
+	f = 351, //カーペット真ん中
+	start = 198, //start
 };	//マップの種類
 
 enum GAME_END {
@@ -99,6 +110,26 @@ typedef struct STRUCT_MAP
 	int width;					//幅
 	int height;					//高さ
 }MAP;	//MAP構造体
+
+typedef struct STRUCT_CHARA
+{
+	IMAGE image;
+	int speed;
+	int CenterX;
+	int CenterY;
+
+	int Part;
+	double Muki;		//0：前　+1：右　-1：左
+
+	RECT coll;
+}CHARA;
+
+typedef struct STRUCT_I_POINT
+{
+	int x = -1;
+	int y = -1;
+	int part = -1;
+}iPOINT;
 
 //マップ
 GAME_MAP_KIND MapData[MAP_HEIGHT_MAX][MAP_WIDTH_MAX] =
@@ -187,7 +218,7 @@ GAME_MAP_KIND MapData_Object[MAP_HEIGHT_MAX][MAP_WIDTH_MAX] =
 	d,d,d,d,n,n,n,n,n,n,n,n,n,d,d,n,n,d,n,d,d,n,n,n,n,
 	n,n,n,n,n,n,n,n,d,d,n,d,d,d,n,n,n,d,d,d,n,n,n,n,n,
 	d,d,d,d,n,n,n,n,n,d,d,d,n,n,n,n,n,n,n,n,n,n,n,n,n,
-	n,n,n,n,n,n,n,n,n,n,n,n,n,n,d,d,d,n,n,n,n,n,n,n,n,
+	n,n,n,n,n,n,n,n,n,n,n,n,start,n,d,d,d,n,n,n,n,n,n,n,n,
 	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,d,n
 };
 
@@ -228,6 +259,7 @@ int mapDataInit_Object[MAP_HEIGHT_MAX][MAP_WIDTH_MAX];
 MAPCHIP mapChip;
 MAPCHIP mapChip_Nowalk;
 MAPCHIP mapChip_Object;
+CHARA player;
 
 //マップの場所を管理
 MAP map[MAP_HEIGHT_MAX][MAP_WIDTH_MAX];
@@ -244,6 +276,7 @@ int CountFps;					//カウンタ
 float CalcFps;					//計算結果
 int SampleNumFps = GAME_FPS;	//平均を取るサンプル数
 char key[256];
+
 
 
 
@@ -283,6 +316,7 @@ VOID MY_END_DRAW(VOID);		//エンド画面の描画
 //イメージ構造体の複製
 IMAGE imageBACK; //タイトル背景
 IMAGE ImageSetumei; //説明画面の画像
+iPOINT startPt{ -1, -1, -1 };
 
 //########## プログラムで最初に実行される関数 ##########
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
@@ -323,9 +357,27 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 		MY_ALL_KEYDOWN_UPDATE();				//押しているキー状態を取得
 
+		for (int tate = 0; tate < MAP_HEIGHT_MAX; tate++)
+		{
+			for (int yoko = 0; yoko < MAP_WIDTH_MAX; yoko++)
+			{
+				if (MapData_Object[tate][yoko] == start)
+				{
+					startPt.x = mapChip.width * yoko + mapChip.width / 2;
+					startPt.y = mapChip.height * tate + mapChip.height / 2;
+
+				}
+			}
+		}
+
 		
 
 		MY_FPS_UPDATE();	//FPSの処理[更新]
+
+		if (startPt.x == -1 || startPt.y == -1 )
+		{
+			MessageBox(GetMainWindowHandle(), START_ERR_CAPTION, START_ERR_TITLE, MB_OK);	return -1;
+		}
 
 		//シーンごとに処理を行う
 		switch (GameScene)
@@ -492,6 +544,15 @@ VOID MY_START_SETUMEI_DRAW(VOID)
 	if (MY_KEY_DOWN(KEY_INPUT_H) == TRUE)
 	{
 		GameScene = GAME_SCENE_PLAY;
+
+		SetMouseDispFlag(FALSE);
+
+		player.CenterX = startPt.x;
+		player.CenterY = startPt.y;
+	
+
+		player.image.x = player.CenterX;
+		player.image.y = player.CenterY;
 	}
 
 	return;
@@ -572,6 +633,7 @@ VOID MY_PLAY_DRAW(VOID)
 				TRUE);
 		}
 	}
+	DrawGraph(player.image.x, player.image.y, player.image.handle, TRUE);
 
 
 	return;
@@ -743,6 +805,25 @@ BOOL LOAD_IMAGE(VOID)
 		}
 	}
 
+	LoadDivGraph(
+		GAME_PLAYER_PATH,										//プレイヤーのパス
+		PLAYER_DIV_NUM, PLAYER_DIV_TATE, PLAYER_DIV_YOKO,			//赤弾を分割する数
+		MAP_DIV_WIDTH, MAP_DIV_HEIGHT,						//画像を分割するの幅と高さ
+		&player.image.handle);								//分割した画像が入るハンドル
+
+	strcpy_s(player.image.path, GAME_PLAYER_PATH);
+	player.image.handle = LoadGraph(player.image.path);
+	if (player.image.handle == -1)
+	{
+		MessageBox(GetMainWindowHandle(), GAME_PLAYER_PATH, IMAGE_LOAD_ERR_TITLE, MB_OK);
+		return(FALSE);
+	}
+	GetGraphSize(player.image.handle, &player.image.width, &player.image.height);
+	player.image.x = GAME_WIDTH / 2 - player.image.width / 2;
+	player.image.y = GAME_HEIGHT / 2 - player.image.height / 2;
+	player.CenterX = player.image.x + player.image.width / 2;
+	player.CenterY = player.image.y + player.image.height / 2;
+
 	return TRUE;
 }
 
@@ -751,6 +832,7 @@ VOID DELETE_IMAGE(VOID)
 {
 	DeleteGraph(imageBACK.handle);
 	DeleteGraph(ImageSetumei.handle);
+	DeleteGraph(player.image.handle);
 	for (int i_num = 0; i_num < MAP_DIV_NUM; i_num++) { DeleteGraph(mapChip.handle[i_num]); }
 	for (int i_num = 0; i_num < MAP_DIV_NUM; i_num++) { DeleteGraph(mapChip_Nowalk.handle[i_num]); }
 	for (int i_num = 0; i_num < MAP_DIV_NUM; i_num++) { DeleteGraph(mapChip_Object.handle[i_num]); }
