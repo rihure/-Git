@@ -1,4 +1,3 @@
-
 #include "DxLib.h"
 
 
@@ -19,7 +18,7 @@
 #define MAP_DIV_NUM	MAP_DIV_TATE * MAP_DIV_YOKO	//画像を分割する総数 400
 
 #define PLAYER_DIV_WIDTH 32 //プレイヤーの横幅32ビット
-#define PLAYER_DIV_HEIGHT 32 //プレイヤー立幅32ビット
+#define PLAYER_DIV_HEIGHT 48 //プレイヤー立幅48ビット
 #define PLAYER_DIV_TATE 4 //タテ分割数4
 #define PLAYER_DIV_YOKO 4 //ヨコ分割数4
 #define PLAYER_DIV_NUM PLAYER_DIV_TATE * PLAYER_DIV_YOKO //16
@@ -48,6 +47,9 @@
 //閉じるボタンを押したとき
 #define MSG_CLOSE_TITLE			TEXT("終了メッセージ")
 #define MSG_CLOSE_CAPTION		TEXT("ゲームを終了しますか？")
+//終了ダイアログ用
+#define MOUSE_R_CLICK_TITLE		TEXT("ゲーム中断")
+#define MOUSE_R_CLICK_CAPTION	TEXT("ゲームを中断し、タイトル画面に戻りますか？")
 
 enum GAME_SCENE {
 	GAME_SCENE_START,
@@ -111,25 +113,29 @@ typedef struct STRUCT_MAP
 	int height;					//高さ
 }MAP;	//MAP構造体
 
-typedef struct STRUCT_CHARA
-{
-	IMAGE image;
-	int speed;
-	int CenterX;
-	int CenterY;
-
-	int Part;
-	double Muki;		//0：前　+1：右　-1：左
-
-	RECT coll;
-}CHARA;
-
 typedef struct STRUCT_I_POINT
 {
 	int x = -1;
 	int y = -1;
-	int part = -1;
+
 }iPOINT;
+
+typedef struct STRUCT_CHARA
+{
+	char path[PATH_MAX];
+	IMAGE image;
+	int speed;
+	int CenterX;
+	int CenterY;
+	int handle[PLAYER_DIV_NUM];
+	int Part;
+	double Muki;		//0：前　+1：右　-1：左
+	 
+	RECT coll; //当たり判定
+	iPOINT collBeforePt; //当たる前の判定
+}CHARA;
+
+
 
 //マップ
 GAME_MAP_KIND MapData[MAP_HEIGHT_MAX][MAP_WIDTH_MAX] =
@@ -217,8 +223,8 @@ GAME_MAP_KIND MapData_Object[MAP_HEIGHT_MAX][MAP_WIDTH_MAX] =
 	n,n,n,n,n,n,n,n,n,n,n,n,n,n,d,n,d,d,n,n,d,n,n,n,n,
 	d,d,d,d,n,n,n,n,n,n,n,n,n,d,d,n,n,d,n,d,d,n,n,n,n,
 	n,n,n,n,n,n,n,n,d,d,n,d,d,d,n,n,n,d,d,d,n,n,n,n,n,
-	d,d,d,d,n,n,n,n,n,d,d,d,n,n,n,n,n,n,n,n,n,n,n,n,n,
-	n,n,n,n,n,n,n,n,n,n,n,n,start,n,d,d,d,n,n,n,n,n,n,n,n,
+	d,d,d,d,n,n,n,n,n,d,d,d,start,n,n,n,n,n,n,n,n,n,n,n,n,
+	n,n,n,n,n,n,n,n,n,n,n,n,n,n,d,d,d,n,n,n,n,n,n,n,n,
 	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,d,n
 };
 
@@ -265,6 +271,14 @@ CHARA player;
 MAP map[MAP_HEIGHT_MAX][MAP_WIDTH_MAX];
 MAP map2[MAP_HEIGHT_MAX][MAP_WIDTH_MAX];
 MAP map3[MAP_HEIGHT_MAX][MAP_WIDTH_MAX];
+
+RECT mapColl[MAP_HEIGHT_MAX][MAP_WIDTH_MAX]; //マップの当たり判定
+
+//イメージ構造体の複製
+IMAGE imageBACK; //タイトル背景
+IMAGE ImageSetumei; //説明画面の画像
+iPOINT startPt{ -1, -1 };
+
 int GameScene;		//ゲームシーンを管理
 //キーボードの入力を取得
 char AllKeyState[KEY_CODE_KIND] = { '\0' };		//すべてのキーの状態が入る
@@ -276,7 +290,9 @@ int CountFps;					//カウンタ
 float CalcFps;					//計算結果
 int SampleNumFps = GAME_FPS;	//平均を取るサンプル数
 char key[256];
+int playerhandle[16];
 
+int count;
 
 
 
@@ -312,11 +328,10 @@ VOID MY_END(VOID);			//エンド画面
 VOID MY_END_PROC(VOID);		//エンド画面の処理
 VOID MY_END_DRAW(VOID);		//エンド画面の描画
 
+BOOL MY_CHECK_MAP1_PLAYER_COLL(RECT);	//マップとプレイヤーの当たり判定をする関数
+BOOL MY_CHECK_RECT_COLL(RECT, RECT);	//領域の当たり判定をする関数
 
-//イメージ構造体の複製
-IMAGE imageBACK; //タイトル背景
-IMAGE ImageSetumei; //説明画面の画像
-iPOINT startPt{ -1, -1, -1 };
+
 
 //########## プログラムで最初に実行される関数 ##########
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
@@ -553,6 +568,9 @@ VOID MY_START_SETUMEI_DRAW(VOID)
 
 		player.image.x = player.CenterX;
 		player.image.y = player.CenterY;
+
+		player.collBeforePt.x = player.CenterX;
+		player.collBeforePt.y = player.CenterY;
 	}
 
 	return;
@@ -571,6 +589,9 @@ VOID MY_PLAY(VOID)
 //プレイ画面の処理
 VOID MY_PLAY_PROC(VOID)
 {
+
+	
+	count++;
 	//スペースキーを押したら、エンドシーンへ移動する
 	if (MY_KEY_DOWN(KEY_INPUT_SPACE) == TRUE)
 	{
@@ -580,6 +601,105 @@ VOID MY_PLAY_PROC(VOID)
 		return;
 	}
 
+	//マウスを右クリックすると、タイトル画面に戻る
+	if (MY_KEY_DOWN(KEY_INPUT_L) == TRUE)
+	{
+		
+
+		//マウスを表示
+		SetMouseDispFlag(TRUE);
+
+		//終了ダイアログを表示
+		int Ret = MessageBox(GetMainWindowHandle(), MOUSE_R_CLICK_CAPTION, MOUSE_R_CLICK_TITLE, MB_YESNO);
+
+		if (Ret == IDYES)		//YESなら、ゲームを中断する
+		{
+			//強制的にタイトル画面に飛ぶ
+			GameScene = GAME_SCENE_START;
+			return;
+
+		}
+		else if (Ret == IDNO)	//NOなら、ゲームを続行する
+		{
+
+			//マウスを非表示にする。
+			SetMouseDispFlag(FALSE);
+		}
+	}
+
+	/*if (count > 30)
+	{*/
+		if (MY_KEY_DOWN(KEY_INPUT_W) == TRUE)
+		{
+			player.image.y -= 1.5; //30
+
+
+		}
+		if (MY_KEY_DOWN(KEY_INPUT_S) == TRUE)
+		{
+			player.image.y += 1.5;//30
+
+
+		}
+		if (MY_KEY_DOWN(KEY_INPUT_A) == TRUE)
+		{
+			player.image.x -= 1.5;//30
+
+
+
+		}
+		if (MY_KEY_DOWN(KEY_INPUT_D) == TRUE)
+		{
+			player.image.x += 2;//30
+
+
+		}
+		/*count = 0;
+	}*/
+
+	//画面内にマウスがいれば
+		if (player.image.x >= 0 && player.image.x <= GAME_WIDTH
+			&& player.image.y >= 0 && player.image.y <= GAME_HEIGHT)
+		{
+			//プレイヤーの中心位置を設定する
+			player.CenterX = player.image.x;
+			player.CenterY = player.image.y;
+		}
+
+		//プレイヤーの当たり判定の設定
+		player.coll.left = player.CenterX - 40 / 20 + 5;
+		player.coll.top = player.CenterY + 200 / 20 + 5;
+		player.coll.right = player.CenterX + 650 / 20 - 5;
+		player.coll.bottom = player.CenterY + 1000 / 20 - 5;
+
+	
+
+		BOOL IsMove = TRUE;
+
+		//プレイヤーとマップがあたっていたら
+		if (MY_CHECK_MAP1_PLAYER_COLL(player.coll) == TRUE)
+		{
+			SetMousePoint(player.collBeforePt.x, player.collBeforePt.y);
+			IsMove = FALSE;
+		}
+		if (IsMove == false)
+		{
+			player.image.x = player.collBeforePt.x;
+			player.image.x = player.collBeforePt.y;
+		}
+		//if (IsMove == TRUE) 
+		//{
+		//
+		//	{
+		//		//プレイヤーの位置に置き換える
+		//		player.image.x = player.CenterX - player.image.width / 2;
+		//		player.image.y = player.CenterY - player.image.height / 2;
+
+		//		//あたっていないときの座標を取得
+		//		player.collBeforePt.x = player.CenterX;
+		//		player.collBeforePt.y = player.CenterY;
+		//	}
+		//}
 	
 	
 
@@ -633,8 +753,28 @@ VOID MY_PLAY_DRAW(VOID)
 				TRUE);
 		}
 	}
-	DrawGraph(player.image.x, player.image.y, player.image.handle, TRUE);
+	DrawGraph(player.image.x, player.image.y, playerhandle[13], TRUE);
 
+	//当たり判定の描画（デバッグ用）
+	for (int tate = 0; tate < MAP_HEIGHT_MAX; tate++)
+	{
+		for (int yoko = 0; yoko < MAP_WIDTH_MAX; yoko++)
+		{
+			//床ならば
+			if (MapData[tate][yoko] == k)
+			{
+				DrawBox(mapColl[tate][yoko].left, mapColl[tate][yoko].top, mapColl[tate][yoko].right, mapColl[tate][yoko].bottom, GetColor(0, 0, 255), FALSE);
+			}
+
+			//中壁ならば
+			if (MapData[tate][yoko] == d)
+			{
+				DrawBox(mapColl[tate][yoko].left, mapColl[tate][yoko].top, mapColl[tate][yoko].right, mapColl[tate][yoko].bottom, GetColor(255, 0, 0), FALSE);
+			}
+		}
+	}
+	//プレイヤーの当たり判定用
+	DrawBox(player.coll.left, player.coll.top, player.coll.right, player.coll.bottom, GetColor(255, 0, 0), FALSE);
 
 	return;
 }
@@ -808,8 +948,8 @@ BOOL LOAD_IMAGE(VOID)
 	LoadDivGraph(
 		GAME_PLAYER_PATH,										//プレイヤーのパス
 		PLAYER_DIV_NUM, PLAYER_DIV_TATE, PLAYER_DIV_YOKO,			//赤弾を分割する数
-		MAP_DIV_WIDTH, MAP_DIV_HEIGHT,						//画像を分割するの幅と高さ
-		&player.image.handle);								//分割した画像が入るハンドル
+		PLAYER_DIV_WIDTH, PLAYER_DIV_HEIGHT,						//画像を分割するの幅と高さ
+		&playerhandle[0]);								//分割した画像が入るハンドル
 
 	strcpy_s(player.image.path, GAME_PLAYER_PATH);
 	player.image.handle = LoadGraph(player.image.path);
@@ -823,6 +963,20 @@ BOOL LOAD_IMAGE(VOID)
 	player.image.y = GAME_HEIGHT / 2 - player.image.height / 2;
 	player.CenterX = player.image.x + player.image.width / 2;
 	player.CenterY = player.image.y + player.image.height / 2;
+
+
+	//マップの当たり判定を設定する
+	for (int tate = 0; tate < MAP_HEIGHT_MAX; tate++)
+	{
+		for (int yoko = 0; yoko < MAP_WIDTH_MAX; yoko++)
+		{
+			//マップの当たり判定を設定
+			mapColl[tate][yoko].left = (yoko + 0) * mapChip.width + 1;
+			mapColl[tate][yoko].top = (tate + 0) * mapChip.height + 1;
+			mapColl[tate][yoko].right = (yoko + 1) * mapChip.width - 1;
+			mapColl[tate][yoko].bottom = (tate + 1) * mapChip.height - 1;
+		}
+	}
 
 	return TRUE;
 }
@@ -851,4 +1005,40 @@ VOID DELETE_MUSIC(VOID)
 {
 
 	return;
+}
+
+//マップとプレイヤーの当たり判定をする関数
+BOOL MY_CHECK_MAP1_PLAYER_COLL(RECT player)
+{
+	//マップの当たり判定を設定する
+	for (int tate = 0; tate < MAP_HEIGHT_MAX; tate++)
+	{
+		for (int yoko = 0; yoko < MAP_WIDTH_MAX; yoko++)
+		{
+			//プレイヤーとマップが当たっているとき
+			if (MY_CHECK_RECT_COLL(player, mapColl[tate][yoko]) == TRUE)
+			{
+				//壁のときは、プレイヤーとマップが当たっている
+				if (map[tate][yoko].kind == s) { return TRUE; }
+				if (map[tate][yoko].kind == d) { return TRUE; }
+			}
+		}
+	}
+
+	return FALSE;
+}
+
+//領域の当たり判定をする関数
+BOOL MY_CHECK_RECT_COLL(RECT a, RECT b)
+{
+	if (a.left < b.right &&
+		a.top < b.bottom &&
+		a.right > b.left &&
+		a.bottom > b.top
+		)
+	{
+		return TRUE;	//当たっている
+	}
+
+	return FALSE;		//当たっていない
 }
