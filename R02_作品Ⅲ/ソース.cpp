@@ -74,6 +74,8 @@ enum GAME_MAP_KIND
 	e = 350, //カーペット左
 	f = 351, //カーペット真ん中
 	start = 198, //start
+	goal = 197, //goal
+
 };	//マップの種類
 
 enum GAME_END {
@@ -254,6 +256,23 @@ GAME_MAP_KIND MapData_NoWalk[MAP_HEIGHT_MAX][MAP_WIDTH_MAX] =
 	t,t,t,t,t,t,t,t,t,t,t,t,t,t,t,t,t,t,t,t,t,t,t,t,t,
 	s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,
 	g,g,g,g,g,g,g,g,g,g,g,g,g,g,g,g,g,g,g,g,g,g,g,g,g,
+	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,goal,
+	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
+	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
+	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
+	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
+	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
+	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
+	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
+	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
+	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
+	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
+	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
+	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
+	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
+	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
+	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
+	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n
 	
 };
 
@@ -294,6 +313,9 @@ int playerhandle[16];
 
 int count;
 
+int x;
+int y;
+
 
 
 
@@ -323,6 +345,7 @@ VOID MY_PLAY_INIT(VOID);	//プレイ画面初期化
 VOID MY_PLAY(VOID);			//プレイ画面
 VOID MY_PLAY_PROC(VOID);	//プレイ画面の処理
 VOID MY_PLAY_DRAW(VOID);	//プレイ画面の描画
+VOID MY_PLAY_DRAW2(VOID);	//廊下のステージ描画
 
 VOID MY_END(VOID);			//エンド画面
 VOID MY_END_PROC(VOID);		//エンド画面の処理
@@ -626,6 +649,8 @@ VOID MY_PLAY_PROC(VOID)
 			SetMouseDispFlag(FALSE);
 		}
 	}
+	int old_x = player.image.x;
+	int old_y = player.image.y;
 
 	/*if (count > 30)
 	{*/
@@ -680,26 +705,37 @@ VOID MY_PLAY_PROC(VOID)
 		if (MY_CHECK_MAP1_PLAYER_COLL(player.coll) == TRUE)
 		{
 			SetMousePoint(player.collBeforePt.x, player.collBeforePt.y);
-			IsMove = FALSE;
+			IsMove = false;
+			
+
 		}
+
 		if (IsMove == false)
 		{
-			player.image.x = player.collBeforePt.x;
-			player.image.x = player.collBeforePt.y;
+			player.image.x = old_x;
+			player.image.y = old_y;
 		}
-		//if (IsMove == TRUE) 
-		//{
-		//
-		//	{
-		//		//プレイヤーの位置に置き換える
-		//		player.image.x = player.CenterX - player.image.width / 2;
-		//		player.image.y = player.CenterY - player.image.height / 2;
+		
+		
+		if (IsMove == TRUE) 
+		{
+		
+			{
+				////プレイヤーの位置に置き換える
+				//player.image.x = player.CenterX - player.image.width / 2;
+				//player.image.y = player.CenterY - player.image.height / 2;
 
-		//		//あたっていないときの座標を取得
-		//		player.collBeforePt.x = player.CenterX;
-		//		player.collBeforePt.y = player.CenterY;
-		//	}
-		//}
+				//あたっていないときの座標を取得
+				player.collBeforePt.x = player.CenterX;
+				player.collBeforePt.y = player.CenterY;
+			}
+		}
+
+		////画面外にプレイヤーが行かないようにする
+		//if (player.coll.top < 0) { player.image.x = 0; }
+		//if (player.coll.top + player.coll.right > GAME_WIDTH) { player.image.x = GAME_WIDTH - player.image.width; }
+		//if (player.coll.bottom < 0) { player.image.y = 0; }
+		//if (player.coll.bottom + player.coll.left > GAME_HEIGHT) { player.image.y = GAME_HEIGHT - player.image.height; }
 	
 	
 
@@ -760,17 +796,28 @@ VOID MY_PLAY_DRAW(VOID)
 	{
 		for (int yoko = 0; yoko < MAP_WIDTH_MAX; yoko++)
 		{
-			//床ならば
-			if (MapData[tate][yoko] == k)
-			{
-				DrawBox(mapColl[tate][yoko].left, mapColl[tate][yoko].top, mapColl[tate][yoko].right, mapColl[tate][yoko].bottom, GetColor(0, 0, 255), FALSE);
-			}
+			////床ならば
+			//if (MapData_NoWalk[tate][yoko] == s)
+			//{
+			//	DrawBox(mapColl[tate][yoko].left, mapColl[tate][yoko].top, mapColl[tate][yoko].right, mapColl[tate][yoko].bottom, GetColor(0, 0, 255), FALSE);
+			//}
 
-			//中壁ならば
-			if (MapData[tate][yoko] == d)
-			{
-				DrawBox(mapColl[tate][yoko].left, mapColl[tate][yoko].top, mapColl[tate][yoko].right, mapColl[tate][yoko].bottom, GetColor(255, 0, 0), FALSE);
-			}
+			////ダンボールならば
+			//if (MapData_Object[tate][yoko] == d)
+			//{
+			//	DrawBox(mapColl[tate][yoko].left, mapColl[tate][yoko].top, mapColl[tate][yoko].right, mapColl[tate][yoko].bottom, GetColor(255, 0, 0), FALSE);
+			//}
+			////上壁ならば
+			//if (MapData_NoWalk[tate][yoko] == t)
+			//{
+			//	DrawBox(mapColl[tate][yoko].left, mapColl[tate][yoko].top, mapColl[tate][yoko].right, mapColl[tate][yoko].bottom, GetColor(255, 0, 0), FALSE);
+			//}
+			////中壁
+			//if (MapData_NoWalk[tate][yoko] == g)
+			//{
+			//	DrawBox(mapColl[tate][yoko].left, mapColl[tate][yoko].top, mapColl[tate][yoko].right, mapColl[tate][yoko].bottom, GetColor(255, 0, 0), FALSE);
+			//}
+
 		}
 	}
 	//プレイヤーの当たり判定用
@@ -1019,8 +1066,10 @@ BOOL MY_CHECK_MAP1_PLAYER_COLL(RECT player)
 			if (MY_CHECK_RECT_COLL(player, mapColl[tate][yoko]) == TRUE)
 			{
 				//壁のときは、プレイヤーとマップが当たっている
-				if (map[tate][yoko].kind == s) { return TRUE; }
-				if (map[tate][yoko].kind == d) { return TRUE; }
+				if (MapData_NoWalk[tate][yoko] == s) { return TRUE; }
+				if (MapData_Object[tate][yoko] == d) { return TRUE; }
+				if (MapData_NoWalk[tate][yoko] == t) { return TRUE; }
+				if (MapData_NoWalk[tate][yoko] == g) { return TRUE; }
 			}
 		}
 	}
