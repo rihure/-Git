@@ -1,6 +1,7 @@
 #include "DxLib.h"
-#include <stdlib.h>
-#include <string.h>
+#include "stdlib.h"
+#include "string.h"
+#include "prototype_mapp.h"
 
 #define _CRT_SECURE_NO_WARNINGS
 #define MAP_NUM         3           // マップの数
@@ -77,11 +78,13 @@ enum GAME_MAP_KIND
 	b = 67, // 右窓上
 	c = 74, //左窓下
 	h = 75, // 右窓下
+	u = 349, //左カーペット
 	e = 350, //カーペット左
 	f = 351, //カーペット真ん中
 	r = 2, //横床
 	S = 198, //start
 	G = 197, //goal
+	M = 195, //一つ前の場所に戻る判定
 
 };	//マップの種類
 
@@ -348,6 +351,7 @@ int mapdata2[MAP_HEIGHT_MAX][MAP_WIDTH_MAX];
 int mapdata3[MAP_HEIGHT_MAX][MAP_WIDTH_MAX];
 int mapdata4[MAP_HEIGHT_MAX][MAP_WIDTH_MAX];
 int mapdata5[MAP_HEIGHT_MAX][MAP_WIDTH_MAX];
+int mapdata6[MAP_HEIGHT_MAX][MAP_WIDTH_MAX];
 
 
 int MapDataMode[MAP_HEIGHT_MAX][MAP_WIDTH_MAX];
@@ -367,6 +371,7 @@ MAP map3[MAP_HEIGHT_MAX][MAP_WIDTH_MAX];
 MAP map4[MAP_HEIGHT_MAX][MAP_WIDTH_MAX];
 MAP map5[MAP_HEIGHT_MAX][MAP_WIDTH_MAX];
 
+
 RECT mapColl[MAP_HEIGHT_MAX][MAP_WIDTH_MAX]; //マップの当たり判定
 
 //イメージ構造体の複製
@@ -376,6 +381,8 @@ iPOINT startPt{ -1, -1 };
 iPOINT startPt2{ -1 , -1 };
 RECT GoalRect = { -1,-1, -1, -1 };	//ゴールの当たり判定
 RECT GoalRect2 = { -1, -1 , -1, -1 };
+RECT Modoru = { -1, -1, -1,-1 }; //一つ前の部屋に戻る判定
+iPOINT ModoruPt{ -1,-1 };
 
 int GameScene;		//ゲームシーンを管理
 //キーボードの入力を取得
@@ -398,8 +405,8 @@ int result = 0;			//ファイルの最後かチェック
 int tateCnt = 0;		//縦カウント用
 int yokoCnt = 0;		//横カウント用
 
+FILE* fp = NULL;
 
-FILE* fp = NULL;	//ファイルポインタ
 
 
 
@@ -519,7 +526,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			}
 		}
 
-		
+
 
 		//横のデータが１行読めたら
 		if (yokoCnt >= MAP_WIDTH_MAX)
@@ -528,7 +535,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			yokoCnt = 0;	//横のカウンタ初期化
 		}
 	}
-	
+
 	//開いたら、必ず閉じること！
 	fclose(fp);	//ファイルを閉じる
 
@@ -537,7 +544,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	yokoCnt = 0;
 
 	fp = fopen(".\\sakuhin_remake_nowalk.txt", "r");
-	
+
 	while (result != EOF)	//End Of File（ファイルの最後）ではないとき繰り返す
 	{
 		char mapData[MAP_WIDTH_MAX * 3 + 1];
@@ -588,6 +595,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 				GoalRect.top = mapChip.height * tateCnt;
 				GoalRect.right = mapChip.width * (yokoCnt + 1);
 				GoalRect.bottom = mapChip.height * (tateCnt + 1);
+
+			case 'M':
+				mapdata2[tateCnt][yokoCnt] = M;
+				yokoCnt++;
+
+				ModoruPt.x = mapChip.width * yokoCnt + mapChip.width -125;	//中心X座標を取得
+				ModoruPt.y = mapChip.height * tateCnt + mapChip.height -40;	//中心Y座標を取得
+				
 				break;
 			default:
 				break;
@@ -775,6 +790,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 				GoalRect2.top = mapChip.height * tateCnt;
 				GoalRect2.right = mapChip.width * (yokoCnt + 1);
 				GoalRect2.bottom = mapChip.height * (tateCnt + 1);
+
+			case 'u':
+				//壁のとき
+				mapdata5[tateCnt][yokoCnt] = u;
+				yokoCnt++;
+				break;
+
 				break;
 			default:
 				break;
@@ -793,7 +815,53 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	//開いたら、必ず閉じること！
 	fclose(fp);	//ファイルを閉じる
-				
+
+	result = 0;
+	tateCnt = 0;
+	yokoCnt = 0;
+
+	fp = fopen(".\\sakuhin_roka_maenimodoru.txt", "r");
+
+	while (result != EOF)	//End Of File（ファイルの最後）ではないとき繰り返す
+	{
+		char mapData[MAP_WIDTH_MAX * 3 + 1];
+		//ファイルから数値を一つ読み込み(%d,)、配列に格納する
+		result = fscanf(fp, "%s,", mapData);
+		for (int i = 0; i < strlen(mapData); i++)
+		{
+			switch (mapData[i])
+			{
+			case 'n':
+				//通路のとき
+				mapdata6[tateCnt][yokoCnt] = n;
+				yokoCnt++;
+				break;
+			case 'M':
+				//壁のとき
+				mapdata6[tateCnt][yokoCnt] = M;
+				yokoCnt++;
+				Modoru.left = mapChip.width * yokoCnt;
+				Modoru.top = mapChip.height * tateCnt;
+				Modoru.right = mapChip.width;
+				Modoru.bottom = mapChip.height * (tateCnt + 1);
+				break;
+			default:
+				break;
+			}
+		}
+
+
+
+		//横のデータが１行読めたら
+		if (yokoCnt >= MAP_WIDTH_MAX)
+		{
+			tateCnt++;		//縦のカウントアップ
+			yokoCnt = 0;	//横のカウンタ初期化
+		}
+	}
+
+	fclose(fp);	//ファイルを閉じる
+	
 				
 		
 	//無限ループ
@@ -1358,11 +1426,30 @@ VOID MY_PLAY_PROC2(VOID)
 
 
 
-		GameScene = GAME_SCENE_PLAY2;
+		/*GameScene = GAME_SCENE_PLAY2;*/
 		
 
 		return;	//強制的にエンド画面に飛ぶ
 	}
+
+	if (MY_CHECK_RECT_COLL(PlayerRect, Modoru) == TRUE)
+	{
+
+
+
+		player.CenterX = ModoruPt.x;
+		player.CenterY = ModoruPt.y;
+
+
+		player.image.x = player.CenterX;
+		player.image.y = player.CenterY;
+
+		GameScene = GAME_SCENE_PLAY;
+
+
+		return;	//強制的にエンド画面に飛ぶ
+	}
+
 
 	//プレイヤーが画面外に出たら
 	/*if (player.image.x > GAME_WIDTH || player.image.y > GAME_HEIGHT
@@ -1444,6 +1531,22 @@ VOID MY_PLAY_DRAW2(VOID)
 
 	}
 
+	for (int tate = 0; tate < MAP_HEIGHT_MAX; tate++)
+	{
+		for (int yoko = 0; yoko < MAP_WIDTH_MAX; yoko++)
+		{
+
+
+			DrawGraph(yoko * mapChip.width,
+				tate * mapChip.height,
+				mapChip.handle[mapdata6[tate][yoko]],
+				TRUE);
+
+
+		}
+
+	}
+
 	DrawGraph(player.image.x, player.image.y, playerhandle[13], TRUE);
 
 	//当たり判定の描画（デバッグ用）
@@ -1490,10 +1593,10 @@ VOID MY_PLAY_DRAW2(VOID)
 			//	DrawBox(mapColl[tate][yoko].left, mapColl[tate][yoko].top, mapColl[tate][yoko].right, mapColl[tate][yoko].bottom, GetColor(255, 0, 0), FALSE);
 			//}
 			////中壁
-			//if (MapData_NoWalk[tate][yoko] == g)
-			//{
-			//	DrawBox(mapColl[tate][yoko].left, mapColl[tate][yoko].top, mapColl[tate][yoko].right, mapColl[tate][yoko].bottom, GetColor(255, 0, 0), FALSE);
-			//}
+			if (mapdata6[tate][yoko] == M)
+			{
+				DrawBox(mapColl[tate][yoko].left, mapColl[tate][yoko].top, mapColl[tate][yoko].right, mapColl[tate][yoko].bottom, GetColor(255, 0, 0), FALSE);
+			}
 
 		}
 	}
