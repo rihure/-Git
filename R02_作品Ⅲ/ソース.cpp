@@ -1,13 +1,15 @@
 #include "DxLib.h"
 #include "stdlib.h"
 #include "string.h"
-#include "prototype_mapp.h"
+#include "prototype_mapp.hpp"
 
 #define _CRT_SECURE_NO_WARNINGS
 #define MAP_NUM         3           // マップの数
 #define GAME_WIDTH			800	//画面の横の大きさ
 #define GAME_HEIGHT			640	//画面の縦の大きさ
 #define GAME_COLOR			32	//画面のカラービット
+#define TEXT_WIDTH_POSITION	100
+#define TEXT_HEIGHT_POSITION 500
 
 #define MAP_SIZE        32          // マップチップ一つのドットサイズ
 
@@ -31,8 +33,9 @@
 //画像のパス設定
 #define TITLE_BACK_PATH TEXT(".\\IMAGE\\ダウンロード (2).png") //タイトルの画像
 #define IMAGE_SETUMEI_PATH		TEXT(".\\IMAGE\\操作説明2.png") //説明画面の画像
-#define GAME_MAP_PATH TEXT(".\\IMAGE\\ST-Town-I01.png")
-#define GAME_PLAYER_PATH TEXT(".\\IMAGE\\joshi03.png")
+#define GAME_MAP_PATH TEXT(".\\IMAGE\\ST-Town-I01.png") //マップチップ
+#define GAME_PLAYER_PATH TEXT(".\\IMAGE\\joshi03.png") //プレイヤーの画像
+#define TEXT_BOX (".\\IMAGE\\TextBox_start.png")
 
 //エラーメッセージ
 #define IMAGE_LOAD_ERR_TITLE	TEXT("画像読み込みエラー")
@@ -78,6 +81,7 @@ enum GAME_MAP_KIND
 	b = 67, // 右窓上
 	c = 74, //左窓下
 	h = 75, // 右窓下
+	i = 319, //アイテムフラグ
 	u = 349, //左カーペット
 	e = 350, //カーペット左
 	f = 351, //カーペット真ん中
@@ -377,6 +381,7 @@ RECT mapColl[MAP_HEIGHT_MAX][MAP_WIDTH_MAX]; //マップの当たり判定
 //イメージ構造体の複製
 IMAGE imageBACK; //タイトル背景
 IMAGE ImageSetumei; //説明画面の画像
+IMAGE TextBox_start;
 iPOINT startPt{ -1, -1 };
 iPOINT startPt2{ -1 , -1 };
 RECT GoalRect = { -1,-1, -1, -1 };	//ゴールの当たり判定
@@ -471,6 +476,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	GameScene = GAME_SCENE_START;	//ゲームシーンはスタート画面から
 	SetDrawScreen(DX_SCREEN_BACK);	//Draw系関数は裏画面に描画
+
+	void PrototypeMap();
 
 	fp = fopen(".\\sakuhin_remake.txt", "r");
 
@@ -778,8 +785,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 				mapdata5[tateCnt][yokoCnt] = S;
 				yokoCnt++;
 				//スタート位置を計算
-				startPt2.x = mapChip.width * yokoCnt + mapChip.width / 2;	//中心X座標を取得
-				startPt2.y = mapChip.height * tateCnt + mapChip.height / 2;	//中心Y座標を取得
+				startPt2.x = mapChip.width * yokoCnt - 30 ;	//中心X座標を取得
+				startPt2.y = mapChip.height * tateCnt -20 ;	//中心Y座標を取得
 				break;
 			case 'G':
 				//壁のとき
@@ -1137,6 +1144,7 @@ VOID MY_PLAY_PROC(VOID)
 		if (MY_KEY_DOWN(KEY_INPUT_S) == TRUE)
 		{
 			player.image.y += 1.5;//30
+			playerhandle[0];
 
 
 		}
@@ -1256,14 +1264,14 @@ VOID MY_PLAY_DRAW(VOID)
 	{
 		for (int yoko = 0; yoko < MAP_WIDTH_MAX; yoko++)
 		{
-			
-				
-				DrawGraph(yoko * mapChip.width,
-					tate * mapChip.height,
-					mapChip.handle[mapdata[tate][yoko]],
-					TRUE);
-			
-			
+
+
+			DrawGraph(yoko * mapChip.width,
+				tate * mapChip.height,
+				mapChip.handle[mapdata[tate][yoko]],
+				TRUE);
+
+
 		}
 
 	}
@@ -1273,7 +1281,7 @@ VOID MY_PLAY_DRAW(VOID)
 		for (int yoko = 0; yoko < MAP_WIDTH_MAX; yoko++)
 		{
 
-			
+
 			DrawGraph(yoko * mapChip.width,
 				tate * mapChip.height,
 				mapChip.handle[mapdata2[tate][yoko]],
@@ -1300,9 +1308,9 @@ VOID MY_PLAY_DRAW(VOID)
 		}
 
 	}
-	
-	
-	
+
+
+
 	DrawGraph(player.image.x, player.image.y, playerhandle[13], TRUE);
 
 	//当たり判定の描画（デバッグ用）
@@ -1322,6 +1330,12 @@ VOID MY_PLAY_DRAW(VOID)
 	DrawBox(GoalRect.left, GoalRect.top, GoalRect.right, GoalRect.bottom, GetColor(255, 255, 0), TRUE);
 	//プレイヤーの当たり判定用
 	DrawBox(player.coll.left, player.coll.top, player.coll.right, player.coll.bottom, GetColor(255, 0, 0), FALSE);
+
+	//DrawGraph(TEXT_WIDTH_POSITION, TEXT_HEIGHT_POSITION, TextBox_start.handle, TRUE);
+	//if (MY_KEY_DOWN(KEY_INPUT_RETURN) == TRUE)
+	//{
+	//	DeleteGraph(TextBox_start.handle);
+	//}
 
 
 
@@ -1554,44 +1568,7 @@ VOID MY_PLAY_DRAW2(VOID)
 	{
 		for (int yoko = 0; yoko < MAP_WIDTH_MAX; yoko++)
 		{
-			//床ならば
-			//if (MapData_RokaNoWalk[tate][yoko] == s)
-			//{
-			//	DrawBox(mapColl[tate][yoko].left, mapColl[tate][yoko].top, mapColl[tate][yoko].right, mapColl[tate][yoko].bottom, GetColor(0, 0, 255), FALSE);
-			//}
 
-			////ダンボールならば
-			//if (MapData_Object[tate][yoko] == d)
-			//{
-			//	DrawBox(mapColl[tate][yoko].left, mapColl[tate][yoko].top, mapColl[tate][yoko].right, mapColl[tate][yoko].bottom, GetColor(255, 0, 0), FALSE);
-			//}
-			////上壁ならば
-			//if (MapData_RokaNoWalk[tate][yoko] == t)
-			//{
-			//	DrawBox(mapColl[tate][yoko].left, mapColl[tate][yoko].top, mapColl[tate][yoko].right, mapColl[tate][yoko].bottom, GetColor(255, 0, 0), FALSE);
-			//}
-			////中壁
-			//if (MapData_RokaNoWalk[tate][yoko] == g)
-			//{
-			//	DrawBox(mapColl[tate][yoko].left, mapColl[tate][yoko].top, mapColl[tate][yoko].right, mapColl[tate][yoko].bottom, GetColor(255, 0, 0), FALSE);
-			//}
-
-			////床ならば
-			//if (MapData_NoWalk[tate][yoko] == s)
-			//{
-			//	DrawBox(mapColl[tate][yoko].left, mapColl[tate][yoko].top, mapColl[tate][yoko].right, mapColl[tate][yoko].bottom, GetColor(0, 0, 255), FALSE);
-			//}
-
-			////ダンボールならば
-			//if (MapData_Object[tate][yoko] == d)
-			//{
-			//	DrawBox(mapColl[tate][yoko].left, mapColl[tate][yoko].top, mapColl[tate][yoko].right, mapColl[tate][yoko].bottom, GetColor(255, 0, 0), FALSE);
-			//}
-			////上壁ならば
-			//if (MapData_NoWalk[tate][yoko] == t)
-			//{
-			//	DrawBox(mapColl[tate][yoko].left, mapColl[tate][yoko].top, mapColl[tate][yoko].right, mapColl[tate][yoko].bottom, GetColor(255, 0, 0), FALSE);
-			//}
 			////中壁
 			if (mapdata6[tate][yoko] == M)
 			{
@@ -1665,11 +1642,26 @@ BOOL LOAD_IMAGE(VOID)
 	ImageSetumei.x = GAME_WIDTH / 2 - ImageSetumei.width / 2;		//左右中央揃え
 	ImageSetumei.y = GAME_HEIGHT / 2 - ImageSetumei.height / 2;		//上下中央揃え
 
+	//########################################################################
+	
+	strcpy_s(TextBox_start.path, TEXT_BOX);	
+	TextBox_start.handle = LoadGraph(TextBox_start.path);			//読み込み
+	if (TextBox_start.handle == -1)
+	{
+		//エラーメッセージ表示
+		MessageBox(GetMainWindowHandle(), TEXT_BOX, IMAGE_LOAD_ERR_TITLE, MB_OK);
+		return FALSE;
+	}
+
+	//###########################################################################
+
 	int mapRes = LoadDivGraph(
 		GAME_MAP_PATH,										//赤弾のパス
 		MAP_DIV_NUM, MAP_DIV_TATE, MAP_DIV_YOKO,			//赤弾を分割する数
 		MAP_DIV_WIDTH, MAP_DIV_HEIGHT,						//画像を分割するの幅と高さ
 		&mapChip.handle[0]);								//分割した画像が入るハンドル
+
+
 
 	if (mapRes == -1)
 	{
