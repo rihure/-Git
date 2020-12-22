@@ -27,6 +27,7 @@
 #define PLAYER_DIV_TATE 4 //タテ分割数4
 #define PLAYER_DIV_YOKO 4 //ヨコ分割数4
 #define PLAYER_DIV_NUM PLAYER_DIV_TATE * PLAYER_DIV_YOKO //16
+#define PLAYER_IMG_CHANGE_MAX 16
 
 #define GAME_FPS			60	//FPSの数値	
 
@@ -163,6 +164,9 @@ typedef struct STRUCT_I_POINT
 
 typedef struct STRUCT_CHARA
 {
+
+	int kind1;			//画像の種類１
+	int kind2;			//画像の種類２
 	char path[PATH_MAX];
 	IMAGE image;
 	int speed;
@@ -170,11 +174,29 @@ typedef struct STRUCT_CHARA
 	int CenterY;
 	int handle[PLAYER_DIV_NUM];
 	int Part;
-	double Muki;		//0：前　+1：右　-1：左
+
+	int imgChangeCnt;	//画像更新カウンタ
+	int imgChangeCntMAX;//画像更新カウンタMAX値
+	BOOL IsMoveNaname;	//斜め移動をしているか
 	 
 	RECT coll; //当たり判定
 	iPOINT collBeforePt; //当たる前の判定
 }CHARA;
+
+typedef struct STRUCT_PLAYERCHIP
+{
+	char path[PATH_MAX];				//パス
+	int handle[PLAYER_DIV_NUM];			//分割した画像ハンドルを取得
+	int width;							//幅
+	int height;							//高さ
+}PLAYERCHIP;
+
+enum PLAYER_KIND_1 {
+	D_1, D_2, D_3,D_4,
+	L_1, L_2, L_3,L_4,
+	R_1, R_2, R_3,R_4,
+	U_1, U_2, U_3,U_4
+};//(U上/D下/R右/L左)
 
 
 
@@ -395,6 +417,7 @@ MAPCHIP mapChip_Object;
 MAPCHIP mapChip_Roka;
 MAPCHIP mapChip_RokaNowalk;
 CHARA player;
+PLAYERCHIP playerChip1;
 
 //マップの場所を管理
 MAP map[MAP_HEIGHT_MAX][MAP_WIDTH_MAX];
@@ -487,6 +510,8 @@ BOOL MY_CHECK_RECT2_COLL(RECT, RECT);
 BOOL MY_CHECK_MAP3_PLAYER_COLL(RECT);
 BOOL MY_CHECK_RECT3_COLL(RECT, RECT);
 
+BOOL MY_LOAD_PLAYER(const char* path, PLAYERCHIP* player);
+
 
 
 
@@ -504,6 +529,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	if (DxLib_Init() == -1) { return -1; }	//ＤＸライブラリ初期化処理
 
 	if (LOAD_IMAGE() == FALSE) { return -1; }
+	if (MY_LOAD_PLAYER(GAME_PLAYER_PATH, &playerChip1) == FALSE) { return -1; }
 
 	//音楽を読み込む
 	if (LOAD_MUSIC() == FALSE) { return -1; }
@@ -1473,40 +1499,125 @@ VOID MY_PLAY_PROC(VOID)
 			SetMouseDispFlag(FALSE);
 		}
 	}
+
+	player.kind1 = D_1;
 	int old_x = player.image.x;
 	int old_y = player.image.y;
 	BOOL IsMove = TRUE;
 
-	/*if (count > 30)
-	{*/
-		if (MY_KEY_DOWN(KEY_INPUT_W) == TRUE)
+
+	//上に移動するとき
+	if (MY_KEY_DOWN(KEY_INPUT_W) == TRUE
+		&& MY_KEY_DOWN(KEY_INPUT_D) == FALSE
+		&& MY_KEY_DOWN(KEY_INPUT_S) == FALSE
+		&& MY_KEY_DOWN(KEY_INPUT_A) == FALSE)
+	{
+		player.IsMoveNaname = FALSE;	//斜め移動していない
+
+		if (player.kind1 >= U_1 && player.kind1 < U_4)
 		{
-			player.image.y -= 1.5; //30
-
-
+			//画像変更カウンタ
+			if (player.imgChangeCnt < player.imgChangeCntMAX)
+			{
+				player.imgChangeCnt++;
+			}
+			else //画像を変えるタイミングになったら
+			{
+				player.kind1++;			//次の画像にする
+				player.imgChangeCnt = 0;	//変更カウンタ初期化
+			}
 		}
-		if (MY_KEY_DOWN(KEY_INPUT_S) == TRUE)
+		else
 		{
-			player.image.y += 1.5;//30
-			playerhandle[0];
-
-
+			player.kind1 = U_1;	//最初の画像にする
 		}
-		if (MY_KEY_DOWN(KEY_INPUT_A) == TRUE)
+
+		player.image.y -= 1.5;	//移動
+	}
+
+	//右に移動するとき
+	if (MY_KEY_DOWN(KEY_INPUT_W) == FALSE
+		&& MY_KEY_DOWN(KEY_INPUT_D) == TRUE
+		&& MY_KEY_DOWN(KEY_INPUT_S) == FALSE
+		&& MY_KEY_DOWN(KEY_INPUT_A) == FALSE)
+	{
+		player.IsMoveNaname = FALSE;	//斜め移動していない
+
+		if (player.kind1 >= R_1 && player.kind1 < R_4)
 		{
-			player.image.x -= 1.5;//30
-
-
-
+			//画像変更カウンタ
+			if (player.imgChangeCnt < player.imgChangeCntMAX)
+			{
+				player.imgChangeCnt++;
+			}
+			else //画像を変えるタイミングになったら
+			{
+				player.kind1++;			//次の画像にする
+				player.imgChangeCnt = 0;	//変更カウンタ初期化
+			}
 		}
-		if (MY_KEY_DOWN(KEY_INPUT_D) == TRUE)
+		else
 		{
-			player.image.x += 2;//30
-
-
+			player.kind1 = R_1;	//最初の画像にする
 		}
-		/*count = 0;
-	}*/
+		player.image.x += 2;	//移動
+	}
+
+	//左に移動するとき
+	if (MY_KEY_DOWN(KEY_INPUT_W) == FALSE
+		&& MY_KEY_DOWN(KEY_INPUT_D) == FALSE
+		&& MY_KEY_DOWN(KEY_INPUT_S) == FALSE
+		&& MY_KEY_DOWN(KEY_INPUT_A) == TRUE)
+	{
+		player.IsMoveNaname = FALSE;	//斜め移動していない
+
+		if (player.kind1 >= L_1 && player.kind1 < L_4)
+		{
+			//画像変更カウンタ
+			if (player.imgChangeCnt < player.imgChangeCntMAX)
+			{
+				player.imgChangeCnt++;
+			}
+			else //画像を変えるタイミングになったら
+			{
+				player.kind1++;			//次の画像にする
+				player.imgChangeCnt = 0;	//変更カウンタ初期化
+			}
+		}
+		else
+		{
+			player.kind1 = L_1;	//最初の画像にする
+		}
+		player.image.x -= 1.5;	//移動
+	}
+
+	//下に移動するとき
+	if (MY_KEY_DOWN(KEY_INPUT_W) == FALSE
+		&& MY_KEY_DOWN(KEY_INPUT_D) == FALSE
+		&& MY_KEY_DOWN(KEY_INPUT_S) == TRUE
+		&& MY_KEY_DOWN(KEY_INPUT_A) == FALSE)
+	{
+		player.IsMoveNaname = FALSE;	//斜め移動していない
+
+		if (player.kind1 >= D_1 && player.kind1 < D_4)
+		{
+			//画像変更カウンタ
+			if (player.imgChangeCnt < player.imgChangeCntMAX)
+			{
+				player.imgChangeCnt++;
+			}
+			else //画像を変えるタイミングになったら
+			{
+				player.kind1++;			//次の画像にする
+				player.imgChangeCnt = 0;	//変更カウンタ初期化
+			}
+		}
+		else
+		{
+			player.kind1 = D_1;	//最初の画像にする
+		}
+		player.image.y += 2;	//移動
+	}
 
 	//画面内にマウスがいれば
 		if (player.image.x >= 0 && player.image.x <= GAME_WIDTH
@@ -1604,6 +1715,9 @@ VOID MY_PLAY_PROC(VOID)
 VOID MY_PLAY_DRAW(VOID)
 {
 
+
+	
+
 	for (int tate = 0; tate < MAP_HEIGHT_MAX; tate++)
 	{
 		for (int yoko = 0; yoko < MAP_WIDTH_MAX; yoko++)
@@ -1655,7 +1769,8 @@ VOID MY_PLAY_DRAW(VOID)
 
 
 
-	DrawGraph(player.image.x, player.image.y, playerhandle[13], TRUE);
+
+	/*DrawGraph(player.image.x, player.image.y, playerhandle[13], TRUE);	*/
 
 	//当たり判定の描画（デバッグ用）
 	for (int tate = 0; tate < MAP_HEIGHT_MAX; tate++)
@@ -1680,6 +1795,9 @@ VOID MY_PLAY_DRAW(VOID)
 	//{
 	//	DeleteGraph(TextBox_start.handle);
 	//}
+	
+		DrawGraph(player.image.x, player.image.y, playerChip1.handle[player.kind1], TRUE);
+	
 
 
 
@@ -1723,38 +1841,124 @@ VOID MY_PLAY_PROC2(VOID)
 		}
 	}
 
+	player.kind1 = D_1;
 	int old_x = player.image.x;
 	int old_y = player.image.y;
 	BOOL IsMove = TRUE;
 
-	/*if (count > 30)
-	{*/
-	if (MY_KEY_DOWN(KEY_INPUT_W) == TRUE)
+
+	//上に移動するとき
+	if (MY_KEY_DOWN(KEY_INPUT_W) == TRUE
+		&& MY_KEY_DOWN(KEY_INPUT_D) == FALSE
+		&& MY_KEY_DOWN(KEY_INPUT_S) == FALSE
+		&& MY_KEY_DOWN(KEY_INPUT_A) == FALSE)
 	{
-		player.image.y -= 1.5; //30
+		player.IsMoveNaname = FALSE;	//斜め移動していない
 
+		if (player.kind1 >= U_1 && player.kind1 < U_4)
+		{
+			//画像変更カウンタ
+			if (player.imgChangeCnt < player.imgChangeCntMAX)
+			{
+				player.imgChangeCnt++;
+			}
+			else //画像を変えるタイミングになったら
+			{
+				player.kind1++;			//次の画像にする
+				player.imgChangeCnt = 0;	//変更カウンタ初期化
+			}
+		}
+		else
+		{
+			player.kind1 = U_1;	//最初の画像にする
+		}
 
+		player.image.y -= 1.5;	//移動
 	}
-	if (MY_KEY_DOWN(KEY_INPUT_S) == TRUE)
+
+	//右に移動するとき
+	if (MY_KEY_DOWN(KEY_INPUT_W) == FALSE
+		&& MY_KEY_DOWN(KEY_INPUT_D) == TRUE
+		&& MY_KEY_DOWN(KEY_INPUT_S) == FALSE
+		&& MY_KEY_DOWN(KEY_INPUT_A) == FALSE)
 	{
-		player.image.y += 1.5;//30
+		player.IsMoveNaname = FALSE;	//斜め移動していない
 
-
+		if (player.kind1 >= R_1 && player.kind1 < R_4)
+		{
+			//画像変更カウンタ
+			if (player.imgChangeCnt < player.imgChangeCntMAX)
+			{
+				player.imgChangeCnt++;
+			}
+			else //画像を変えるタイミングになったら
+			{
+				player.kind1++;			//次の画像にする
+				player.imgChangeCnt = 0;	//変更カウンタ初期化
+			}
+		}
+		else
+		{
+			player.kind1 = R_1;	//最初の画像にする
+		}
+		player.image.x += 2;	//移動
 	}
-	if (MY_KEY_DOWN(KEY_INPUT_A) == TRUE)
+
+	//左に移動するとき
+	if (MY_KEY_DOWN(KEY_INPUT_W) == FALSE
+		&& MY_KEY_DOWN(KEY_INPUT_D) == FALSE
+		&& MY_KEY_DOWN(KEY_INPUT_S) == FALSE
+		&& MY_KEY_DOWN(KEY_INPUT_A) == TRUE)
 	{
-		player.image.x -= 1.5;//30
+		player.IsMoveNaname = FALSE;	//斜め移動していない
 
-
-
+		if (player.kind1 >= L_1 && player.kind1 < L_4)
+		{
+			//画像変更カウンタ
+			if (player.imgChangeCnt < player.imgChangeCntMAX)
+			{
+				player.imgChangeCnt++;
+			}
+			else //画像を変えるタイミングになったら
+			{
+				player.kind1++;			//次の画像にする
+				player.imgChangeCnt = 0;	//変更カウンタ初期化
+			}
+		}
+		else
+		{
+			player.kind1 = L_1;	//最初の画像にする
+		}
+		player.image.x -= 1.5;	//移動
 	}
-	if (MY_KEY_DOWN(KEY_INPUT_D) == TRUE)
+
+	//下に移動するとき
+	if (MY_KEY_DOWN(KEY_INPUT_W) == FALSE
+		&& MY_KEY_DOWN(KEY_INPUT_D) == FALSE
+		&& MY_KEY_DOWN(KEY_INPUT_S) == TRUE
+		&& MY_KEY_DOWN(KEY_INPUT_A) == FALSE)
 	{
-		player.image.x += 2;//30
+		player.IsMoveNaname = FALSE;	//斜め移動していない
 
-
+		if (player.kind1 >= D_1 && player.kind1 < D_4)
+		{
+			//画像変更カウンタ
+			if (player.imgChangeCnt < player.imgChangeCntMAX)
+			{
+				player.imgChangeCnt++;
+			}
+			else //画像を変えるタイミングになったら
+			{
+				player.kind1++;			//次の画像にする
+				player.imgChangeCnt = 0;	//変更カウンタ初期化
+			}
+		}
+		else
+		{
+			player.kind1 = D_1;	//最初の画像にする
+		}
+		player.image.y += 2;	//移動
 	}
-	/*count = 0;*/
 
 
 //画面内にキャラがいれば
@@ -1913,7 +2117,7 @@ VOID MY_PLAY_DRAW2(VOID)
 
 	}
 
-	DrawGraph(player.image.x, player.image.y, playerhandle[13], TRUE);
+	DrawGraph(player.image.x, player.image.y, playerChip1.handle[player.kind1], TRUE);
 
 	//当たり判定の描画（デバッグ用）
 	for (int tate = 0; tate < MAP_HEIGHT_MAX; tate++)
@@ -1973,39 +2177,124 @@ VOID MY_PLAY_PROC3(VOID)
 		}
 	}
 
+	player.kind1 = D_1;
 	int old_x = player.image.x;
 	int old_y = player.image.y;
 	BOOL IsMove = TRUE;
 
-	/*if (count > 30)
-	{*/
-	if (MY_KEY_DOWN(KEY_INPUT_W) == TRUE)
+
+	//上に移動するとき
+	if (MY_KEY_DOWN(KEY_INPUT_W) == TRUE
+		&& MY_KEY_DOWN(KEY_INPUT_D) == FALSE
+		&& MY_KEY_DOWN(KEY_INPUT_S) == FALSE
+		&& MY_KEY_DOWN(KEY_INPUT_A) == FALSE)
 	{
-		player.image.y -= 1.5; //30
+		player.IsMoveNaname = FALSE;	//斜め移動していない
 
+		if (player.kind1 >= U_1 && player.kind1 < U_4)
+		{
+			//画像変更カウンタ
+			if (player.imgChangeCnt < player.imgChangeCntMAX)
+			{
+				player.imgChangeCnt++;
+			}
+			else //画像を変えるタイミングになったら
+			{
+				player.kind1++;			//次の画像にする
+				player.imgChangeCnt = 0;	//変更カウンタ初期化
+			}
+		}
+		else
+		{
+			player.kind1 = U_1;	//最初の画像にする
+		}
 
+		player.image.y -= 1.5;	//移動
 	}
-	if (MY_KEY_DOWN(KEY_INPUT_S) == TRUE)
+
+	//右に移動するとき
+	if (MY_KEY_DOWN(KEY_INPUT_W) == FALSE
+		&& MY_KEY_DOWN(KEY_INPUT_D) == TRUE
+		&& MY_KEY_DOWN(KEY_INPUT_S) == FALSE
+		&& MY_KEY_DOWN(KEY_INPUT_A) == FALSE)
 	{
-		player.image.y += 1.5;//30
+		player.IsMoveNaname = FALSE;	//斜め移動していない
 
-
+		if (player.kind1 >= R_1 && player.kind1 < R_4)
+		{
+			//画像変更カウンタ
+			if (player.imgChangeCnt < player.imgChangeCntMAX)
+			{
+				player.imgChangeCnt++;
+			}
+			else //画像を変えるタイミングになったら
+			{
+				player.kind1++;			//次の画像にする
+				player.imgChangeCnt = 0;	//変更カウンタ初期化
+			}
+		}
+		else
+		{
+			player.kind1 = R_1;	//最初の画像にする
+		}
+		player.image.x += 2;	//移動
 	}
-	if (MY_KEY_DOWN(KEY_INPUT_A) == TRUE)
+
+	//左に移動するとき
+	if (MY_KEY_DOWN(KEY_INPUT_W) == FALSE
+		&& MY_KEY_DOWN(KEY_INPUT_D) == FALSE
+		&& MY_KEY_DOWN(KEY_INPUT_S) == FALSE
+		&& MY_KEY_DOWN(KEY_INPUT_A) == TRUE)
 	{
-		player.image.x -= 1.5;//30
+		player.IsMoveNaname = FALSE;	//斜め移動していない
 
-
-
+		if (player.kind1 >= L_1 && player.kind1 < L_4)
+		{
+			//画像変更カウンタ
+			if (player.imgChangeCnt < player.imgChangeCntMAX)
+			{
+				player.imgChangeCnt++;
+			}
+			else //画像を変えるタイミングになったら
+			{
+				player.kind1++;			//次の画像にする
+				player.imgChangeCnt = 0;	//変更カウンタ初期化
+			}
+		}
+		else
+		{
+			player.kind1 = L_1;	//最初の画像にする
+		}
+		player.image.x -= 1.5;	//移動
 	}
-	if (MY_KEY_DOWN(KEY_INPUT_D) == TRUE)
+
+	//下に移動するとき
+	if (MY_KEY_DOWN(KEY_INPUT_W) == FALSE
+		&& MY_KEY_DOWN(KEY_INPUT_D) == FALSE
+		&& MY_KEY_DOWN(KEY_INPUT_S) == TRUE
+		&& MY_KEY_DOWN(KEY_INPUT_A) == FALSE)
 	{
-		player.image.x += 2;//30
+		player.IsMoveNaname = FALSE;	//斜め移動していない
 
-
+		if (player.kind1 >= D_1 && player.kind1 < D_4)
+		{
+			//画像変更カウンタ
+			if (player.imgChangeCnt < player.imgChangeCntMAX)
+			{
+				player.imgChangeCnt++;
+			}
+			else //画像を変えるタイミングになったら
+			{
+				player.kind1++;			//次の画像にする
+				player.imgChangeCnt = 0;	//変更カウンタ初期化
+			}
+		}
+		else
+		{
+			player.kind1 = D_1;	//最初の画像にする
+		}
+		player.image.y += 2;	//移動
 	}
-	/*count = 0;*/
-
 
 //画面内にキャラがいれば
 	if (player.image.x >= 0 && player.image.x <= GAME_WIDTH
@@ -2156,7 +2445,7 @@ VOID MY_PLAY_DRAW3(VOID)
 
 
 
-	DrawGraph(player.image.x, player.image.y, playerhandle[13], TRUE);
+	DrawGraph(player.image.x, player.image.y, playerChip1.handle[player.kind1], TRUE);
 
 	return;
 }
@@ -2342,24 +2631,26 @@ BOOL LOAD_IMAGE(VOID)
 		}
 	}
 
-	LoadDivGraph(
-		GAME_PLAYER_PATH,										//プレイヤーのパス
-		PLAYER_DIV_NUM, PLAYER_DIV_TATE, PLAYER_DIV_YOKO,			//赤弾を分割する数
-		PLAYER_DIV_WIDTH, PLAYER_DIV_HEIGHT,						//画像を分割するの幅と高さ
-		&playerhandle[0]);								//分割した画像が入るハンドル
+	//LoadDivGraph(
+	//	GAME_PLAYER_PATH,										//プレイヤーのパス
+	//	PLAYER_DIV_NUM, PLAYER_DIV_TATE, PLAYER_DIV_YOKO,			//赤弾を分割する数
+	//	PLAYER_DIV_WIDTH, PLAYER_DIV_HEIGHT,						//画像を分割するの幅と高さ
+	//	&playerhandle[0]);								//分割した画像が入るハンドル
 
-	strcpy_s(player.image.path, GAME_PLAYER_PATH);
-	player.image.handle = LoadGraph(player.image.path);
-	if (player.image.handle == -1)
-	{
-		MessageBox(GetMainWindowHandle(), GAME_PLAYER_PATH, IMAGE_LOAD_ERR_TITLE, MB_OK);
-		return(FALSE);
-	}
+	//strcpy_s(player.image.path, GAME_PLAYER_PATH);
+	//player.image.handle = LoadGraph(player.image.path);
+	//if (player.image.handle == -1)
+	//{
+	//	MessageBox(GetMainWindowHandle(), GAME_PLAYER_PATH, IMAGE_LOAD_ERR_TITLE, MB_OK);
+	//	return(FALSE);
+	//}
 	GetGraphSize(player.image.handle, &player.image.width, &player.image.height);
 	player.image.x = GAME_WIDTH / 2 - player.image.width / 2;
 	player.image.y = GAME_HEIGHT / 2 - player.image.height / 2;
 	player.CenterX = player.image.x + player.image.width / 2;
 	player.CenterY = player.image.y + player.image.height / 2;
+	player.imgChangeCnt = 0;
+	player.imgChangeCntMAX = PLAYER_IMG_CHANGE_MAX;	//画像を変更するカウンタMAX
 
 
 	//マップの当たり判定を設定する
@@ -2428,6 +2719,26 @@ BOOL LOAD_IMAGE(VOID)
 			map5[tate][yoko].y = tate * map5[tate][yoko].height;
 		}
 	}
+	return TRUE;
+}
+
+BOOL MY_LOAD_PLAYER(const char* path, PLAYERCHIP* player)
+{
+	//マップの画像を分割する
+	int mapRes = LoadDivGraph(
+		GAME_PLAYER_PATH,										//プレイヤーのパス
+		PLAYER_DIV_NUM, PLAYER_DIV_TATE, PLAYER_DIV_YOKO,			
+		PLAYER_DIV_WIDTH, PLAYER_DIV_HEIGHT,
+		&player->handle[0]);								//画像が入るハンドル
+
+	if (mapRes == -1)	//エラーメッセージ表示
+	{
+		MessageBox(GetMainWindowHandle(), path, IMAGE_LOAD_ERR_TITLE, MB_OK); return FALSE;
+	}
+
+	//幅と高さを取得
+	GetGraphSize(player->handle[0], &player->width, &player->height);
+
 	return TRUE;
 }
 
