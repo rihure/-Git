@@ -38,8 +38,12 @@
 #define GAME_PLAYER_PATH TEXT(".\\IMAGE\\joshi03.png") //プレイヤーの画像
 #define TEXT_BOX (".\\IMAGE\\TextBox_start.png")
 
+//BGMのパスを設定
+#define TITLE_BGM_PATH TEXT(".\\MUSIC\\冬の情景にて.mp3") //タイトルBGM
+
 //エラーメッセージ
 #define IMAGE_LOAD_ERR_TITLE	TEXT("画像読み込みエラー")
+#define MUSIC_LOAD_ERR_TITLE	TEXT("音楽読み込みエラー")
 
 //パスの長さ
 #define PATH_MAX			255	//255文字まで
@@ -60,6 +64,8 @@
 //終了ダイアログ用
 #define MOUSE_R_CLICK_TITLE		TEXT("ゲーム中断")
 #define MOUSE_R_CLICK_CAPTION	TEXT("ゲームを中断し、タイトル画面に戻りますか？")
+
+
 
 enum GAME_SCENE {
 	GAME_SCENE_START,
@@ -145,6 +151,12 @@ typedef struct STRUCT_MAP_IMAGE
 	int width;							//幅
 	int height;							//高さ
 }MAPCHIP;	//MAP_IMAGE構造体
+
+typedef struct STRUCT_MUSIC
+{
+	char path[PATH_MAX];		//パス
+	int handle;					//ハンドル
+}MUSIC;	//音楽構造体
 
 typedef struct STRUCT_MAP
 {
@@ -406,6 +418,7 @@ int mapdata6[MAP_HEIGHT_MAX][MAP_WIDTH_MAX];
 int mapdata7[MAP_HEIGHT_MAX][MAP_WIDTH_MAX];
 int mapdata8[MAP_HEIGHT_MAX][MAP_WIDTH_MAX];
 int mapdata9[MAP_HEIGHT_MAX][MAP_WIDTH_MAX];
+int mapdata10[MAP_HEIGHT_MAX][MAP_WIDTH_MAX];
 
 
 int MapDataMode[MAP_HEIGHT_MAX][MAP_WIDTH_MAX];
@@ -438,8 +451,12 @@ iPOINT startPt2{ -1 , -1 };
 iPOINT startPt3{ -1 , -1 };
 RECT GoalRect = { -1,-1, -1, -1 };	//ゴールの当たり判定
 RECT GoalRect2 = { -1, -1 , -1, -1 };
+RECT GoalRect3 = { -1, -1, -1, -1 };
 RECT Modoru = { -1, -1, -1,-1 }; //一つ前の部屋に戻る判定
 iPOINT ModoruPt{ -1,-1 };
+
+//BGM
+MUSIC BGM;
 
 int GameScene;		//ゲームシーンを管理
 //キーボードの入力を取得
@@ -526,10 +543,15 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	
 	SetWindowUserCloseEnableFlag(FALSE);				//閉じるボタンで、勝手にウィンドウが閉じないようにする
 
+
+
+
 	if (DxLib_Init() == -1) { return -1; }	//ＤＸライブラリ初期化処理
 
 	if (LOAD_IMAGE() == FALSE) { return -1; }
 	if (MY_LOAD_PLAYER(GAME_PLAYER_PATH, &playerChip1) == FALSE) { return -1; }
+	
+	
 
 	//音楽を読み込む
 	if (LOAD_MUSIC() == FALSE) { return -1; }
@@ -956,6 +978,16 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 				mapdata7[tateCnt][yokoCnt] = k;
 				yokoCnt++;
 				break;
+
+			case 'G':
+				mapdata7[tateCnt][yokoCnt] = G;
+				yokoCnt++;
+
+				GoalRect3.left = mapChip.width * yokoCnt;
+				GoalRect3.top = mapChip.height * tateCnt;
+				GoalRect3.right = mapChip.width * (yokoCnt + 1);
+				GoalRect3.bottom = mapChip.height * (tateCnt + 1);
+				break;
 		
 			default:
 				break;
@@ -1234,6 +1266,46 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	//開いたら、必ず閉じること！
 	fclose(fp);	//ファイルを閉じる
 
+	result = 0;
+	tateCnt = 0;
+	yokoCnt = 0;
+
+	fp = fopen(".\\a.txt", "r");
+
+	while (result != EOF)	//End Of File（ファイルの最後）ではないとき繰り返す
+	{
+		char mapData[MAP_WIDTH_MAX * 3 + 1];
+		//ファイルから数値を一つ読み込み(%d,)、配列に格納する
+		result = fscanf(fp, "%s,", mapData);
+		for (int i = 0; i < strlen(mapData); i++)
+		{
+			switch (mapData[i])
+			{
+			
+			case 'n':
+				//壁のとき
+				mapdata10[tateCnt][yokoCnt] = n;
+				yokoCnt++;
+				break;
+
+			default:
+				break;
+			}
+		}
+
+
+
+		//横のデータが１行読めたら
+		if (yokoCnt >= MAP_WIDTH_MAX)
+		{
+			tateCnt++;		//縦のカウントアップ
+			yokoCnt = 0;	//横のカウンタ初期化
+		}
+	}
+
+	//開いたら、必ず閉じること！
+	fclose(fp);	//ファイルを閉じる
+
 	
 				
 		
@@ -1398,10 +1470,22 @@ VOID MY_START(VOID)
 //スタート画面の処理
 VOID MY_START_PROC(VOID)
 {
+	if (CheckSoundMem(BGM.handle) == 0)
+	{
+		//BGMの音量を下げる
+		ChangeVolumeSoundMem(255 * 50 / 100, BGM.handle);	//50%の音量にする
+
+		PlaySoundMem(BGM.handle, DX_PLAYTYPE_LOOP);
+	}
 	
 	//エンターキーを押したら、プレイシーンへ移動する
 	if (MY_KEY_DOWN(KEY_INPUT_RETURN) == TRUE)
 	{
+		if (CheckSoundMem(BGM.handle) != 0)
+		{
+			StopSoundMem(BGM.handle);	//BGMを止める
+		}
+
 
 		//ゲームのシーンをプレイ画面にする
 		GameScene = GAME_SCENE_SETUMEI;
@@ -2320,18 +2404,12 @@ VOID MY_PLAY_PROC3(VOID)
 
 
 	//ゴールに触れているかチェック
-	if (MY_CHECK_RECT_COLL(PlayerRect, GoalRect) == TRUE)
+	if (MY_CHECK_RECT_COLL(PlayerRect, GoalRect3) == TRUE)
 	{
 
 
-		player.CenterX = startPt3.x;
-		player.CenterY = startPt3.y;
 
-
-		player.image.x = player.CenterX;
-		player.image.y = player.CenterY;
-
-		GameScene = GAME_SCENE_PLAY3;
+		GameScene = GAME_SCENE_END;
 
 
 		return;	//強制的にエンド画面に飛ぶ
@@ -2443,7 +2521,8 @@ VOID MY_PLAY_DRAW3(VOID)
 
 	}
 
-
+	//ゴール当たり判定用
+	DrawBox(GoalRect3.left, GoalRect3.top, GoalRect3.right, GoalRect3.bottom, GetColor(255, 255, 0), TRUE);
 
 	DrawGraph(player.image.x, player.image.y, playerChip1.handle[player.kind1], TRUE);
 
@@ -2463,6 +2542,8 @@ VOID MY_END(VOID)
 //エンド画面の処理
 VOID MY_END_PROC(VOID)
 {
+	
+
 	//エスケープキーを押したら、スタートシーンへ移動する
 	if (MY_KEY_DOWN(KEY_INPUT_ESCAPE) == TRUE)
 	{
@@ -2476,6 +2557,7 @@ VOID MY_END_PROC(VOID)
 //エンド画面の描画
 VOID MY_END_DRAW(VOID)
 {
+	DrawString(400, 400, "終了時のテキスト", GetColor(255, 255, 255));
 
 	return;
 }
@@ -2759,6 +2841,15 @@ VOID DELETE_IMAGE(VOID)
 //音楽をまとめて読み込む関数
 BOOL LOAD_MUSIC(VOID)
 {
+	//タイトルBGM
+	strcpy_s(BGM.path, TITLE_BGM_PATH);		//パスの設定
+	BGM.handle = LoadSoundMem(BGM.path);	//読み込み
+	if (BGM.handle == -1)
+	{
+		//エラーメッセージ表示
+		MessageBox(GetMainWindowHandle(), TITLE_BGM_PATH, MUSIC_LOAD_ERR_TITLE, MB_OK);
+		return FALSE;
+	}
 
 	return TRUE;
 }
@@ -2766,7 +2857,7 @@ BOOL LOAD_MUSIC(VOID)
 //音楽をまとめて削除する関数
 VOID DELETE_MUSIC(VOID)
 {
-
+	DeleteSoundMem(BGM.handle);
 	return;
 }
 
