@@ -15,14 +15,13 @@
 
 #define MAP_WIDTH_MAX   25          // マップの最大幅
 #define MAP_HEIGHT_MAX  20          // マップの最大縦長さ
-
 #define MAP_DIV_WIDTH		32	//画像を分割する幅サイズ
 #define MAP_DIV_HEIGHT		32	//画像を分割する高さサイズ
 #define MAP_DIV_TATE		8	//画像を縦に分割する数8
-#define MAP_DIV_YOKO		50	//画像を横に分割する数50
+#define MAP_DIV_YOKO		50	//画像を横に分割する数50 
 #define MAP_DIV_NUM	MAP_DIV_TATE * MAP_DIV_YOKO	//画像を分割する総数 400
 
-#define PLAYER_DIV_WIDTH 32 //プレイヤーの横幅32ビット
+#define PLAYER_DIV_WIDTH 32 //プレイヤーの横幅32ビット 
 #define PLAYER_DIV_HEIGHT 48 //プレイヤー立幅48ビット
 #define PLAYER_DIV_TATE 4 //タテ分割数4
 #define PLAYER_DIV_YOKO 4 //ヨコ分割数4
@@ -32,11 +31,12 @@
 #define GAME_FPS			60	//FPSの数値	
 
 //画像のパス設定
-#define TITLE_BACK_PATH TEXT(".\\IMAGE\\ダウンロード (2).png") //タイトルの画像
-#define IMAGE_SETUMEI_PATH		TEXT(".\\IMAGE\\操作説明2.png") //説明画面の画像
+#define TITLE_BACK_PATH TEXT(".\\IMAGE\\ゲームタイトル.png") //タイトルの画像
+#define IMAGE_SETUMEI_PATH		TEXT(".\\IMAGE\\操作説明3.png") //説明画面の画像
 #define GAME_MAP_PATH TEXT(".\\IMAGE\\ST-Town-I01.png") //マップチップ
 #define GAME_PLAYER_PATH TEXT(".\\IMAGE\\joshi03.png") //プレイヤーの画像
-#define TEXT_BOX (".\\IMAGE\\TextBox_start.png")
+#define TEXT_BOX (".\\IMAGE\\TextBox_start.png") 
+#define TEXT_BOX_1 (".\\IMAGE\\TextBox1.png") //アイテム回収時のテキストボックス
 
 //BGMのパスを設定
 #define TITLE_BGM_PATH TEXT(".\\MUSIC\\冬の情景にて.mp3") //タイトルBGM
@@ -67,9 +67,14 @@
 
 
 
+
+
+
+
 enum GAME_SCENE {
 	GAME_SCENE_START,
 	GAME_SCENE_SETUMEI,
+	GAME_SCENE_SCENARIO,
 	GAME_SCENE_PLAY,
 	GAME_SCENE_PLAY2,
 	GAME_SCENE_PLAY3,
@@ -104,7 +109,7 @@ enum GAME_MAP_KIND
 	O = 108, //机
 	A = 149, //ゴミ箱
 	B = 156, //置物
-	i = 319, //アイテムフラグ
+	Z = 319, //アイテムフラグ
 	C = 344, //階段
 	D = 345, //階段
 	E = 346, //階段
@@ -446,6 +451,7 @@ RECT mapColl[MAP_HEIGHT_MAX][MAP_WIDTH_MAX]; //マップの当たり判定
 IMAGE imageBACK; //タイトル背景
 IMAGE ImageSetumei; //説明画面の画像
 IMAGE TextBox_start;
+IMAGE TextBox_flag; //アイテム回収時のテキストボックス
 iPOINT startPt{ -1, -1 };
 iPOINT startPt2{ -1 , -1 };
 iPOINT startPt3{ -1 , -1 };
@@ -453,6 +459,7 @@ RECT GoalRect = { -1,-1, -1, -1 };	//ゴールの当たり判定
 RECT GoalRect2 = { -1, -1 , -1, -1 };
 RECT GoalRect3 = { -1, -1, -1, -1 };
 RECT Modoru = { -1, -1, -1,-1 }; //一つ前の部屋に戻る判定
+RECT Itemflag = { -1,-1,-1,-1 }; //アイテムフラグの当たり判定
 iPOINT ModoruPt{ -1,-1 };
 
 //BGM
@@ -481,6 +488,8 @@ int yokoCnt = 0;		//横カウント用
 
 FILE* fp = NULL;
 
+int flag = 0;
+
 
 
 
@@ -505,6 +514,8 @@ VOID MY_START_DRAW(VOID);	//スタート画面の描画
 VOID MY_SETUMEI(VOID); //説明画面
 VOID MY_START_SETUMEI_DRAW(VOID); //説明画面の描画
 
+VOID MY_SCENARIO(VOID); //シナリオ説明
+
 VOID MY_PLAY_INIT(VOID);	//プレイ画面初期化
 VOID MY_PLAY(VOID);			//プレイ画面
 VOID MY_PLAY_PROC(VOID);	//プレイ画面の処理
@@ -523,9 +534,8 @@ VOID MY_END_DRAW(VOID);		//エンド画面の描画
 BOOL MY_CHECK_MAP1_PLAYER_COLL(RECT);	//マップとプレイヤーの当たり判定をする関数
 BOOL MY_CHECK_RECT_COLL(RECT, RECT);	//領域の当たり判定をする関数
 BOOL MY_CHECK_MAP2_PLAYER_COLL(RECT);
-BOOL MY_CHECK_RECT2_COLL(RECT, RECT);
 BOOL MY_CHECK_MAP3_PLAYER_COLL(RECT);
-BOOL MY_CHECK_RECT3_COLL(RECT, RECT);
+
 
 BOOL MY_LOAD_PLAYER(const char* path, PLAYERCHIP* player);
 
@@ -1072,6 +1082,16 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 				startPt3.y = mapChip.height * tateCnt - 20;	//中心Y座標を取得
 				break;
 
+			case 'Z':
+				mapdata8[tateCnt][yokoCnt] = Z;
+				yokoCnt++;
+				Itemflag.left = mapChip.width * yokoCnt;
+				Itemflag.top = mapChip.height * tateCnt;
+				Itemflag.right = mapChip.width * (yokoCnt + 1);
+				Itemflag.bottom = mapChip.height * (tateCnt + 1);
+
+				break;
+
 			default:
 				break;
 			}
@@ -1327,7 +1347,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 		
 
-		
+		ChangeFontType(DX_FONTTYPE_ANTIALIASING_8X8);
 
 		MY_FPS_UPDATE();	//FPSの処理[更新]
 
@@ -1342,6 +1362,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		case GAME_SCENE_SETUMEI:
 			MY_SETUMEI(); //説明画面
 			break; 
+
+		case GAME_SCENE_SCENARIO:
+			MY_SCENARIO(); //シナリオ画面
+			break;
 
 		case GAME_SCENE_PLAY:
 			MY_PLAY();	//プレイ画面
@@ -1481,10 +1505,7 @@ VOID MY_START_PROC(VOID)
 	//エンターキーを押したら、プレイシーンへ移動する
 	if (MY_KEY_DOWN(KEY_INPUT_RETURN) == TRUE)
 	{
-		if (CheckSoundMem(BGM.handle) != 0)
-		{
-			StopSoundMem(BGM.handle);	//BGMを止める
-		}
+		
 
 
 		//ゲームのシーンをプレイ画面にする
@@ -1499,8 +1520,8 @@ VOID MY_START_PROC(VOID)
 //スタート画面の描画
 VOID MY_START_DRAW(VOID)
 {
-	DrawGraph(imageBACK.x, imageBACK.y, imageBACK.handle, TRUE);
-	/*DrawExtendGraph(imageBACK.x, imageBACK.y, 1136, 640, imageBACK.handle, TRUE);*/
+	DrawGraph(imageBACK.x, imageBACK.y, imageBACK.handle, TRUE); //タイトルのバックイメージ
+
 	return;
 }
 
@@ -1512,25 +1533,49 @@ VOID MY_SETUMEI(VOID)
 VOID MY_START_SETUMEI_DRAW(VOID)
 {
 	DrawGraph(ImageSetumei.x, ImageSetumei.y, ImageSetumei.handle, TRUE);
-	DrawString(0, 0, "スタート画面(Hキーを押して下さい)", GetColor(255, 255, 255));
+	DrawString(0, 0, "スタート画面(ゼロ(0)キーを押して下さい)", GetColor(255, 255, 255));
 
-	if (MY_KEY_DOWN(KEY_INPUT_H) == TRUE)
+	if (MY_KEY_DOWN(KEY_INPUT_0) == TRUE)
 	{
+		
+		
+		GameScene = GAME_SCENE_SCENARIO;
+	}
+	
+	
+
+
+	return;
+}
+
+VOID MY_SCENARIO(VOID)
+{
+
+	DrawString(300, 200, "ある日のこと、目が覚めた主人公は見知らぬ場所にいた。", GetColor(255, 255, 255));
+	DrawString(300, 220, "主人公はこの謎の家から出るために、探索をすることにした。", GetColor(255, 255, 255));
+
+
+	DrawString(0, 0, "エンターキーを押してください", GetColor(255, 255, 255));
+
+	if (MY_KEY_DOWN(KEY_INPUT_RETURN) == TRUE)
+	{
+		if (CheckSoundMem(BGM.handle) != 0)
+		{
+			StopSoundMem(BGM.handle);	//BGMを止める
+		}
 		GameScene = GAME_SCENE_PLAY;
 
 		SetMouseDispFlag(FALSE);
 
 		player.CenterX = startPt.x;
 		player.CenterY = startPt.y;
-	
+
 
 		player.image.x = player.CenterX;
 		player.image.y = player.CenterY;
 
-		
-	}
 
-	return;
+	}
 }
 
 //プレイ画面
@@ -2404,7 +2449,7 @@ VOID MY_PLAY_PROC3(VOID)
 
 
 	//ゴールに触れているかチェック
-	if (MY_CHECK_RECT_COLL(PlayerRect, GoalRect3) == TRUE)
+	if (MY_CHECK_RECT_COLL(PlayerRect, GoalRect3) == TRUE && flag == 1)
 	{
 
 
@@ -2414,6 +2459,8 @@ VOID MY_PLAY_PROC3(VOID)
 
 		return;	//強制的にエンド画面に飛ぶ
 	}
+
+
 
 	//if (MY_CHECK_RECT_COLL(PlayerRect, Modoru) == TRUE)
 	//{
@@ -2524,7 +2571,43 @@ VOID MY_PLAY_DRAW3(VOID)
 	//ゴール当たり判定用
 	DrawBox(GoalRect3.left, GoalRect3.top, GoalRect3.right, GoalRect3.bottom, GetColor(255, 255, 0), TRUE);
 
+	//DrawBox(Itemflag.left, Itemflag.top, Itemflag.right, Itemflag.bottom, GetColor(0, 255, 0), TRUE);
+	//当たり判定の描画（デバッグ用）
+	for (int tate = 0; tate < MAP_HEIGHT_MAX; tate++)
+	{
+		for (int yoko = 0; yoko < MAP_WIDTH_MAX; yoko++)
+		{
+			//ダンボールならば
+			if (mapdata8[tate][yoko] == Z)
+			{
+				DrawBox(mapColl[tate][yoko].left + 30, mapColl[tate][yoko].top, mapColl[tate][yoko].right + 30, mapColl[tate][yoko].bottom, GetColor(255, 0, 0), FALSE);
+			}
+
+		}
+	}
+
 	DrawGraph(player.image.x, player.image.y, playerChip1.handle[player.kind1], TRUE);
+
+
+	RECT PlayerRect;
+	PlayerRect.left = player.CenterX - 40 / 20 + 5;
+	PlayerRect.top = player.CenterY + 200 / 20 + 5;
+	PlayerRect.right = player.CenterX + 650 / 20 - 5;
+	PlayerRect.bottom = player.CenterY + 1000 / 20 - 5;
+
+	if (MY_CHECK_RECT_COLL(PlayerRect, Itemflag) == TRUE /*&& MY_KEY_DOWN(KEY_INPUT_RETURN)*/)
+	{
+		/*DrawString(0, 0, "謎のカギを手に入れた！", GetColor(255, 0, 0));*/
+		
+		DrawGraph(TEXT_WIDTH_POSITION, TEXT_HEIGHT_POSITION, TextBox_flag.handle, TRUE);
+
+		flag = 1;
+		if (MY_KEY_DOWN(KEY_INPUT_RETURN) == TRUE)
+		{
+			DeleteGraph(TextBox_flag.handle);
+		}
+	
+	}
 
 	return;
 }
@@ -2600,6 +2683,17 @@ BOOL LOAD_IMAGE(VOID)
 		MessageBox(GetMainWindowHandle(), TEXT_BOX, IMAGE_LOAD_ERR_TITLE, MB_OK);
 		return FALSE;
 	}
+
+	strcpy_s(TextBox_flag.path, TEXT_BOX_1);
+	TextBox_flag.handle = LoadGraph(TextBox_flag.path);			//読み込み
+	if (TextBox_flag.handle == -1)
+	{
+		//エラーメッセージ表示
+		MessageBox(GetMainWindowHandle(), TEXT_BOX_1, IMAGE_LOAD_ERR_TITLE, MB_OK);
+		return FALSE;
+	}
+
+
 
 	//###########################################################################
 
@@ -2830,6 +2924,7 @@ VOID DELETE_IMAGE(VOID)
 	DeleteGraph(imageBACK.handle);
 	DeleteGraph(ImageSetumei.handle);
 	DeleteGraph(player.image.handle);
+	DeleteGraph(TextBox_flag.handle);
 	for (int i_num = 0; i_num < MAP_DIV_NUM; i_num++) { DeleteGraph(mapChip.handle[i_num]); }
 	for (int i_num = 0; i_num < MAP_DIV_NUM; i_num++) { DeleteGraph(mapChip_Nowalk.handle[i_num]); }
 	for (int i_num = 0; i_num < MAP_DIV_NUM; i_num++) { DeleteGraph(mapChip_Object.handle[i_num]); }
