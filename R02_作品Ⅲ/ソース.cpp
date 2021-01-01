@@ -37,6 +37,7 @@
 #define GAME_PLAYER_PATH TEXT(".\\IMAGE\\joshi03.png") //プレイヤーの画像
 #define TEXT_BOX (".\\IMAGE\\TextBox_start.png") 
 #define TEXT_BOX_1 (".\\IMAGE\\TextBox1.png") //アイテム回収時のテキストボックス
+#define TEXT_BOX_2 (".\\IMAGE\\TextBox鍵無し.png") //アイテム回収していないとき
 
 //BGMのパスを設定
 #define TITLE_BGM_PATH TEXT(".\\MUSIC\\冬の情景にて.mp3") //タイトルBGM
@@ -354,59 +355,59 @@ enum PLAYER_KIND_1 {
 //	
 //};
 
-GAME_MAP_KIND MapData_Roka[MAP_HEIGHT_MAX][MAP_WIDTH_MAX] =
-{
-	
-	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
-	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
-	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
-	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
-	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
-	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
-	r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,
-	r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,
-	r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,
-	r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,
-	r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,
-	r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,
-	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
-	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
-	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
-	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
-	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
-	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
-	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
-	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n
-	
-
-};
-
-GAME_MAP_KIND MapData_RokaNoWalk[MAP_HEIGHT_MAX][MAP_WIDTH_MAX] =
-{
-
-	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
-	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
-	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
-	t,t,t,t,t,t,t,t,t,t,t,t,t,t,t,t,t,t,t,t,t,t,t,t,t,
-	s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,
-	g,g,g,g,g,g,g,g,g,g,g,g,g,g,g,g,g,g,g,g,g,g,g,g,g,
-	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
-	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
-	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
-	n,n,S,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
-	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,G,
-	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
-	g,g,g,g,g,g,g,g,g,g,g,g,g,g,g,g,g,g,g,g,g,g,g,g,g,
-	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
-	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
-	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
-	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
-	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
-	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
-	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n
-
-
-};
+//GAME_MAP_KIND MapData_Roka[MAP_HEIGHT_MAX][MAP_WIDTH_MAX] =
+//{
+//	
+//	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
+//	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
+//	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
+//	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
+//	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
+//	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
+//	r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,
+//	r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,
+//	r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,
+//	r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,
+//	r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,
+//	r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,
+//	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
+//	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
+//	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
+//	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
+//	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
+//	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
+//	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
+//	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n
+//	
+//
+//};
+//
+//GAME_MAP_KIND MapData_RokaNoWalk[MAP_HEIGHT_MAX][MAP_WIDTH_MAX] =
+//{
+//
+//	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
+//	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
+//	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
+//	t,t,t,t,t,t,t,t,t,t,t,t,t,t,t,t,t,t,t,t,t,t,t,t,t,
+//	s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,
+//	g,g,g,g,g,g,g,g,g,g,g,g,g,g,g,g,g,g,g,g,g,g,g,g,g,
+//	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
+//	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
+//	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
+//	n,n,S,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
+//	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,G,
+//	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
+//	g,g,g,g,g,g,g,g,g,g,g,g,g,g,g,g,g,g,g,g,g,g,g,g,g,
+//	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
+//	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
+//	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
+//	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
+//	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
+//	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
+//	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n
+//
+//
+//};
 
 int mapDataInit[MAP_HEIGHT_MAX][MAP_WIDTH_MAX];
 int mapDataInit_Nowalk[MAP_HEIGHT_MAX][MAP_WIDTH_MAX];
@@ -452,20 +453,27 @@ IMAGE imageBACK; //タイトル背景
 IMAGE ImageSetumei; //説明画面の画像
 IMAGE TextBox_start;
 IMAGE TextBox_flag; //アイテム回収時のテキストボックス
+IMAGE TextBox_Null; //アイテム回収していないとき
+
 iPOINT startPt{ -1, -1 };
 iPOINT startPt2{ -1 , -1 };
 iPOINT startPt3{ -1 , -1 };
 RECT GoalRect = { -1,-1, -1, -1 };	//ゴールの当たり判定
+
 RECT GoalRect2 = { -1, -1 , -1, -1 };
 RECT GoalRect3 = { -1, -1, -1, -1 };
 RECT Modoru = { -1, -1, -1,-1 }; //一つ前の部屋に戻る判定
+RECT Modoru2 = { -1,-1,-1,-1 };
 RECT Itemflag = { -1,-1,-1,-1 }; //アイテムフラグの当たり判定
+
 iPOINT ModoruPt{ -1,-1 };
+iPOINT Modoru2Pt{ -1,-1, };
 
 //BGM
 MUSIC BGM;
 
 int GameScene;		//ゲームシーンを管理
+
 //キーボードの入力を取得
 char AllKeyState[KEY_CODE_KIND] = { '\0' };		//すべてのキーの状態が入る
 char OldAllKeyState[KEY_CODE_KIND] = { '\0' };	//すべてのキーの状態(直前)が入る
@@ -896,6 +904,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 				yokoCnt++;
 				break;
 
+			case 'M':
+				mapdata5[tateCnt][yokoCnt] = M;
+				yokoCnt++;
+
+				Modoru2Pt.x = mapChip.width * yokoCnt + mapChip.width - 125;	//中心X座標を取得
+				Modoru2Pt.y = mapChip.height * tateCnt + mapChip.height - 40;	//中心Y座標を取得
+
+
 				break;
 			default:
 				break;
@@ -1089,6 +1105,18 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 				Itemflag.top = mapChip.height * tateCnt;
 				Itemflag.right = mapChip.width * (yokoCnt + 1);
 				Itemflag.bottom = mapChip.height * (tateCnt + 1);
+
+				break;
+			case 'M':
+				//壁のとき
+				mapdata8[tateCnt][yokoCnt] = M;
+				yokoCnt++;
+				Modoru2.left = mapChip.width * yokoCnt ;
+				Modoru2.top = mapChip.height * tateCnt ;
+				Modoru2.right = mapChip.width; //* (yokoCnt + 1);
+				Modoru2.bottom = mapChip.height * (tateCnt + 1);
+
+				
 
 				break;
 
@@ -1552,8 +1580,9 @@ VOID MY_SCENARIO(VOID)
 {
 
 	DrawString(300, 200, "ある日のこと、目が覚めた主人公は見知らぬ場所にいた。", GetColor(255, 255, 255));
-	DrawString(300, 220, "主人公はこの謎の家から出るために、探索をすることにした。", GetColor(255, 255, 255));
-
+	DrawString(300, 220, "倉庫として使っているのかわからないが", GetColor(255, 255, 255));
+	DrawString(300, 240, "周りには多くのダンボールが積み重なっていた。", GetColor(255, 255, 255));
+	DrawString(300, 260, "主人公はこの謎の家から出るために、探索をすることにした。", GetColor(255, 255, 255));
 
 	DrawString(0, 0, "エンターキーを押してください", GetColor(255, 255, 255));
 
@@ -2462,23 +2491,23 @@ VOID MY_PLAY_PROC3(VOID)
 
 
 
-	//if (MY_CHECK_RECT_COLL(PlayerRect, Modoru) == TRUE)
-	//{
+	if (MY_CHECK_RECT_COLL(PlayerRect, Modoru2) == TRUE)
+	{
 
 
 
-	//	player.CenterX = ModoruPt.x;
-	//	player.CenterY = ModoruPt.y;
+		player.CenterX = Modoru2Pt.x;
+		player.CenterY = Modoru2Pt.y;
 
 
-	//	player.image.x = player.CenterX;
-	//	player.image.y = player.CenterY;
+		player.image.x = player.CenterX + 100;
+		player.image.y = player.CenterY;
 
-	//	GameScene = GAME_SCENE_PLAY;
+		GameScene = GAME_SCENE_PLAY2;
 
 
-	//	return;	//強制的にエンド画面に飛ぶ
-	//}
+		return;	//強制的にエンド画面に飛ぶ
+	}
 
 
 	
@@ -2570,6 +2599,8 @@ VOID MY_PLAY_DRAW3(VOID)
 
 	//ゴール当たり判定用
 	DrawBox(GoalRect3.left, GoalRect3.top, GoalRect3.right, GoalRect3.bottom, GetColor(255, 255, 0), TRUE);
+	DrawBox(Modoru2.left, Modoru2.top, Modoru2.right, Modoru2.bottom, GetColor(255, 0, 0), TRUE);
+	
 
 	//DrawBox(Itemflag.left, Itemflag.top, Itemflag.right, Itemflag.bottom, GetColor(0, 255, 0), TRUE);
 	//当たり判定の描画（デバッグ用）
@@ -2577,7 +2608,7 @@ VOID MY_PLAY_DRAW3(VOID)
 	{
 		for (int yoko = 0; yoko < MAP_WIDTH_MAX; yoko++)
 		{
-			//ダンボールならば
+			
 			if (mapdata8[tate][yoko] == Z)
 			{
 				DrawBox(mapColl[tate][yoko].left + 30, mapColl[tate][yoko].top, mapColl[tate][yoko].right + 30, mapColl[tate][yoko].bottom, GetColor(255, 0, 0), FALSE);
@@ -2607,6 +2638,19 @@ VOID MY_PLAY_DRAW3(VOID)
 			DeleteGraph(TextBox_flag.handle);
 		}
 	
+	}
+
+	if (MY_CHECK_RECT_COLL(PlayerRect, GoalRect3) == TRUE && flag == 0)
+	{
+		
+
+		DrawGraph(TEXT_WIDTH_POSITION, TEXT_HEIGHT_POSITION, TextBox_Null.handle, TRUE);
+
+		if (MY_KEY_DOWN(KEY_INPUT_RETURN) == TRUE)
+		{
+			DeleteGraph(TextBox_Null.handle);
+		}
+
 	}
 
 	return;
@@ -2690,6 +2734,15 @@ BOOL LOAD_IMAGE(VOID)
 	{
 		//エラーメッセージ表示
 		MessageBox(GetMainWindowHandle(), TEXT_BOX_1, IMAGE_LOAD_ERR_TITLE, MB_OK);
+		return FALSE;
+	}
+
+	strcpy_s(TextBox_Null.path, TEXT_BOX_2);
+	TextBox_Null.handle = LoadGraph(TextBox_Null.path);			//読み込み
+	if (TextBox_Null.handle == -1)
+	{
+		//エラーメッセージ表示
+		MessageBox(GetMainWindowHandle(), TEXT_BOX_2, IMAGE_LOAD_ERR_TITLE, MB_OK);
 		return FALSE;
 	}
 
@@ -2842,59 +2895,59 @@ BOOL LOAD_IMAGE(VOID)
 		}
 	}
 
-	LoadDivGraph(
-		GAME_MAP_PATH,										//廊下のパス
-		MAP_DIV_NUM, MAP_DIV_TATE, MAP_DIV_YOKO,			//マップチップを分割する数
-		MAP_DIV_WIDTH, MAP_DIV_HEIGHT,						//画像を分割するの幅と高さ
-		&mapChip_Roka.handle[0]);								//分割した画像が入るハンドル
+	//LoadDivGraph(
+	//	GAME_MAP_PATH,										//廊下のパス
+	//	MAP_DIV_NUM, MAP_DIV_TATE, MAP_DIV_YOKO,			//マップチップを分割する数
+	//	MAP_DIV_WIDTH, MAP_DIV_HEIGHT,						//画像を分割するの幅と高さ
+	//	&mapChip_Roka.handle[0]);								//分割した画像が入るハンドル
 
-	GetGraphSize(mapChip_Roka.handle[0], &mapChip_Roka.width, &mapChip_Roka.height);
-	for (int tate = 0; tate < MAP_HEIGHT_MAX; tate++)
-	{
-		for (int yoko = 0; yoko < MAP_WIDTH_MAX; yoko++)
-		{
-			//マップデータ初期化用に情報をコピー
-			mapDataInit_Roka[tate][yoko] = MapData_Roka[tate][yoko];
+	//GetGraphSize(mapChip_Roka.handle[0], &mapChip_Roka.width, &mapChip_Roka.height);
+	//for (int tate = 0; tate < MAP_HEIGHT_MAX; tate++)
+	//{
+	//	for (int yoko = 0; yoko < MAP_WIDTH_MAX; yoko++)
+	//	{
+	//		//マップデータ初期化用に情報をコピー
+	//		mapDataInit_Roka[tate][yoko] = MapData_Roka[tate][yoko];
 
-			//マップの種類をコピー
-			map4[tate][yoko].kind = MapData_Roka[tate][yoko];
+	//		//マップの種類をコピー
+	//		map4[tate][yoko].kind = MapData_Roka[tate][yoko];
 
-			//マップの幅と高さをコピー
-			map4[tate][yoko].width = mapChip.width;
-			map4[tate][yoko].height = mapChip.height;
+	//		//マップの幅と高さをコピー
+	//		map4[tate][yoko].width = mapChip.width;
+	//		map4[tate][yoko].height = mapChip.height;
 
-			//マップの座標を設定
-			map4[tate][yoko].x = yoko * map4[tate][yoko].width;
-			map4[tate][yoko].y = tate * map4[tate][yoko].height;
-		}
-	}
+	//		//マップの座標を設定
+	//		map4[tate][yoko].x = yoko * map4[tate][yoko].width;
+	//		map4[tate][yoko].y = tate * map4[tate][yoko].height;
+	//	}
+	//}
 
-	LoadDivGraph(
-		GAME_MAP_PATH,										//赤弾のパス
-		MAP_DIV_NUM, MAP_DIV_TATE, MAP_DIV_YOKO,			//赤弾を分割する数
-		MAP_DIV_WIDTH, MAP_DIV_HEIGHT,						//画像を分割するの幅と高さ
-		&mapChip_RokaNowalk.handle[0]);								//分割した画像が入るハンドル
+	//LoadDivGraph(
+	//	GAME_MAP_PATH,										//赤弾のパス
+	//	MAP_DIV_NUM, MAP_DIV_TATE, MAP_DIV_YOKO,			//赤弾を分割する数
+	//	MAP_DIV_WIDTH, MAP_DIV_HEIGHT,						//画像を分割するの幅と高さ
+	//	&mapChip_RokaNowalk.handle[0]);								//分割した画像が入るハンドル
 
-	GetGraphSize(mapChip_RokaNowalk.handle[0], &mapChip_RokaNowalk.width, &mapChip_RokaNowalk.height);
-	for (int tate = 0; tate < MAP_HEIGHT_MAX; tate++)
-	{
-		for (int yoko = 0; yoko < MAP_WIDTH_MAX; yoko++)
-		{
-			//マップデータ初期化用に情報をコピー
-			mapDataInit_RokaNoWalk[tate][yoko] = MapData_RokaNoWalk[tate][yoko];
+	//GetGraphSize(mapChip_RokaNowalk.handle[0], &mapChip_RokaNowalk.width, &mapChip_RokaNowalk.height);
+	//for (int tate = 0; tate < MAP_HEIGHT_MAX; tate++)
+	//{
+	//	for (int yoko = 0; yoko < MAP_WIDTH_MAX; yoko++)
+	//	{
+	//		//マップデータ初期化用に情報をコピー
+	//		mapDataInit_RokaNoWalk[tate][yoko] = MapData_RokaNoWalk[tate][yoko];
 
-			//マップの種類をコピー
-			map5[tate][yoko].kind = MapData_RokaNoWalk[tate][yoko];
+	//		//マップの種類をコピー
+	//		map5[tate][yoko].kind = MapData_RokaNoWalk[tate][yoko];
 
-			//マップの幅と高さをコピー
-			map5[tate][yoko].width = mapChip.width;
-			map5[tate][yoko].height = mapChip.height;
+	//		//マップの幅と高さをコピー
+	//		map5[tate][yoko].width = mapChip.width;
+	//		map5[tate][yoko].height = mapChip.height;
 
-			//マップの座標を設定
-			map5[tate][yoko].x = yoko * map5[tate][yoko].width;
-			map5[tate][yoko].y = tate * map5[tate][yoko].height;
-		}
-	}
+	//		//マップの座標を設定
+	//		map5[tate][yoko].x = yoko * map5[tate][yoko].width;
+	//		map5[tate][yoko].y = tate * map5[tate][yoko].height;
+	//	}
+	//}
 	return TRUE;
 }
 
@@ -2925,6 +2978,7 @@ VOID DELETE_IMAGE(VOID)
 	DeleteGraph(ImageSetumei.handle);
 	DeleteGraph(player.image.handle);
 	DeleteGraph(TextBox_flag.handle);
+	DeleteGraph(TextBox_Null.handle);
 	for (int i_num = 0; i_num < MAP_DIV_NUM; i_num++) { DeleteGraph(mapChip.handle[i_num]); }
 	for (int i_num = 0; i_num < MAP_DIV_NUM; i_num++) { DeleteGraph(mapChip_Nowalk.handle[i_num]); }
 	for (int i_num = 0; i_num < MAP_DIV_NUM; i_num++) { DeleteGraph(mapChip_Object.handle[i_num]); }
@@ -3039,6 +3093,10 @@ BOOL MY_CHECK_MAP3_PLAYER_COLL(RECT player)
 
 				if (mapdata8[tate][yoko] == s) { return TRUE; }
 				if (mapdata8[tate][yoko] == g) { return TRUE; }
+				if (mapdata8[tate][yoko] == P) { return TRUE; }
+				if (mapdata8[tate][yoko] == N) { return TRUE; }
+				if (mapdata8[tate][yoko] == O) { return TRUE; }
+
 				if (mapdata9[tate][yoko] == d) { return TRUE; }
 				if (mapdata9[tate][yoko] == p) { return TRUE; }
 				if (mapdata9[tate][yoko] == q) { return TRUE; }
