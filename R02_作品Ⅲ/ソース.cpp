@@ -1938,7 +1938,7 @@ VOID MY_PLAY_DRAW(VOID)
 			//É_ÉìÉ{Å[ÉãÇ»ÇÁÇŒ
 			if (mapdata3[tate][yoko] == d)
 			{
-				DrawBox(mapColl[tate][yoko].left, mapColl[tate][yoko].top, mapColl[tate][yoko].right, mapColl[tate][yoko].bottom, GetColor(255, 0, 0), FALSE);
+				/*DrawBox(mapColl[tate][yoko].left, mapColl[tate][yoko].top, mapColl[tate][yoko].right, mapColl[tate][yoko].bottom, GetColor(255, 0, 0), FALSE);*/
 			}
 
 		}
