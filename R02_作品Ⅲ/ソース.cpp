@@ -38,6 +38,8 @@
 #define TEXT_BOX (".\\IMAGE\\TextBox_start.png") 
 #define TEXT_BOX_1 (".\\IMAGE\\TextBox1.png") //アイテム回収時のテキストボックス
 #define TEXT_BOX_2 (".\\IMAGE\\TextBox鍵無し.png") //アイテム回収していないとき
+#define TEXT_BOX_3 (".\\IMAGE\\TextBox玄関鍵無し.png")
+#define TEXT_BOX_4 (".\\IMAGE\\TextBox玄関鍵あり.png")
 
 //BGMのパスを設定
 #define TITLE_BGM_PATH TEXT(".\\MUSIC\\冬の情景にて.mp3") //タイトルBGM
@@ -454,6 +456,8 @@ IMAGE ImageSetumei; //説明画面の画像
 IMAGE TextBox_start;
 IMAGE TextBox_flag; //アイテム回収時のテキストボックス
 IMAGE TextBox_Null; //アイテム回収していないとき
+IMAGE TextBox_GenkanKagi;
+IMAGE TextBox_GenkanKagiNasi;
 
 iPOINT startPt{ -1, -1 };
 iPOINT startPt2{ -1 , -1 };
@@ -465,7 +469,7 @@ RECT GoalRect3 = { -1, -1, -1, -1 };
 RECT Modoru = { -1, -1, -1,-1 }; //一つ前の部屋に戻る判定
 RECT Modoru2 = { -1,-1,-1,-1 };
 RECT Itemflag = { -1,-1,-1,-1 }; //アイテムフラグの当たり判定
-
+RECT Itemflag2 = { -1,-1,-1,-1 };
 iPOINT ModoruPt{ -1,-1 };
 iPOINT Modoru2Pt{ -1,-1, };
 
@@ -496,7 +500,8 @@ int yokoCnt = 0;		//横カウント用
 
 FILE* fp = NULL;
 
-int flag = 0;
+int flag = 0; 
+int flag2 = 0;
 
 
 
@@ -577,7 +582,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	GameScene = GAME_SCENE_START;	//ゲームシーンはスタート画面から
 	SetDrawScreen(DX_SCREEN_BACK);	//Draw系関数は裏画面に描画
 
-	void PrototypeMap();
 
 	fp = fopen(".\\sakuhin_remake.txt", "r");
 
@@ -711,6 +715,15 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 				ModoruPt.y = mapChip.height * tateCnt + mapChip.height -40;	//中心Y座標を取得
 				
 				break;
+
+			case'Z':
+				mapdata2[tateCnt][yokoCnt] = Z;
+				yokoCnt++;
+				Itemflag2.left = mapChip.width * yokoCnt;
+				Itemflag2.top = mapChip.height * tateCnt;
+				Itemflag2.right = mapChip.width * (yokoCnt + 1);
+				Itemflag2.bottom = mapChip.height * (tateCnt + 1);
+
 			default:
 				break;
 			}
@@ -781,6 +794,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 				mapdata3[tateCnt][yokoCnt] = n;
 				yokoCnt++;
 				break;
+			case'B':
+				mapdata3[tateCnt][yokoCnt] = B;
+				yokoCnt++;
+				break;
+
 			default:
 				break;
 			}
@@ -1955,6 +1973,35 @@ VOID MY_PLAY_DRAW(VOID)
 	//}
 	
 		DrawGraph(player.image.x, player.image.y, playerChip1.handle[player.kind1], TRUE);
+
+		RECT PlayerRect;
+		PlayerRect.left = player.CenterX - 40 / 20 + 5;
+		PlayerRect.top = player.CenterY + 200 / 20 + 5;
+		PlayerRect.right = player.CenterX + 650 / 20 - 5;
+		PlayerRect.bottom = player.CenterY + 1000 / 20 - 5;
+
+		if (MY_CHECK_RECT_COLL(PlayerRect, Itemflag2) == TRUE && flag == 1)
+		{
+			flag2 = 1;
+
+			DrawGraph(TEXT_WIDTH_POSITION, TEXT_HEIGHT_POSITION, TextBox_GenkanKagi.handle, TRUE);
+
+			if (MY_KEY_DOWN(KEY_INPUT_RETURN) == TRUE)
+			{
+				DeleteGraph(TextBox_GenkanKagi.handle);
+			}
+		}
+
+		if (MY_CHECK_RECT_COLL(PlayerRect, Itemflag2) == TRUE && flag == 0)
+		{
+			DrawGraph(TEXT_WIDTH_POSITION, TEXT_HEIGHT_POSITION, TextBox_GenkanKagiNasi.handle, TRUE);
+
+			if (MY_KEY_DOWN(KEY_INPUT_RETURN) == TRUE)
+			{
+				DeleteGraph(TextBox_GenkanKagiNasi.handle);
+			}
+		}
+
 	
 
 
@@ -2478,7 +2525,7 @@ VOID MY_PLAY_PROC3(VOID)
 
 
 	//ゴールに触れているかチェック
-	if (MY_CHECK_RECT_COLL(PlayerRect, GoalRect3) == TRUE && flag == 1)
+	if (MY_CHECK_RECT_COLL(PlayerRect, GoalRect3) == TRUE && flag2 == 1)
 	{
 
 
@@ -2640,7 +2687,7 @@ VOID MY_PLAY_DRAW3(VOID)
 	
 	}
 
-	if (MY_CHECK_RECT_COLL(PlayerRect, GoalRect3) == TRUE && flag == 0)
+	if (MY_CHECK_RECT_COLL(PlayerRect, GoalRect3) == TRUE && flag2 == 0)
 	{
 		
 
@@ -2743,6 +2790,24 @@ BOOL LOAD_IMAGE(VOID)
 	{
 		//エラーメッセージ表示
 		MessageBox(GetMainWindowHandle(), TEXT_BOX_2, IMAGE_LOAD_ERR_TITLE, MB_OK);
+		return FALSE;
+	}
+
+	strcpy_s(TextBox_GenkanKagiNasi.path, TEXT_BOX_3);
+	TextBox_GenkanKagiNasi.handle = LoadGraph(TextBox_GenkanKagiNasi.path);			//読み込み
+	if (TextBox_GenkanKagiNasi.handle == -1)
+	{
+		//エラーメッセージ表示
+		MessageBox(GetMainWindowHandle(), TEXT_BOX_3, IMAGE_LOAD_ERR_TITLE, MB_OK);
+		return FALSE;
+	}
+
+	strcpy_s(TextBox_GenkanKagi.path, TEXT_BOX_4);
+	TextBox_GenkanKagi.handle = LoadGraph(TextBox_GenkanKagi.path);			//読み込み
+	if (TextBox_GenkanKagi.handle == -1)
+	{
+		//エラーメッセージ表示
+		MessageBox(GetMainWindowHandle(), TEXT_BOX_4, IMAGE_LOAD_ERR_TITLE, MB_OK);
 		return FALSE;
 	}
 
@@ -2979,6 +3044,8 @@ VOID DELETE_IMAGE(VOID)
 	DeleteGraph(player.image.handle);
 	DeleteGraph(TextBox_flag.handle);
 	DeleteGraph(TextBox_Null.handle);
+	DeleteGraph(TextBox_GenkanKagiNasi.handle);
+	DeleteGraph(TextBox_GenkanKagi.handle);
 	for (int i_num = 0; i_num < MAP_DIV_NUM; i_num++) { DeleteGraph(mapChip.handle[i_num]); }
 	for (int i_num = 0; i_num < MAP_DIV_NUM; i_num++) { DeleteGraph(mapChip_Nowalk.handle[i_num]); }
 	for (int i_num = 0; i_num < MAP_DIV_NUM; i_num++) { DeleteGraph(mapChip_Object.handle[i_num]); }
@@ -3028,6 +3095,7 @@ BOOL MY_CHECK_MAP1_PLAYER_COLL(RECT player)
 	
 				//壁のときは、プレイヤーとマップが当たっている
 				if (mapdata3[tate][yoko] == d) { return TRUE; }
+				if (mapdata3[tate][yoko] == B) { return TRUE; }
 				if (mapdata2[tate][yoko] == t) { return TRUE; }
 				if (mapdata2[tate][yoko] == s) { return TRUE; }
 				if (mapdata2[tate][yoko] == g) { return TRUE; }
