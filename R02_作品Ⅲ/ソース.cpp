@@ -21,6 +21,11 @@
 #define MAP_DIV_YOKO		50	//画像を横に分割する数50 
 #define MAP_DIV_NUM	MAP_DIV_TATE * MAP_DIV_YOKO	//画像を分割する総数 400
 
+#define MAP_TATE		41	//画像を縦に分割する数41
+#define MAP_YOKO		32	//画像を横に分割する数32
+#define MAP_NUM	MAP_TATE * MAP_YOKO	//画像を分割する総数 1312
+
+
 #define PLAYER_DIV_WIDTH 32 //プレイヤーの横幅32ビット 
 #define PLAYER_DIV_HEIGHT 48 //プレイヤー立幅48ビット
 #define PLAYER_DIV_TATE 4 //タテ分割数4
@@ -34,6 +39,7 @@
 #define TITLE_BACK_PATH TEXT(".\\IMAGE\\ゲームタイトル.png") //タイトルの画像
 #define IMAGE_SETUMEI_PATH		TEXT(".\\IMAGE\\操作説明3.png") //説明画面の画像
 #define GAME_MAP_PATH TEXT(".\\IMAGE\\ST-Town-I01.png") //マップチップ
+#define GAME_MAP_PATH2 TEXT(".\\IMAGE\\mapchip1.png") //マップチップ2
 #define GAME_PLAYER_PATH TEXT(".\\IMAGE\\joshi03.png") //プレイヤーの画像
 #define TEXT_BOX (".\\IMAGE\\TextBox_start.png") 
 #define TEXT_BOX_1 (".\\IMAGE\\TextBox1.png") //アイテム回収時のテキストボックス
@@ -81,12 +87,14 @@ enum GAME_SCENE {
 	GAME_SCENE_PLAY,
 	GAME_SCENE_PLAY2,
 	GAME_SCENE_PLAY3,
+	GAME_SCENE_PLAY4,
 	GAME_SCENE_END,
 };	//ゲームのシーン
 
 enum GAME_MAP_KIND
 {
 	/*n = -1,*/	//(NONE)未定
+	GL = 0, //外の地面
 	k = 10,	//床
 	t = 17,	//上壁
 	s = 25,	//中壁
@@ -112,7 +120,10 @@ enum GAME_MAP_KIND
 	O = 108, //机
 	A = 149, //ゴミ箱
 	B = 156, //置物
+	NU = 190, //虚無
+	START = 189, //外スタート
 	Z = 319, //アイテムフラグ
+	SB = 340,
 	C = 344, //階段
 	D = 345, //階段
 	E = 346, //階段
@@ -129,6 +140,12 @@ enum GAME_MAP_KIND
 	S = 198, //start
 	G = 197, //goal
 	M = 195, //一つ前の場所に戻る判定
+	FL = 1188,
+	FL2 = 1189,
+	FL3 = 1190,
+	FL4 = 1191,
+	FE = 1192,
+	FE2 = 1224,
 
 };	//マップの種類
 
@@ -154,11 +171,14 @@ typedef struct STRUCT_IMAGE
 typedef struct STRUCT_MAP_IMAGE
 {
 	char path[PATH_MAX];				//パス
-	int handle[MAP_DIV_NUM];			//分割したの弾の画像ハンドルを取得
-	int kind[MAP_DIV_NUM];				//マップの種類
+	int handle[MAP_NUM];			//分割したの弾の画像ハンドルを取得
+	int kind[MAP_NUM];				//マップの種類
 	int width;							//幅
 	int height;							//高さ
 }MAPCHIP;	//MAP_IMAGE構造体
+
+
+
 
 typedef struct STRUCT_MUSIC
 {
@@ -427,12 +447,16 @@ int mapdata7[MAP_HEIGHT_MAX][MAP_WIDTH_MAX];
 int mapdata8[MAP_HEIGHT_MAX][MAP_WIDTH_MAX];
 int mapdata9[MAP_HEIGHT_MAX][MAP_WIDTH_MAX];
 int mapdata10[MAP_HEIGHT_MAX][MAP_WIDTH_MAX];
+int mapdata11[MAP_HEIGHT_MAX][MAP_WIDTH_MAX];
+int mapdata12[MAP_HEIGHT_MAX][MAP_WIDTH_MAX];
+int mapdata13[MAP_HEIGHT_MAX][MAP_WIDTH_MAX];
 
 
 int MapDataMode[MAP_HEIGHT_MAX][MAP_WIDTH_MAX];
 
 //マップチップの画像を管理
 MAPCHIP mapChip;
+MAPCHIP mapChip2;
 MAPCHIP mapChip_Nowalk;
 MAPCHIP mapChip_Object;
 MAPCHIP mapChip_Roka;
@@ -462,6 +486,7 @@ IMAGE TextBox_GenkanKagiNasi;
 iPOINT startPt{ -1, -1 };
 iPOINT startPt2{ -1 , -1 };
 iPOINT startPt3{ -1 , -1 };
+iPOINT startPt4{ -1,-1 };
 RECT GoalRect = { -1,-1, -1, -1 };	//ゴールの当たり判定
 
 RECT GoalRect2 = { -1, -1 , -1, -1 };
@@ -539,6 +564,9 @@ VOID MY_PLAY_DRAW2(VOID);	//廊下のステージ描画
 VOID MY_PLAY3(VOID);		//最後の部屋
 VOID MY_PLAY_PROC3(VOID);	//最後の部屋の処理
 VOID MY_PLAY_DRAW3(VOID);	//最後の部屋の描画
+VOID MY_PLAY4(VOID);		//外
+VOID MY_PLAY_PROC4(VOID);	//外の処理
+VOID MY_PLAY_DRAW4(VOID);	//外の描画
 
 VOID MY_END(VOID);			//エンド画面
 VOID MY_END_PROC(VOID);		//エンド画面の処理
@@ -548,6 +576,7 @@ BOOL MY_CHECK_MAP1_PLAYER_COLL(RECT);	//マップとプレイヤーの当たり判定をする関数
 BOOL MY_CHECK_RECT_COLL(RECT, RECT);	//領域の当たり判定をする関数
 BOOL MY_CHECK_MAP2_PLAYER_COLL(RECT);
 BOOL MY_CHECK_MAP3_PLAYER_COLL(RECT);
+BOOL MY_CHECK_MAP4_PLAYER_COLL(RECT);
 
 
 BOOL MY_LOAD_PLAYER(const char* path, PLAYERCHIP* player);
@@ -607,19 +636,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			case 'k':
 				//壁のとき
 				mapdata[tateCnt][yokoCnt] = k;
-				yokoCnt++;
-				break;
-
-			case 't':
-				mapdata[tateCnt][yokoCnt] = t;
-				yokoCnt++;
-				break;
-			case 's':
-				mapdata[tateCnt][yokoCnt] = s;
-				yokoCnt++;
-				break;
-			case 'g':
-				mapdata[tateCnt][yokoCnt] = g;
 				yokoCnt++;
 				break;
 			case 'S':
@@ -1372,6 +1388,173 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	//開いたら、必ず閉じること！
 	fclose(fp);	//ファイルを閉じる
 
+	result = 0;
+	tateCnt = 0;
+	yokoCnt = 0;
+
+	fp = fopen(".\\soto.txt", "r");
+
+	while (result != EOF)	//End Of File（ファイルの最後）ではないとき繰り返す
+	{
+		char mapData[MAP_WIDTH_MAX * 3 + 1];
+		//ファイルから数値を一つ読み込み(%d,)、配列に格納する
+		result = fscanf(fp, "%s,", mapData);
+		for (int i = 0; i < strlen(mapData); i++)
+		{
+			switch (mapData[i])
+			{
+
+			case 'G':
+				//壁のとき
+				mapdata11[tateCnt][yokoCnt] = GL;
+				yokoCnt++;
+				break;
+
+			default:
+				break;
+			}
+		}
+
+
+
+		//横のデータが１行読めたら
+		if (yokoCnt >= MAP_WIDTH_MAX)
+		{
+			tateCnt++;		//縦のカウントアップ
+			yokoCnt = 0;	//横のカウンタ初期化
+		}
+	}
+
+	//開いたら、必ず閉じること！
+	fclose(fp);	//ファイルを閉じる
+
+	result = 0;
+	tateCnt = 0;
+	yokoCnt = 0;
+
+	fp = fopen(".\\soto_nowalk.txt", "r");
+
+	while (result != EOF)	//End Of File（ファイルの最後）ではないとき繰り返す
+	{
+		char mapData[MAP_WIDTH_MAX * 3 + 1];
+		//ファイルから数値を一つ読み込み(%d,)、配列に格納する
+		result = fscanf(fp, "%s,", mapData);
+		for (int i = 0; i < strlen(mapData); i++)
+		{
+			switch (mapData[i])
+			{
+
+			case 'N':
+				//壁のとき
+				mapdata12[tateCnt][yokoCnt] = NU;
+				yokoCnt++;
+				break;
+			case 'S':
+				//壁のとき
+				mapdata12[tateCnt][yokoCnt] = START;
+				yokoCnt++;
+			
+				//スタート位置をセット
+				startPt4.x = mapChip2.width * yokoCnt - 30;	//中心X座標を取得
+				startPt4.y = mapChip2.height * tateCnt - 20;	//中心Y座標を取得
+
+				break;
+
+			default:
+				break;
+			}
+		}
+
+
+
+		//横のデータが１行読めたら
+		if (yokoCnt >= MAP_WIDTH_MAX)
+		{
+			tateCnt++;		//縦のカウントアップ
+			yokoCnt = 0;	//横のカウンタ初期化
+		}
+	}
+
+	//開いたら、必ず閉じること！
+	fclose(fp);	//ファイルを閉じる
+
+	result = 0;
+	tateCnt = 0;
+	yokoCnt = 0;
+
+	fp = fopen(".\\soto_object.txt", "r");
+
+	while (result != EOF)	//End Of File（ファイルの最後）ではないとき繰り返す
+	{
+		char mapData[MAP_WIDTH_MAX * 3 + 1];
+		//ファイルから数値を一つ読み込み(%d,)、配列に格納する
+		result = fscanf(fp, "%s,", mapData);
+		for (int i = 0; i < strlen(mapData); i++)
+		{
+			switch (mapData[i])
+			{
+
+			case 'N':
+				//壁のとき
+				mapdata13[tateCnt][yokoCnt] = NU;
+				yokoCnt++;
+				break;
+
+			case 'F':
+				//壁のとき
+				mapdata13[tateCnt][yokoCnt] = FE2;
+				yokoCnt++;
+				break;
+			case 'E':
+				//壁のとき
+				mapdata13[tateCnt][yokoCnt] = FE;
+				yokoCnt++;
+				break;
+			case 'R':
+				//壁のとき
+				mapdata13[tateCnt][yokoCnt] = FL;
+				yokoCnt++;
+				break;
+			case 'L':
+				//壁のとき
+				mapdata13[tateCnt][yokoCnt] = FL2;
+				yokoCnt++;
+				break;
+			case 'O':
+				//壁のとき
+				mapdata13[tateCnt][yokoCnt] = FL3;
+				yokoCnt++;
+				break;
+			case 'W':
+				//壁のとき
+				mapdata13[tateCnt][yokoCnt] = FL4;
+				yokoCnt++;
+				break;
+			case 'S':
+				//壁のとき
+				mapdata13[tateCnt][yokoCnt] = SB;
+				yokoCnt++;
+				break;
+
+			default:
+				break;
+			}
+		}
+
+
+
+		//横のデータが１行読めたら
+		if (yokoCnt >= MAP_WIDTH_MAX)
+		{
+			tateCnt++;		//縦のカウントアップ
+			yokoCnt = 0;	//横のカウンタ初期化
+		}
+	}
+
+	//開いたら、必ず閉じること！
+	fclose(fp);	//ファイルを閉じる
+
+
 	
 				
 		
@@ -1423,6 +1606,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		case GAME_SCENE_PLAY3:
 			MY_PLAY3();
 			break;
+		case GAME_SCENE_PLAY4:
+			MY_PLAY4();
+			break;
+
 		case GAME_SCENE_END:
 			MY_END();	//エンド画面
 			break;
@@ -1956,7 +2143,11 @@ VOID MY_PLAY_DRAW(VOID)
 			//ダンボールならば
 			if (mapdata3[tate][yoko] == d)
 			{
-				/*DrawBox(mapColl[tate][yoko].left, mapColl[tate][yoko].top, mapColl[tate][yoko].right, mapColl[tate][yoko].bottom, GetColor(255, 0, 0), FALSE);*/
+				DrawBox(mapColl[tate][yoko].left, mapColl[tate][yoko].top, mapColl[tate][yoko].right, mapColl[tate][yoko].bottom, GetColor(255, 0, 0), FALSE);
+			}
+			if (mapdata2[tate][yoko] == Z)
+			{
+				DrawBox(mapColl[tate][yoko].left, mapColl[tate][yoko].top, mapColl[tate][yoko].right, mapColl[tate][yoko].bottom, GetColor(255, 0, 0), FALSE);
 			}
 
 		}
@@ -2528,12 +2719,18 @@ VOID MY_PLAY_PROC3(VOID)
 	if (MY_CHECK_RECT_COLL(PlayerRect, GoalRect3) == TRUE && flag2 == 1)
 	{
 
+		player.CenterX = startPt4.x;
+		player.CenterY = startPt4.y;
 
 
-		GameScene = GAME_SCENE_END;
+		player.image.x = player.CenterX;
+		player.image.y = player.CenterY;
 
 
-		return;	//強制的にエンド画面に飛ぶ
+		GameScene = GAME_SCENE_PLAY4;
+
+
+		return;
 	}
 
 
@@ -2703,6 +2900,285 @@ VOID MY_PLAY_DRAW3(VOID)
 	return;
 }
 
+VOID MY_PLAY4(VOID)
+{
+	MY_PLAY_PROC4();	
+	MY_PLAY_DRAW4();	
+
+	return;
+}
+
+VOID MY_PLAY_PROC4(VOID)
+{
+	player.kind1 = D_1;
+	int old_x = player.image.x;
+	int old_y = player.image.y;
+	BOOL IsMove = TRUE;
+
+
+	//上に移動するとき
+	if (MY_KEY_DOWN(KEY_INPUT_W) == TRUE
+		&& MY_KEY_DOWN(KEY_INPUT_D) == FALSE
+		&& MY_KEY_DOWN(KEY_INPUT_S) == FALSE
+		&& MY_KEY_DOWN(KEY_INPUT_A) == FALSE)
+	{
+		player.IsMoveNaname = FALSE;	//斜め移動していない
+
+		if (player.kind1 >= U_1 && player.kind1 < U_4)
+		{
+			//画像変更カウンタ
+			if (player.imgChangeCnt < player.imgChangeCntMAX)
+			{
+				player.imgChangeCnt++;
+			}
+			else //画像を変えるタイミングになったら
+			{
+				player.kind1++;			//次の画像にする
+				player.imgChangeCnt = 0;	//変更カウンタ初期化
+			}
+		}
+		else
+		{
+			player.kind1 = U_1;	//最初の画像にする
+		}
+
+		player.image.y -= 1.5;	//移動
+	}
+
+	//右に移動するとき
+	if (MY_KEY_DOWN(KEY_INPUT_W) == FALSE
+		&& MY_KEY_DOWN(KEY_INPUT_D) == TRUE
+		&& MY_KEY_DOWN(KEY_INPUT_S) == FALSE
+		&& MY_KEY_DOWN(KEY_INPUT_A) == FALSE)
+	{
+		player.IsMoveNaname = FALSE;	//斜め移動していない
+
+		if (player.kind1 >= R_1 && player.kind1 < R_4)
+		{
+			//画像変更カウンタ
+			if (player.imgChangeCnt < player.imgChangeCntMAX)
+			{
+				player.imgChangeCnt++;
+			}
+			else //画像を変えるタイミングになったら
+			{
+				player.kind1++;			//次の画像にする
+				player.imgChangeCnt = 0;	//変更カウンタ初期化
+			}
+		}
+		else
+		{
+			player.kind1 = R_1;	//最初の画像にする
+		}
+		player.image.x += 2;	//移動
+	}
+
+	//左に移動するとき
+	if (MY_KEY_DOWN(KEY_INPUT_W) == FALSE
+		&& MY_KEY_DOWN(KEY_INPUT_D) == FALSE
+		&& MY_KEY_DOWN(KEY_INPUT_S) == FALSE
+		&& MY_KEY_DOWN(KEY_INPUT_A) == TRUE)
+	{
+		player.IsMoveNaname = FALSE;	//斜め移動していない
+
+		if (player.kind1 >= L_1 && player.kind1 < L_4)
+		{
+			//画像変更カウンタ
+			if (player.imgChangeCnt < player.imgChangeCntMAX)
+			{
+				player.imgChangeCnt++;
+			}
+			else //画像を変えるタイミングになったら
+			{
+				player.kind1++;			//次の画像にする
+				player.imgChangeCnt = 0;	//変更カウンタ初期化
+			}
+		}
+		else
+		{
+			player.kind1 = L_1;	//最初の画像にする
+		}
+		player.image.x -= 1.5;	//移動
+	}
+
+	//下に移動するとき
+	if (MY_KEY_DOWN(KEY_INPUT_W) == FALSE
+		&& MY_KEY_DOWN(KEY_INPUT_D) == FALSE
+		&& MY_KEY_DOWN(KEY_INPUT_S) == TRUE
+		&& MY_KEY_DOWN(KEY_INPUT_A) == FALSE)
+	{
+		player.IsMoveNaname = FALSE;	//斜め移動していない
+
+		if (player.kind1 >= D_1 && player.kind1 < D_4)
+		{
+			//画像変更カウンタ
+			if (player.imgChangeCnt < player.imgChangeCntMAX)
+			{
+				player.imgChangeCnt++;
+			}
+			else //画像を変えるタイミングになったら
+			{
+				player.kind1++;			//次の画像にする
+				player.imgChangeCnt = 0;	//変更カウンタ初期化
+			}
+		}
+		else
+		{
+			player.kind1 = D_1;	//最初の画像にする
+		}
+		player.image.y += 2;	//移動
+	}
+
+	//画面内にキャラがいれば
+	if (player.image.x >= 0 && player.image.x <= GAME_WIDTH
+		&& player.image.y >= 0 && player.image.y <= GAME_HEIGHT)
+	{
+		//プレイヤーの中心位置を設定する
+		player.CenterX = player.image.x;
+		player.CenterY = player.image.y;
+	}
+
+	//プレイヤーの当たり判定の設定
+	player.coll.left = player.CenterX - 40 / 20 + 5;
+	player.coll.top = player.CenterY + 200 / 20 + 5;
+	player.coll.right = player.CenterX + 650 / 20 - 5;
+	player.coll.bottom = player.CenterY + 1000 / 20 - 5;
+
+	RECT PlayerRect;
+	PlayerRect.left = player.CenterX - 40 / 20 + 5;
+	PlayerRect.top = player.CenterY + 200 / 20 + 5;
+	PlayerRect.right = player.CenterX + 650 / 20 - 5;
+	PlayerRect.bottom = player.CenterY + 1000 / 20 - 5;
+
+
+
+	//ゴールに触れているかチェック
+	//if (MY_CHECK_RECT_COLL(PlayerRect, GoalRect4) == TRUE && flag2 == 1)
+	//{
+
+
+
+	//	GameScene = GAME_SCENE_END;
+
+
+	//	return;
+	//}
+
+
+
+	//if (MY_CHECK_RECT_COLL(PlayerRect, Modoru2) == TRUE)
+	//{
+
+
+
+	//	player.CenterX = Modoru2Pt.x;
+	//	player.CenterY = Modoru2Pt.y;
+
+
+	//	player.image.x = player.CenterX + 100;
+	//	player.image.y = player.CenterY;
+
+	//	GameScene = GAME_SCENE_PLAY3;
+
+
+	//	return;	//強制的にエンド画面に飛ぶ
+	//}
+
+
+
+
+
+	//プレイヤーとマップがあたっていたら
+	if (MY_CHECK_MAP4_PLAYER_COLL(player.coll) == TRUE)
+	{
+
+		IsMove = false;
+
+
+	}
+
+	if (IsMove == false)
+	{
+		player.image.x = old_x;
+		player.image.y = old_y;
+	}
+
+
+	if (IsMove == TRUE)
+	{
+
+		{
+			////プレイヤーの位置に置き換える
+			//player.image.x = player.CenterX - player.image.width / 2;
+			//player.image.y = player.CenterY - player.image.height / 2;
+
+			//あたっていないときの座標を取得
+			player.collBeforePt.x = player.CenterX;
+			player.collBeforePt.y = player.CenterY;
+		}
+	}
+
+	return;
+
+}
+
+VOID MY_PLAY_DRAW4(VOID)
+{
+
+	for (int tate = 0; tate < MAP_HEIGHT_MAX; tate++)
+	{
+		for (int yoko = 0; yoko < MAP_WIDTH_MAX; yoko++)
+		{
+
+
+			DrawGraph(yoko * mapChip2.width,
+				tate * mapChip2.height,
+				mapChip2.handle[mapdata11[tate][yoko]],
+				TRUE);
+
+
+		}
+
+	}
+
+	for (int tate = 0; tate < MAP_HEIGHT_MAX; tate++)
+	{
+		for (int yoko = 0; yoko < MAP_WIDTH_MAX; yoko++)
+		{
+
+
+			DrawGraph(yoko * mapChip2.width,
+				tate * mapChip2.height,
+				mapChip2.handle[mapdata12[tate][yoko]],
+				TRUE);
+
+
+		}
+
+	}
+
+
+	for (int tate = 0; tate < MAP_HEIGHT_MAX; tate++)
+	{
+		for (int yoko = 0; yoko < MAP_WIDTH_MAX; yoko++)
+		{
+
+			//虚無のとき
+			DrawGraph(yoko * mapChip.width,
+				tate * mapChip.height,
+				mapChip2.handle[mapdata13[tate][yoko]],
+				TRUE);
+
+
+		}
+
+	}
+
+	DrawGraph(player.image.x, player.image.y, playerChip1.handle[player.kind1], TRUE);
+
+	return;
+}
+
 //エンド画面
 VOID MY_END(VOID)
 {
@@ -2833,6 +3309,24 @@ BOOL LOAD_IMAGE(VOID)
 	//幅と高さを取得
 	GetGraphSize(mapChip.handle[0], &mapChip.width, &mapChip.height);
 
+	int mapRes10 = LoadDivGraph(
+		GAME_MAP_PATH2,										//赤弾のパス
+		MAP_NUM, MAP_YOKO, MAP_TATE,			//赤弾を分割する数
+		MAP_DIV_WIDTH, MAP_DIV_HEIGHT,						//画像を分割するの幅と高さ
+		&mapChip2.handle[0]);								//分割した画像が入るハンドル
+
+
+
+	if (mapRes10 == -1)
+	{
+		//エラーメッセージ表示
+		MessageBox(GetMainWindowHandle(), GAME_MAP_PATH2, IMAGE_LOAD_ERR_TITLE, MB_OK);
+		return FALSE;
+	}
+
+	//幅と高さを取得
+	GetGraphSize(mapChip2.handle[0], &mapChip2.width, &mapChip2.height);
+
 	//for (int tate = 0; tate < MAP_HEIGHT_MAX; tate++)
 	//{
 	//	for (int yoko = 0; yoko < MAP_WIDTH_MAX; yoko++)
@@ -2853,7 +3347,7 @@ BOOL LOAD_IMAGE(VOID)
 	//	}
 	//}
 
-	int mapRes2 =LoadDivGraph(
+	int mapRes2 = LoadDivGraph(
 		GAME_MAP_PATH,										//赤弾のパス
 		MAP_DIV_NUM, MAP_DIV_TATE, MAP_DIV_YOKO,			//赤弾を分割する数
 		MAP_DIV_WIDTH, MAP_DIV_HEIGHT,						//画像を分割するの幅と高さ
@@ -3047,6 +3541,7 @@ VOID DELETE_IMAGE(VOID)
 	DeleteGraph(TextBox_GenkanKagiNasi.handle);
 	DeleteGraph(TextBox_GenkanKagi.handle);
 	for (int i_num = 0; i_num < MAP_DIV_NUM; i_num++) { DeleteGraph(mapChip.handle[i_num]); }
+	for (int i_num = 0; i_num < MAP_DIV_NUM; i_num++) { DeleteGraph(mapChip2.handle[i_num]); }
 	for (int i_num = 0; i_num < MAP_DIV_NUM; i_num++) { DeleteGraph(mapChip_Nowalk.handle[i_num]); }
 	for (int i_num = 0; i_num < MAP_DIV_NUM; i_num++) { DeleteGraph(mapChip_Object.handle[i_num]); }
 	for (int i_num = 0; i_num < MAP_DIV_NUM; i_num++) { DeleteGraph(mapChip_Roka.handle[i_num]); }
@@ -3173,6 +3668,31 @@ BOOL MY_CHECK_MAP3_PLAYER_COLL(RECT player)
 				if (mapdata9[tate][yoko] == w) { return TRUE; }
 				if (mapdata9[tate][yoko] == z) { return TRUE; }
 				if (mapdata9[tate][yoko] == A) { return TRUE; }
+			}
+		}
+	}
+
+	return FALSE;
+}
+
+BOOL MY_CHECK_MAP4_PLAYER_COLL(RECT player)
+{
+	//マップの当たり判定を設定する
+	for (int tate = 0; tate < MAP_HEIGHT_MAX; tate++)
+	{
+		for (int yoko = 0; yoko < MAP_WIDTH_MAX; yoko++)
+		{
+			//プレイヤーとマップが当たっているとき
+			if (MY_CHECK_RECT_COLL(player, mapColl[tate][yoko]) == TRUE)
+			{
+
+				//壁のときは、プレイヤーとマップが当たっている
+			
+
+				if (mapdata13[tate][yoko] == FE) { return TRUE; }
+				if (mapdata13[tate][yoko] == FE2) { return TRUE; }
+				if (mapdata13[tate][yoko] == SB) { return TRUE; }
+				
 			}
 		}
 	}
