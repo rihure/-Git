@@ -49,6 +49,8 @@
 
 //BGMのパスを設定
 #define TITLE_BGM_PATH TEXT(".\\MUSIC\\冬の情景にて.mp3") //タイトルBGM
+#define ROKA_BGM_PATH TEXT(".\\MUSIC\\死霊の館.mp3") //廊下のちょっと怖いBGM
+#define FLAG_BGM_PATH TEXT(".\\MUSIC\\se_maoudamashii_onepoint07.mp3")//アイテム取得時の効果音
 
 //エラーメッセージ
 #define IMAGE_LOAD_ERR_TITLE	TEXT("画像読み込みエラー")
@@ -122,6 +124,7 @@ enum GAME_MAP_KIND
 	B = 156, //置物
 	NU = 190, //虚無
 	START = 189, //外スタート
+	GOAL = 221,//ゴール
 	Z = 319, //アイテムフラグ
 	SB = 340,
 	C = 344, //階段
@@ -488,9 +491,10 @@ iPOINT startPt2{ -1 , -1 };
 iPOINT startPt3{ -1 , -1 };
 iPOINT startPt4{ -1,-1 };
 RECT GoalRect = { -1,-1, -1, -1 };	//ゴールの当たり判定
-
 RECT GoalRect2 = { -1, -1 , -1, -1 };
 RECT GoalRect3 = { -1, -1, -1, -1 };
+RECT GoalRect4 = { -1,-1,-1,-1 };
+
 RECT Modoru = { -1, -1, -1,-1 }; //一つ前の部屋に戻る判定
 RECT Modoru2 = { -1,-1,-1,-1 };
 RECT Itemflag = { -1,-1,-1,-1 }; //アイテムフラグの当たり判定
@@ -500,6 +504,8 @@ iPOINT Modoru2Pt{ -1,-1, };
 
 //BGM
 MUSIC BGM;
+MUSIC ROKA;
+MUSIC FLAG;
 
 int GameScene;		//ゲームシーンを管理
 
@@ -612,7 +618,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	SetDrawScreen(DX_SCREEN_BACK);	//Draw系関数は裏画面に描画
 
 
-	fp = fopen(".\\sakuhin_remake.txt", "r");
+	fp = fopen(".\\TXT\\sakuhin_remake.txt", "r");
 
 
 	if (fp == NULL) { exit(EXIT_FAILURE); }	//プログラムをエラーとして強制終了}
@@ -670,7 +676,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	tateCnt = 0;
 	yokoCnt = 0;
 
-	fp = fopen(".\\sakuhin_remake_nowalk.txt", "r");
+	fp = fopen(".\\TXT\\sakuhin_remake_nowalk.txt", "r");
 
 	while (result != EOF)	//End Of File（ファイルの最後）ではないとき繰り返す
 	{
@@ -761,7 +767,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	tateCnt = 0;
 	yokoCnt = 0;
 
-	fp = fopen(".\\sakuhin_remake_object.txt", "r");
+	fp = fopen(".\\TXT\\sakuhin_remake_object.txt", "r");
 
 	while (result != EOF)	//End Of File（ファイルの最後）ではないとき繰り返す
 	{
@@ -838,7 +844,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	tateCnt = 0;
 	yokoCnt = 0;
 
-	fp = fopen(".\\sakuhin_roka.txt", "r");
+	fp = fopen(".\\TXT\\sakuhin_roka.txt", "r");
 
 	while (result != EOF)	//End Of File（ファイルの最後）ではないとき繰り返す
 	{
@@ -882,7 +888,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	tateCnt = 0;
 	yokoCnt = 0;
 
-	fp = fopen(".\\sakuhin_roka_nowalk.txt", "r");
+	fp = fopen(".\\TXT\\sakuhin_roka_nowalk.txt", "r");
 
 	while (result != EOF)	//End Of File（ファイルの最後）ではないとき繰り返す
 	{
@@ -969,7 +975,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	tateCnt = 0;
 	yokoCnt = 0;
 
-	fp = fopen(".\\sakuhin_roka_maenimodoru.txt", "r");
+	fp = fopen(".\\TXT\\sakuhin_roka_maenimodoru.txt", "r");
 
 	while (result != EOF)	//End Of File（ファイルの最後）ではないとき繰り返す
 	{
@@ -1017,7 +1023,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	tateCnt = 0;
 	yokoCnt = 0;
 
-	fp = fopen(".\\sakuhin_heya2.txt", "r");
+	fp = fopen(".\\TXT\\sakuhin_heya2.txt", "r");
 
 	while (result != EOF)	//End Of File（ファイルの最後）ではないとき繰り返す
 	{
@@ -1071,7 +1077,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	tateCnt = 0;
 	yokoCnt = 0;
 
-	fp = fopen(".\\sakuhin_heya2_nowalk.txt", "r");
+	fp = fopen(".\\TXT\\sakuhin_heya2_nowalk.txt", "r");
 
 	while (result != EOF)	//End Of File（ファイルの最後）ではないとき繰り返す
 	{
@@ -1178,7 +1184,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	tateCnt = 0;
 	yokoCnt = 0;
 
-	fp = fopen(".\\sakuhin_heya2_Object.txt", "r");
+	fp = fopen(".\\TXT\\sakuhin_heya2_Object.txt", "r");
 
 	while (result != EOF)	//End Of File（ファイルの最後）ではないとき繰り返す
 	{
@@ -1352,7 +1358,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	tateCnt = 0;
 	yokoCnt = 0;
 
-	fp = fopen(".\\a.txt", "r");
+	fp = fopen(".\\TXT\\a.txt", "r");
 
 	while (result != EOF)	//End Of File（ファイルの最後）ではないとき繰り返す
 	{
@@ -1392,7 +1398,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	tateCnt = 0;
 	yokoCnt = 0;
 
-	fp = fopen(".\\soto.txt", "r");
+	fp = fopen(".\\TXT\\soto.txt", "r");
 
 	while (result != EOF)	//End Of File（ファイルの最後）ではないとき繰り返す
 	{
@@ -1432,7 +1438,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	tateCnt = 0;
 	yokoCnt = 0;
 
-	fp = fopen(".\\soto_nowalk.txt", "r");
+	fp = fopen(".\\TXT\\soto_nowalk.txt", "r");
 
 	while (result != EOF)	//End Of File（ファイルの最後）ではないとき繰り返す
 	{
@@ -1460,6 +1466,19 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 				break;
 
+			case'G':
+				//ゴールの時
+				mapdata12[tateCnt][yokoCnt] = GOAL;
+				yokoCnt++;
+				//ゴールの判定を設定
+				GoalRect4.left = mapChip2.width * yokoCnt;
+				GoalRect4.top = mapChip2.height * tateCnt;
+				GoalRect4.right = mapChip2.width * (yokoCnt + 1);
+				GoalRect4.bottom = mapChip2.height * (tateCnt + 1);
+
+				break;
+				
+
 			default:
 				break;
 			}
@@ -1482,7 +1501,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	tateCnt = 0;
 	yokoCnt = 0;
 
-	fp = fopen(".\\soto_object.txt", "r");
+	fp = fopen(".\\TXT\\soto_object.txt", "r");
 
 	while (result != EOF)	//End Of File（ファイルの最後）ではないとき繰り返す
 	{
@@ -2005,6 +2024,8 @@ VOID MY_PLAY_PROC(VOID)
 		//ゴールに触れているかチェック
 		if (MY_CHECK_RECT_COLL(PlayerRect, GoalRect) == TRUE)
 		{
+
+			
 			
 
 			player.CenterX = startPt2.x;
@@ -2015,6 +2036,7 @@ VOID MY_PLAY_PROC(VOID)
 			player.image.y = player.CenterY;
 
 			GameScene = GAME_SCENE_PLAY2;
+
 		
 
 			return;	//強制的にエンド画面に飛ぶ
@@ -2141,14 +2163,14 @@ VOID MY_PLAY_DRAW(VOID)
 		for (int yoko = 0; yoko < MAP_WIDTH_MAX; yoko++)
 		{
 			//ダンボールならば
-			if (mapdata3[tate][yoko] == d)
+			/*if (mapdata3[tate][yoko] == d)
 			{
 				DrawBox(mapColl[tate][yoko].left, mapColl[tate][yoko].top, mapColl[tate][yoko].right, mapColl[tate][yoko].bottom, GetColor(255, 0, 0), FALSE);
 			}
 			if (mapdata2[tate][yoko] == Z)
 			{
 				DrawBox(mapColl[tate][yoko].left, mapColl[tate][yoko].top, mapColl[tate][yoko].right, mapColl[tate][yoko].bottom, GetColor(255, 0, 0), FALSE);
-			}
+			}*/
 
 		}
 	}
@@ -2171,9 +2193,18 @@ VOID MY_PLAY_DRAW(VOID)
 		PlayerRect.right = player.CenterX + 650 / 20 - 5;
 		PlayerRect.bottom = player.CenterY + 1000 / 20 - 5;
 
+		
 		if (MY_CHECK_RECT_COLL(PlayerRect, Itemflag2) == TRUE && flag == 1)
 		{
 			flag2 = 1;
+
+			//if (CheckSoundMem(FLAG.handle) == 0)
+			//{
+			//	//BGMの音量を下げる
+			//	ChangeVolumeSoundMem(255 * 50 / 100, FLAG.handle);	//50%の音量にする
+
+			//	PlaySoundMem(FLAG.handle, DX_PLAYTYPE_NORMAL);
+			//}
 
 			DrawGraph(TEXT_WIDTH_POSITION, TEXT_HEIGHT_POSITION, TextBox_GenkanKagi.handle, TRUE);
 
@@ -2183,9 +2214,15 @@ VOID MY_PLAY_DRAW(VOID)
 			}
 		}
 
-		if (MY_CHECK_RECT_COLL(PlayerRect, Itemflag2) == TRUE && flag == 0)
+		
+
+		if (MY_CHECK_RECT_COLL(PlayerRect, Itemflag2) == TRUE && flag == 0 )
 		{
-			DrawGraph(TEXT_WIDTH_POSITION, TEXT_HEIGHT_POSITION, TextBox_GenkanKagiNasi.handle, TRUE);
+			
+
+				DrawGraph(TEXT_WIDTH_POSITION, TEXT_HEIGHT_POSITION, TextBox_GenkanKagiNasi.handle, TRUE);
+
+			
 
 			if (MY_KEY_DOWN(KEY_INPUT_RETURN) == TRUE)
 			{
@@ -2202,6 +2239,7 @@ VOID MY_PLAY_DRAW(VOID)
 
 VOID MY_PLAY2(VOID)
 {
+	
 
 	MY_PLAY_PROC2();
 	MY_PLAY_DRAW2();
@@ -2210,6 +2248,15 @@ VOID MY_PLAY2(VOID)
 
 VOID MY_PLAY_PROC2(VOID)
 {
+
+	if (CheckSoundMem(ROKA.handle) == 0)
+	{
+		//BGMの音量を下げる
+		ChangeVolumeSoundMem(255 * 50 / 100, ROKA.handle);	//50%の音量にする
+
+		PlaySoundMem(ROKA.handle, DX_PLAYTYPE_LOOP);
+	}
+
 	
 	//マウスを右クリックすると、タイトル画面に戻る
 	if (MY_KEY_DOWN(KEY_INPUT_L) == TRUE)
@@ -2392,6 +2439,11 @@ VOID MY_PLAY_PROC2(VOID)
 			player.image.x = player.CenterX;
 			player.image.y = player.CenterY;
 
+			if (CheckSoundMem(ROKA.handle) != 0)
+			{
+				StopSoundMem(ROKA.handle);	//BGMを止める
+			}
+
 			GameScene = GAME_SCENE_PLAY3;
 		
 
@@ -2409,6 +2461,11 @@ VOID MY_PLAY_PROC2(VOID)
 
 		player.image.x = player.CenterX;
 		player.image.y = player.CenterY;
+
+		if (CheckSoundMem(ROKA.handle) != 0)
+		{
+			StopSoundMem(ROKA.handle);	//BGMを止める
+		}
 
 		GameScene = GAME_SCENE_PLAY;
 
@@ -2465,6 +2522,8 @@ VOID MY_PLAY_PROC2(VOID)
 
 VOID MY_PLAY_DRAW2(VOID)
 {
+
+
 	for (int tate = 0; tate < MAP_HEIGHT_MAX; tate++)
 	{
 		for (int yoko = 0; yoko < MAP_WIDTH_MAX; yoko++)
@@ -2530,9 +2589,9 @@ VOID MY_PLAY_DRAW2(VOID)
 		}
 	}
 	//ゴール当たり判定用
-	DrawBox(GoalRect2.left, GoalRect2.top, GoalRect2.right, GoalRect2.bottom, GetColor(255, 255, 0), TRUE);
+	/*DrawBox(GoalRect2.left, GoalRect2.top, GoalRect2.right, GoalRect2.bottom, GetColor(255, 255, 0), TRUE);*/
 	//プレイヤーの当たり判定用
-	DrawBox(player.coll.left, player.coll.top, player.coll.right, player.coll.bottom, GetColor(255, 0, 0), FALSE);
+	/*DrawBox(player.coll.left, player.coll.top, player.coll.right, player.coll.bottom, GetColor(255, 0, 0), FALSE);*/
 	return;
 }
 
@@ -2842,8 +2901,8 @@ VOID MY_PLAY_DRAW3(VOID)
 	}
 
 	//ゴール当たり判定用
-	DrawBox(GoalRect3.left, GoalRect3.top, GoalRect3.right, GoalRect3.bottom, GetColor(255, 255, 0), TRUE);
-	DrawBox(Modoru2.left, Modoru2.top, Modoru2.right, Modoru2.bottom, GetColor(255, 0, 0), TRUE);
+	/*DrawBox(GoalRect3.left, GoalRect3.top, GoalRect3.right, GoalRect3.bottom, GetColor(255, 255, 0), TRUE);
+	DrawBox(Modoru2.left, Modoru2.top, Modoru2.right, Modoru2.bottom, GetColor(255, 0, 0), TRUE);*/
 	
 
 	//DrawBox(Itemflag.left, Itemflag.top, Itemflag.right, Itemflag.bottom, GetColor(0, 255, 0), TRUE);
@@ -2855,7 +2914,7 @@ VOID MY_PLAY_DRAW3(VOID)
 			
 			if (mapdata8[tate][yoko] == Z)
 			{
-				DrawBox(mapColl[tate][yoko].left + 30, mapColl[tate][yoko].top, mapColl[tate][yoko].right + 30, mapColl[tate][yoko].bottom, GetColor(255, 0, 0), FALSE);
+				/*DrawBox(mapColl[tate][yoko].left + 30, mapColl[tate][yoko].top, mapColl[tate][yoko].right + 30, mapColl[tate][yoko].bottom, GetColor(255, 0, 0), FALSE);*/
 			}
 
 		}
@@ -3053,16 +3112,16 @@ VOID MY_PLAY_PROC4(VOID)
 
 
 	//ゴールに触れているかチェック
-	//if (MY_CHECK_RECT_COLL(PlayerRect, GoalRect4) == TRUE && flag2 == 1)
-	//{
+	if (MY_CHECK_RECT_COLL(PlayerRect, GoalRect4) == TRUE)
+	{
 
 
 
-	//	GameScene = GAME_SCENE_END;
+		GameScene = GAME_SCENE_END;
 
 
-	//	return;
-	//}
+		return;
+	}
 
 
 
@@ -3175,6 +3234,8 @@ VOID MY_PLAY_DRAW4(VOID)
 	}
 
 	DrawGraph(player.image.x, player.image.y, playerChip1.handle[player.kind1], TRUE);
+
+	//DrawBox(GoalRect4.left, GoalRect4.top, GoalRect4.right, GoalRect4.bottom, GetColor(255, 255, 0), TRUE);
 
 	return;
 }
@@ -3562,6 +3623,27 @@ BOOL LOAD_MUSIC(VOID)
 		return FALSE;
 	}
 
+	strcpy_s(ROKA.path, ROKA_BGM_PATH);		//パスの設定
+	ROKA.handle = LoadSoundMem(ROKA.path);	//読み込み
+	if (ROKA.handle == -1)
+	{
+		//エラーメッセージ表示
+		MessageBox(GetMainWindowHandle(), ROKA_BGM_PATH, MUSIC_LOAD_ERR_TITLE, MB_OK);
+		return FALSE;
+	}
+
+	strcpy_s(FLAG.path, FLAG_BGM_PATH);		//パスの設定
+	FLAG.handle = LoadSoundMem(FLAG.path);	//読み込み
+	if (FLAG.handle == -1)
+	{
+		//エラーメッセージ表示
+		MessageBox(GetMainWindowHandle(), FLAG_BGM_PATH, MUSIC_LOAD_ERR_TITLE, MB_OK);
+		return FALSE;
+	}
+
+
+
+
 	return TRUE;
 }
 
@@ -3569,6 +3651,8 @@ BOOL LOAD_MUSIC(VOID)
 VOID DELETE_MUSIC(VOID)
 {
 	DeleteSoundMem(BGM.handle);
+	DeleteSoundMem(ROKA.handle);
+	DeleteSoundMem(FLAG.handle);
 	return;
 }
 
