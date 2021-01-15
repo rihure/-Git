@@ -41,11 +41,11 @@
 #define GAME_MAP_PATH TEXT(".\\IMAGE\\ST-Town-I01.png") //マップチップ
 #define GAME_MAP_PATH2 TEXT(".\\IMAGE\\mapchip1.png") //マップチップ2
 #define GAME_PLAYER_PATH TEXT(".\\IMAGE\\joshi03.png") //プレイヤーの画像
-#define TEXT_BOX (".\\IMAGE\\TextBox_start.png") 
+#define TEXT_BOX (".\\IMAGE\\TextBox_start.png")  //現在は没である
 #define TEXT_BOX_1 (".\\IMAGE\\TextBox1.png") //アイテム回収時のテキストボックス
 #define TEXT_BOX_2 (".\\IMAGE\\TextBox鍵無し.png") //アイテム回収していないとき
-#define TEXT_BOX_3 (".\\IMAGE\\TextBox玄関鍵無し.png")
-#define TEXT_BOX_4 (".\\IMAGE\\TextBox玄関鍵あり.png")
+#define TEXT_BOX_3 (".\\IMAGE\\TextBox玄関鍵無し.png")//鍵を取得時
+#define TEXT_BOX_4 (".\\IMAGE\\TextBox玄関鍵あり.png")//鍵を持っていない
 
 //BGMのパスを設定
 #define TITLE_BGM_PATH TEXT(".\\MUSIC\\冬の情景にて.mp3") //タイトルBGM
@@ -152,13 +152,6 @@ enum GAME_MAP_KIND
 
 };	//マップの種類
 
-enum GAME_END {
-	GAME_END_COMP,	//コンプリート
-	GAME_END_FAIL	//フォールト
-};	//ゲームの終了状態
-
-
-
 
 typedef struct STRUCT_IMAGE
 {
@@ -243,203 +236,9 @@ enum PLAYER_KIND_1 {
 
 
 
-//マップ
-//GAME_MAP_KIND MapData[MAP_HEIGHT_MAX][MAP_WIDTH_MAX] =
-//{
-//	/*0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-//	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-//	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-//	3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
-//	3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
-//	3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
-//	3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
-//	3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
-//	3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
-//	3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
-//	3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
-//	3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
-//	3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
-//	3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
-//	3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
-//	3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
-//	3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
-//	3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
-//	3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
-//	3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3*/
-//
-//	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
-//	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
-//	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
-//	k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,
-//	k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,
-//	k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,
-//	k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,
-//	k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,
-//	k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,
-//	k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,
-//	k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,
-//	k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,
-//	k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,
-//	k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,
-//	k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,
-//	k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,
-//	k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,
-//	k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,
-//	k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,
-//	k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k,k
-//};
-//
-//GAME_MAP_KIND MapData_Object[MAP_HEIGHT_MAX][MAP_WIDTH_MAX] =
-//{	
-//	/*0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-//	0,0,0,67,68,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-//	0,0,0,75,76,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-//	151,151,151,151,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,350,351,
-//	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-//	151,151,151,151,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-//	0,0,0,0,0,151,151,151,151,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-//	151,151,151,151,0,0,0,0,0,0,0,0,0,151,151,151,0,0,0,0,0,0,0,0,0,
-//	0,0,0,0,0,0,0,151,151,151,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-//	151,151,151,151,0,0,0,0,0,0,0,0,151,151,151,0,0,0,0,0,0,0,0,0,0,
-//	0,0,0,0,0,0,0,0,0,0,0,0,0,0,151,0,0,0,0,151,151,0,0,0,0,
-//	151,151,151,151,0,0,0,0,0,0,0,0,0,0,151,0,0,151,0,0,0,151,0,0,0,
-//	0,0,0,0,0,0,151,151,151,151,0,0,0,0,0,0,0,0,0,0,0,151,0,0,0,
-//	151,151,151,151,0,0,0,0,0,151,151,0,0,0,0,0,0,0,0,0,151,151,0,0,0,
-//	0,0,0,0,0,0,0,0,0,0,0,0,0,0,151,0,151,151,0,0,151,0,0,0,0,
-//	151,151,151,151,0,0,0,0,0,0,0,0,0,151,151,0,0,151,0,151,151,0,0,0,0,
-//	0,0,0,0,0,0,0,0,151,151,0,151,151,151,0,0,0,151,151,151,0,0,0,0,0,
-//	151,151,151,151,0,0,0,0,0,151,151,151,0,0,0,0,0,0,0,0,0,0,0,0,0,
-//	0,0,0,0,0,0,0,0,0,0,0,0,0,0,151,151,151,0,0,0,0,0,0,0,0,
-//	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,151,0*/
-//
-//	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
-//	n,n,n,a,b,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
-//	n,n,n,c,h,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
-//	d,d,d,d,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,e,f,
-//	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
-//	d,d,d,d,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
-//	n,n,n,n,n,d,d,d,d,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
-//	d,d,d,d,n,n,n,n,n,n,n,n,n,d,d,d,n,n,n,n,n,n,n,n,n,
-//	n,n,n,n,n,n,n,d,d,d,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
-//	n,n,n,n,n,n,n,n,n,n,n,n,d,d,d,n,n,n,n,n,n,n,n,n,n,
-//	n,n,n,n,n,n,n,n,n,n,n,n,n,n,d,n,n,n,n,d,d,n,n,n,n,
-//	n,n,n,n,n,n,n,n,n,n,n,n,n,n,d,n,n,d,n,n,n,d,n,n,n,
-//	n,n,n,n,n,n,d,d,d,d,n,n,n,n,n,n,n,n,n,n,n,d,n,n,n,
-//	d,d,d,d,n,n,n,n,n,d,d,n,n,n,n,n,n,n,n,n,d,d,n,n,n,
-//	n,n,n,n,n,n,n,n,n,n,n,n,n,n,d,n,d,d,n,n,d,n,n,n,n,
-//	d,d,d,d,n,n,n,n,n,n,n,n,n,d,d,n,n,d,n,d,d,n,n,n,n,
-//	n,n,n,n,n,n,n,n,d,d,n,d,d,d,n,n,n,d,d,d,n,n,n,n,n,
-//	d,d,d,d,n,n,n,n,n,d,d,d,S,n,n,n,n,n,n,n,n,n,n,n,n,
-//	n,n,n,n,n,n,n,n,n,n,n,n,n,n,d,d,d,n,n,n,n,n,n,n,n,
-//	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,d,n
-//};
-//
-//GAME_MAP_KIND MapData_NoWalk[MAP_HEIGHT_MAX][MAP_WIDTH_MAX] =
-//{
-//	/*17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,
-//	25,25,25,25,25,25,25,25,25,25,25,25,25,25,25,25,25,25,25,25,25,25,25,25,25,
-//	33,33,33,33,33,33,33,33,33,33,33,33,33,33,33,33,33,33,33,33,33,33,33,33,33,
-//	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-//	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-//	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-//	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-//	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-//	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-//	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-//	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-//	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-//	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-//	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-//	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-//	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-//	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-//	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-//	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-//	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0*/
-//
-//	t,t,t,t,t,t,t,t,t,t,t,t,t,t,t,t,t,t,t,t,t,t,t,t,t,
-//	s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,
-//	g,g,g,g,g,g,g,g,g,g,g,g,g,g,g,g,g,g,g,g,g,g,g,g,g,
-//	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,G,
-//	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
-//	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
-//	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
-//	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
-//	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
-//	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
-//	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
-//	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
-//	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
-//	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
-//	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
-//	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
-//	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
-//	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
-//	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
-//	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n
-//	
-//};
 
-//GAME_MAP_KIND MapData_Roka[MAP_HEIGHT_MAX][MAP_WIDTH_MAX] =
-//{
-//	
-//	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
-//	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
-//	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
-//	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
-//	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
-//	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
-//	r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,
-//	r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,
-//	r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,
-//	r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,
-//	r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,
-//	r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,
-//	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
-//	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
-//	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
-//	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
-//	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
-//	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
-//	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
-//	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n
-//	
-//
-//};
-//
-//GAME_MAP_KIND MapData_RokaNoWalk[MAP_HEIGHT_MAX][MAP_WIDTH_MAX] =
-//{
-//
-//	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
-//	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
-//	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
-//	t,t,t,t,t,t,t,t,t,t,t,t,t,t,t,t,t,t,t,t,t,t,t,t,t,
-//	s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,
-//	g,g,g,g,g,g,g,g,g,g,g,g,g,g,g,g,g,g,g,g,g,g,g,g,g,
-//	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
-//	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
-//	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
-//	n,n,S,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
-//	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,G,
-//	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
-//	g,g,g,g,g,g,g,g,g,g,g,g,g,g,g,g,g,g,g,g,g,g,g,g,g,
-//	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
-//	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
-//	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
-//	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
-//	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
-//	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,
-//	n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n
-//
-//
-//};
 
-int mapDataInit[MAP_HEIGHT_MAX][MAP_WIDTH_MAX];
-int mapDataInit_Nowalk[MAP_HEIGHT_MAX][MAP_WIDTH_MAX];
-int mapDataInit_Object[MAP_HEIGHT_MAX][MAP_WIDTH_MAX];
-int mapDataInit_Roka[MAP_HEIGHT_MAX][MAP_WIDTH_MAX];
-int mapDataInit_RokaNoWalk[MAP_HEIGHT_MAX][MAP_WIDTH_MAX];
-
+//マップの幅と高さを格納する
 int mapdata[MAP_HEIGHT_MAX][MAP_WIDTH_MAX];
 int mapdata2[MAP_HEIGHT_MAX][MAP_WIDTH_MAX];
 int mapdata3[MAP_HEIGHT_MAX][MAP_WIDTH_MAX];
@@ -467,12 +266,6 @@ MAPCHIP mapChip_RokaNowalk;
 CHARA player;
 PLAYERCHIP playerChip1;
 
-//マップの場所を管理
-MAP map[MAP_HEIGHT_MAX][MAP_WIDTH_MAX];
-MAP map2[MAP_HEIGHT_MAX][MAP_WIDTH_MAX];
-MAP map3[MAP_HEIGHT_MAX][MAP_WIDTH_MAX];
-MAP map4[MAP_HEIGHT_MAX][MAP_WIDTH_MAX];
-MAP map5[MAP_HEIGHT_MAX][MAP_WIDTH_MAX];
 
 
 RECT mapColl[MAP_HEIGHT_MAX][MAP_WIDTH_MAX]; //マップの当たり判定
@@ -486,26 +279,26 @@ IMAGE TextBox_Null; //アイテム回収していないとき
 IMAGE TextBox_GenkanKagi;
 IMAGE TextBox_GenkanKagiNasi;
 
-iPOINT startPt{ -1, -1 };
-iPOINT startPt2{ -1 , -1 };
-iPOINT startPt3{ -1 , -1 };
-iPOINT startPt4{ -1,-1 };
-RECT GoalRect = { -1,-1, -1, -1 };	//ゴールの当たり判定
-RECT GoalRect2 = { -1, -1 , -1, -1 };
-RECT GoalRect3 = { -1, -1, -1, -1 };
-RECT GoalRect4 = { -1,-1,-1,-1 };
+iPOINT startPt{ -1, -1 }; //最初のスタートポイント
+iPOINT startPt2{ -1 , -1 };//廊下のスタートポイント
+iPOINT startPt3{ -1 , -1 }; //玄関がある部屋のスタートポイント
+iPOINT startPt4{ -1,-1 }; //外のスタートポイント
+RECT GoalRect = { -1,-1, -1, -1 };	//最初の出口ポイント
+RECT GoalRect2 = { -1, -1 , -1, -1 };//廊下の出口ポイント
+RECT GoalRect3 = { -1, -1, -1, -1 };//玄関がある出口ポイント
+RECT GoalRect4 = { -1,-1,-1,-1 };//外の出口ポイント
 
 RECT Modoru = { -1, -1, -1,-1 }; //一つ前の部屋に戻る判定
-RECT Modoru2 = { -1,-1,-1,-1 };
+RECT Modoru2 = { -1,-1,-1,-1 };//廊下に戻る判定
 RECT Itemflag = { -1,-1,-1,-1 }; //アイテムフラグの当たり判定
-RECT Itemflag2 = { -1,-1,-1,-1 };
+RECT Itemflag2 = { -1,-1,-1,-1 };//最初の部屋のフラグ判定
 iPOINT ModoruPt{ -1,-1 };
 iPOINT Modoru2Pt{ -1,-1, };
 
 //BGM
-MUSIC BGM;
-MUSIC ROKA;
-MUSIC FLAG;
+MUSIC BGM; //タイトルBGM
+MUSIC ROKA;//廊下のBGM
+MUSIC FLAG; //アイテム取得時の効果音※現在は没
 
 int GameScene;		//ゲームシーンを管理
 
@@ -518,10 +311,10 @@ int StartTimeFps;				//測定開始時刻
 int CountFps;					//カウンタ
 float CalcFps;					//計算結果
 int SampleNumFps = GAME_FPS;	//平均を取るサンプル数
-char key[256];
-int playerhandle[16];
+char key[256];					//キーを受け取る
+int playerhandle[16];			//キャラクターのチップが入る
 
-int count;
+int count;	//フレームを取得してカウントする
 
 int x;
 int y;
@@ -529,10 +322,10 @@ int result = 0;			//ファイルの最後かチェック
 int tateCnt = 0;		//縦カウント用
 int yokoCnt = 0;		//横カウント用
 
-FILE* fp = NULL;
+FILE* fp = NULL; //ファイルポインタ
 
-int flag = 0; 
-int flag2 = 0;
+int flag = 0;  //アイテムフラグ
+int flag2 = 0; //アイテムフラグ
 
 
 
@@ -580,17 +373,15 @@ VOID MY_END_DRAW(VOID);		//エンド画面の描画
 
 BOOL MY_CHECK_MAP1_PLAYER_COLL(RECT);	//マップとプレイヤーの当たり判定をする関数
 BOOL MY_CHECK_RECT_COLL(RECT, RECT);	//領域の当たり判定をする関数
-BOOL MY_CHECK_MAP2_PLAYER_COLL(RECT);
-BOOL MY_CHECK_MAP3_PLAYER_COLL(RECT);
-BOOL MY_CHECK_MAP4_PLAYER_COLL(RECT);
+BOOL MY_CHECK_MAP2_PLAYER_COLL(RECT);   //廊下の当たり判定を設定する関数
+BOOL MY_CHECK_MAP3_PLAYER_COLL(RECT);   //玄関の部屋の当たり判定を設定する関数
+BOOL MY_CHECK_MAP4_PLAYER_COLL(RECT);  //外の当たり判定を設定する関数
 
 
-BOOL MY_LOAD_PLAYER(const char* path, PLAYERCHIP* player);
+BOOL MY_LOAD_PLAYER(const char* path, PLAYERCHIP* player); //プレイヤーのチップを分割諸々する
 
 
 
-
-//########## プログラムで最初に実行される関数 ##########
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
 	SetOutApplicationLogValidFlag(FALSE);				//Log.txtを出力しない
@@ -606,8 +397,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	if (DxLib_Init() == -1) { return -1; }	//ＤＸライブラリ初期化処理
 
-	if (LOAD_IMAGE() == FALSE) { return -1; }
-	if (MY_LOAD_PLAYER(GAME_PLAYER_PATH, &playerChip1) == FALSE) { return -1; }
+	if (LOAD_IMAGE() == FALSE) { return -1; } //イメージの宣言をする関数を呼ぶ
+	if (MY_LOAD_PLAYER(GAME_PLAYER_PATH, &playerChip1) == FALSE) { return -1; } //プレイヤーの分割をする関数を呼ぶ
 	
 	
 
@@ -617,6 +408,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	GameScene = GAME_SCENE_START;	//ゲームシーンはスタート画面から
 	SetDrawScreen(DX_SCREEN_BACK);	//Draw系関数は裏画面に描画
 
+
+
+	//###################################ここからテキストファイル読込##########################################
 
 	fp = fopen(".\\TXT\\sakuhin_remake.txt", "r");
 
@@ -668,8 +462,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			yokoCnt = 0;	//横のカウンタ初期化
 		}
 	}
-
-	//開いたら、必ず閉じること！
 	fclose(fp);	//ファイルを閉じる
 
 	result = 0;
@@ -761,7 +553,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		}
 	}
 
-	//開いたら、必ず閉じること！
+	
 	fclose(fp);	//ファイルを閉じる
 	result = 0;
 	tateCnt = 0;
@@ -839,7 +631,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	fclose(fp);	//ファイルを閉じる
 
 
-	//-----------------------廊下csv-----------------------
+
+	//-----------------------廊下txt-----------------------
 	result = 0;
 	tateCnt = 0;
 	yokoCnt = 0;
@@ -881,7 +674,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		}
 	}
 
-	//開いたら、必ず閉じること！
+
 	fclose(fp);	//ファイルを閉じる
 
 	result = 0;
@@ -968,7 +761,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		}
 	}
 
-	//開いたら、必ず閉じること！
+	
 	fclose(fp);	//ファイルを閉じる
 
 	result = 0;
@@ -1177,7 +970,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		}
 	}
 
-	//開いたら、必ず閉じること！
+
 	fclose(fp);	//ファイルを閉じる
 
 	result = 0;
@@ -1391,12 +1184,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		}
 	}
 
-	//開いたら、必ず閉じること！
+	
 	fclose(fp);	//ファイルを閉じる
 
 	result = 0;
 	tateCnt = 0;
 	yokoCnt = 0;
+
+		//################################外######################################
 
 	fp = fopen(".\\TXT\\soto.txt", "r");
 
@@ -1574,7 +1369,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	fclose(fp);	//ファイルを閉じる
 
 
-	
+	//#########################ここまでがtxtファイルの読み込み################################
 				
 		
 	//無限ループ
@@ -1595,7 +1390,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 		
 
-		ChangeFontType(DX_FONTTYPE_ANTIALIASING_8X8);
+		ChangeFontType(DX_FONTTYPE_ANTIALIASING_8X8); //アンチエイリアス
 
 		MY_FPS_UPDATE();	//FPSの処理[更新]
 
@@ -1623,10 +1418,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			break;
 
 		case GAME_SCENE_PLAY3:
-			MY_PLAY3();
+			MY_PLAY3(); //玄関の部屋
 			break;
 		case GAME_SCENE_PLAY4:
-			MY_PLAY4();
+			MY_PLAY4(); //外
 			break;
 
 		case GAME_SCENE_END:
@@ -1784,10 +1579,10 @@ VOID MY_SETUMEI(VOID)
 //説明画面の描画
 VOID MY_START_SETUMEI_DRAW(VOID)
 {
-	DrawGraph(ImageSetumei.x, ImageSetumei.y, ImageSetumei.handle, TRUE);
+	DrawGraph(ImageSetumei.x, ImageSetumei.y, ImageSetumei.handle, TRUE); //説明画像
 	DrawString(0, 0, "スタート画面(ゼロ(0)キーを押して下さい)", GetColor(255, 255, 255));
 
-	if (MY_KEY_DOWN(KEY_INPUT_0) == TRUE)
+	if (MY_KEY_DOWN(KEY_INPUT_0) == TRUE) //シナリオシーンへ遷移
 	{
 		
 		
@@ -1810,7 +1605,7 @@ VOID MY_SCENARIO(VOID)
 
 	DrawString(0, 0, "エンターキーを押してください", GetColor(255, 255, 255));
 
-	if (MY_KEY_DOWN(KEY_INPUT_RETURN) == TRUE)
+	if (MY_KEY_DOWN(KEY_INPUT_RETURN) == TRUE) //プレイ画面へ遷移
 	{
 		if (CheckSoundMem(BGM.handle) != 0)
 		{
@@ -1820,6 +1615,7 @@ VOID MY_SCENARIO(VOID)
 
 		SetMouseDispFlag(FALSE);
 
+		//プレイヤーの位置を設定
 		player.CenterX = startPt.x;
 		player.CenterY = startPt.y;
 
@@ -1882,10 +1678,10 @@ VOID MY_PLAY_PROC(VOID)
 		}
 	}
 
-	player.kind1 = D_1;
-	int old_x = player.image.x;
+	player.kind1 = D_1; //何も押していないときのプレイヤーの向き
+	int old_x = player.image.x; //当たり判定時、前に居た位置へ戻る
 	int old_y = player.image.y;
-	BOOL IsMove = TRUE;
+	BOOL IsMove = TRUE; //移動可能
 
 
 	//上に移動するとき
@@ -2021,13 +1817,14 @@ VOID MY_PLAY_PROC(VOID)
 		PlayerRect.top = player.CenterY + 200 / 20 + 5;
 		PlayerRect.right = player.CenterX + 650 / 20 - 5;
 		PlayerRect.bottom = player.CenterY + 1000 / 20 - 5;
+
 		//ゴールに触れているかチェック
 		if (MY_CHECK_RECT_COLL(PlayerRect, GoalRect) == TRUE)
 		{
 
 			
 			
-
+			//廊下のスタートポイントに設定し遷移
 			player.CenterX = startPt2.x;
 			player.CenterY = startPt2.y;
 
@@ -2085,11 +1882,7 @@ VOID MY_PLAY_PROC(VOID)
 			}
 		}
 
-		////画面外にプレイヤーが行かないようにする
-		//if (player.coll.top < 0) { player.image.x = 0; }
-		//if (player.coll.top + player.coll.right > GAME_WIDTH) { player.image.x = GAME_WIDTH - player.image.width; }
-		//if (player.coll.bottom < 0) { player.image.y = 0; }
-		//if (player.coll.bottom + player.coll.left > GAME_HEIGHT) { player.image.y = GAME_HEIGHT - player.image.height; }
+		
 	
 	
 
@@ -2100,7 +1893,7 @@ VOID MY_PLAY_PROC(VOID)
 VOID MY_PLAY_DRAW(VOID)
 {
 
-
+	//マップの描画
 	
 
 	for (int tate = 0; tate < MAP_HEIGHT_MAX; tate++)
@@ -2153,10 +1946,6 @@ VOID MY_PLAY_DRAW(VOID)
 	}
 
 
-
-
-	/*DrawGraph(player.image.x, player.image.y, playerhandle[13], TRUE);	*/
-
 	//当たり判定の描画（デバッグ用）
 	for (int tate = 0; tate < MAP_HEIGHT_MAX; tate++)
 	{
@@ -2167,6 +1956,7 @@ VOID MY_PLAY_DRAW(VOID)
 			{
 				DrawBox(mapColl[tate][yoko].left, mapColl[tate][yoko].top, mapColl[tate][yoko].right, mapColl[tate][yoko].bottom, GetColor(255, 0, 0), FALSE);
 			}
+			//出口ならば
 			if (mapdata2[tate][yoko] == Z)
 			{
 				DrawBox(mapColl[tate][yoko].left, mapColl[tate][yoko].top, mapColl[tate][yoko].right, mapColl[tate][yoko].bottom, GetColor(255, 0, 0), FALSE);
@@ -2174,17 +1964,20 @@ VOID MY_PLAY_DRAW(VOID)
 
 		}
 	}
+
 	//ゴール当たり判定用
 	DrawBox(GoalRect.left, GoalRect.top, GoalRect.right, GoalRect.bottom, GetColor(255, 255, 0), TRUE);
 	//プレイヤーの当たり判定用
 	DrawBox(player.coll.left, player.coll.top, player.coll.right, player.coll.bottom, GetColor(255, 0, 0), FALSE);
 
+	//現在は没の予定
 	//DrawGraph(TEXT_WIDTH_POSITION, TEXT_HEIGHT_POSITION, TextBox_start.handle, TRUE);
 	//if (MY_KEY_DOWN(KEY_INPUT_RETURN) == TRUE)
 	//{
 	//	DeleteGraph(TextBox_start.handle);
 	//}
 	
+	//プレイヤーの描画
 		DrawGraph(player.image.x, player.image.y, playerChip1.handle[player.kind1], TRUE);
 
 		RECT PlayerRect;
@@ -2194,6 +1987,7 @@ VOID MY_PLAY_DRAW(VOID)
 		PlayerRect.bottom = player.CenterY + 1000 / 20 - 5;
 
 		
+		//フラグを回収しているかどうかのイベント
 		if (MY_CHECK_RECT_COLL(PlayerRect, Itemflag2) == TRUE && flag == 1)
 		{
 			flag2 = 1;
@@ -2215,7 +2009,7 @@ VOID MY_PLAY_DRAW(VOID)
 		}
 
 		
-
+		//鍵を取得していないとき
 		if (MY_CHECK_RECT_COLL(PlayerRect, Itemflag2) == TRUE && flag == 0 )
 		{
 			
@@ -2249,6 +2043,7 @@ VOID MY_PLAY2(VOID)
 VOID MY_PLAY_PROC2(VOID)
 {
 
+	//廊下のBGM
 	if (CheckSoundMem(ROKA.handle) == 0)
 	{
 		//BGMの音量を下げる
@@ -2284,10 +2079,12 @@ VOID MY_PLAY_PROC2(VOID)
 		}
 	}
 
-	player.kind1 = D_1;
-	int old_x = player.image.x;
+
+
+	player.kind1 = D_1; //何も押していないときのプレイヤーの向き
+	int old_x = player.image.x; //当たり判定時
 	int old_y = player.image.y;
-	BOOL IsMove = TRUE;
+	BOOL IsMove = TRUE; //動けます
 
 
 	//上に移動するとき
@@ -2430,7 +2227,7 @@ VOID MY_PLAY_PROC2(VOID)
 		//ゴールに触れているかチェック
 	if (MY_CHECK_RECT_COLL(PlayerRect, GoalRect2) == TRUE)
 	{
-
+		//玄関の部屋へ遷移
 
 			player.CenterX = startPt3.x;
 			player.CenterY = startPt3.y;
@@ -2453,7 +2250,7 @@ VOID MY_PLAY_PROC2(VOID)
 	if (MY_CHECK_RECT_COLL(PlayerRect, Modoru) == TRUE)
 	{
 
-
+		//前の部屋に戻るための当たり判定、前の部屋に戻る
 
 		player.CenterX = ModoruPt.x;
 		player.CenterY = ModoruPt.y;
@@ -2498,6 +2295,7 @@ VOID MY_PLAY_PROC2(VOID)
 
 	if (IsMove == false)
 	{
+		//当たる前に戻る
 		player.image.x = old_x;
 		player.image.y = old_y;
 	}
@@ -2522,7 +2320,7 @@ VOID MY_PLAY_PROC2(VOID)
 
 VOID MY_PLAY_DRAW2(VOID)
 {
-
+	//マップを描画
 
 	for (int tate = 0; tate < MAP_HEIGHT_MAX; tate++)
 	{
@@ -2572,6 +2370,7 @@ VOID MY_PLAY_DRAW2(VOID)
 
 	}
 
+	//プレイヤーの描画
 	DrawGraph(player.image.x, player.image.y, playerChip1.handle[player.kind1], TRUE);
 
 	//当たり判定の描画（デバッグ用）
@@ -2580,7 +2379,7 @@ VOID MY_PLAY_DRAW2(VOID)
 		for (int yoko = 0; yoko < MAP_WIDTH_MAX; yoko++)
 		{
 
-			////中壁
+			//一つ前に戻る判定
 			if (mapdata6[tate][yoko] == M)
 			{
 				DrawBox(mapColl[tate][yoko].left, mapColl[tate][yoko].top, mapColl[tate][yoko].right, mapColl[tate][yoko].bottom, GetColor(255, 0, 0), FALSE);
@@ -2632,8 +2431,8 @@ VOID MY_PLAY_PROC3(VOID)
 		}
 	}
 
-	player.kind1 = D_1;
-	int old_x = player.image.x;
+	player.kind1 = D_1; //何も押していないときのプレイヤの向き
+	int old_x = player.image.x; //当たり判定用
 	int old_y = player.image.y;
 	BOOL IsMove = TRUE;
 
@@ -2778,6 +2577,8 @@ VOID MY_PLAY_PROC3(VOID)
 	if (MY_CHECK_RECT_COLL(PlayerRect, GoalRect3) == TRUE && flag2 == 1)
 	{
 
+		//外へ遷移する
+
 		player.CenterX = startPt4.x;
 		player.CenterY = startPt4.y;
 
@@ -2797,7 +2598,7 @@ VOID MY_PLAY_PROC3(VOID)
 	if (MY_CHECK_RECT_COLL(PlayerRect, Modoru2) == TRUE)
 	{
 
-
+		//廊下に戻る判定
 
 		player.CenterX = Modoru2Pt.x;
 		player.CenterY = Modoru2Pt.y;
@@ -2819,7 +2620,7 @@ VOID MY_PLAY_PROC3(VOID)
 	//プレイヤーとマップがあたっていたら
 	if (MY_CHECK_MAP3_PLAYER_COLL(player.coll) == TRUE)
 	{
-
+		//動けません
 		IsMove = false;
 
 
@@ -2827,7 +2628,7 @@ VOID MY_PLAY_PROC3(VOID)
 
 	if (IsMove == false)
 	{
-		player.image.x = old_x;
+		player.image.x = old_x; //当たる前に戻る
 		player.image.y = old_y;
 	}
 
@@ -2851,6 +2652,8 @@ VOID MY_PLAY_PROC3(VOID)
 
 VOID MY_PLAY_DRAW3(VOID)
 {
+
+	//マップを描画する
 	for (int tate = 0; tate < MAP_HEIGHT_MAX; tate++)
 	{
 		for (int yoko = 0; yoko < MAP_WIDTH_MAX; yoko++)
@@ -2902,10 +2705,12 @@ VOID MY_PLAY_DRAW3(VOID)
 
 	//ゴール当たり判定用
 	/*DrawBox(GoalRect3.left, GoalRect3.top, GoalRect3.right, GoalRect3.bottom, GetColor(255, 255, 0), TRUE);
+	//戻る判定用
 	DrawBox(Modoru2.left, Modoru2.top, Modoru2.right, Modoru2.bottom, GetColor(255, 0, 0), TRUE);*/
 	
-
+	//アイテムフラグの判定用
 	//DrawBox(Itemflag.left, Itemflag.top, Itemflag.right, Itemflag.bottom, GetColor(0, 255, 0), TRUE);
+	
 	//当たり判定の描画（デバッグ用）
 	for (int tate = 0; tate < MAP_HEIGHT_MAX; tate++)
 	{
@@ -2920,7 +2725,7 @@ VOID MY_PLAY_DRAW3(VOID)
 		}
 	}
 
-	DrawGraph(player.image.x, player.image.y, playerChip1.handle[player.kind1], TRUE);
+	DrawGraph(player.image.x, player.image.y, playerChip1.handle[player.kind1], TRUE);//プレイヤの描画
 
 
 	RECT PlayerRect;
@@ -2929,6 +2734,8 @@ VOID MY_PLAY_DRAW3(VOID)
 	PlayerRect.right = player.CenterX + 650 / 20 - 5;
 	PlayerRect.bottom = player.CenterY + 1000 / 20 - 5;
 
+
+	//フラグイベント
 	if (MY_CHECK_RECT_COLL(PlayerRect, Itemflag) == TRUE /*&& MY_KEY_DOWN(KEY_INPUT_RETURN)*/)
 	{
 		/*DrawString(0, 0, "謎のカギを手に入れた！", GetColor(255, 0, 0));*/
@@ -2942,6 +2749,8 @@ VOID MY_PLAY_DRAW3(VOID)
 		}
 	
 	}
+
+	//鍵を回収していないかつ、玄関へ行くとき
 
 	if (MY_CHECK_RECT_COLL(PlayerRect, GoalRect3) == TRUE && flag2 == 0)
 	{
@@ -2969,7 +2778,9 @@ VOID MY_PLAY4(VOID)
 
 VOID MY_PLAY_PROC4(VOID)
 {
-	player.kind1 = D_1;
+
+
+	player.kind1 = D_1; //何も押していないときのプレイヤの向き
 	int old_x = player.image.x;
 	int old_y = player.image.y;
 	BOOL IsMove = TRUE;
@@ -3116,6 +2927,7 @@ VOID MY_PLAY_PROC4(VOID)
 	{
 
 
+		//エンド画面へ遷移
 
 		GameScene = GAME_SCENE_END;
 
@@ -3124,7 +2936,7 @@ VOID MY_PLAY_PROC4(VOID)
 	}
 
 
-
+	//家の中に戻れるようにする予定
 	//if (MY_CHECK_RECT_COLL(PlayerRect, Modoru2) == TRUE)
 	//{
 
@@ -3150,7 +2962,7 @@ VOID MY_PLAY_PROC4(VOID)
 	//プレイヤーとマップがあたっていたら
 	if (MY_CHECK_MAP4_PLAYER_COLL(player.coll) == TRUE)
 	{
-
+		//動けません
 		IsMove = false;
 
 
@@ -3158,7 +2970,7 @@ VOID MY_PLAY_PROC4(VOID)
 
 	if (IsMove == false)
 	{
-		player.image.x = old_x;
+		player.image.x = old_x;//当たる前に戻る
 		player.image.y = old_y;
 	}
 
@@ -3183,6 +2995,8 @@ VOID MY_PLAY_PROC4(VOID)
 
 VOID MY_PLAY_DRAW4(VOID)
 {
+
+	//マップの描画
 
 	for (int tate = 0; tate < MAP_HEIGHT_MAX; tate++)
 	{
@@ -3233,8 +3047,9 @@ VOID MY_PLAY_DRAW4(VOID)
 
 	}
 
-	DrawGraph(player.image.x, player.image.y, playerChip1.handle[player.kind1], TRUE);
+	DrawGraph(player.image.x, player.image.y, playerChip1.handle[player.kind1], TRUE);//プレイヤの描画
 
+	//出口用
 	//DrawBox(GoalRect4.left, GoalRect4.top, GoalRect4.right, GoalRect4.bottom, GetColor(255, 255, 0), TRUE);
 
 	return;
@@ -3303,7 +3118,7 @@ BOOL LOAD_IMAGE(VOID)
 
 	//########################################################################
 	
-	strcpy_s(TextBox_start.path, TEXT_BOX);	
+	strcpy_s(TextBox_start.path, TEXT_BOX);	//没画像
 	TextBox_start.handle = LoadGraph(TextBox_start.path);			//読み込み
 	if (TextBox_start.handle == -1)
 	{
@@ -3312,7 +3127,7 @@ BOOL LOAD_IMAGE(VOID)
 		return FALSE;
 	}
 
-	strcpy_s(TextBox_flag.path, TEXT_BOX_1);
+	strcpy_s(TextBox_flag.path, TEXT_BOX_1);//最初のフラグイベントのテキストボックス
 	TextBox_flag.handle = LoadGraph(TextBox_flag.path);			//読み込み
 	if (TextBox_flag.handle == -1)
 	{
@@ -3321,7 +3136,7 @@ BOOL LOAD_IMAGE(VOID)
 		return FALSE;
 	}
 
-	strcpy_s(TextBox_Null.path, TEXT_BOX_2);
+	strcpy_s(TextBox_Null.path, TEXT_BOX_2); //アイテムを回収していないときの玄関のテキストボックス
 	TextBox_Null.handle = LoadGraph(TextBox_Null.path);			//読み込み
 	if (TextBox_Null.handle == -1)
 	{
@@ -3330,7 +3145,7 @@ BOOL LOAD_IMAGE(VOID)
 		return FALSE;
 	}
 
-	strcpy_s(TextBox_GenkanKagiNasi.path, TEXT_BOX_3);
+	strcpy_s(TextBox_GenkanKagiNasi.path, TEXT_BOX_3); //鍵を回収していないとき、箱に近づいたときに発生するテキストボックス
 	TextBox_GenkanKagiNasi.handle = LoadGraph(TextBox_GenkanKagiNasi.path);			//読み込み
 	if (TextBox_GenkanKagiNasi.handle == -1)
 	{
@@ -3339,7 +3154,7 @@ BOOL LOAD_IMAGE(VOID)
 		return FALSE;
 	}
 
-	strcpy_s(TextBox_GenkanKagi.path, TEXT_BOX_4);
+	strcpy_s(TextBox_GenkanKagi.path, TEXT_BOX_4); //鍵を回収しているときに箱を開けられる
 	TextBox_GenkanKagi.handle = LoadGraph(TextBox_GenkanKagi.path);			//読み込み
 	if (TextBox_GenkanKagi.handle == -1)
 	{
@@ -3353,8 +3168,8 @@ BOOL LOAD_IMAGE(VOID)
 	//###########################################################################
 
 	int mapRes = LoadDivGraph(
-		GAME_MAP_PATH,										//赤弾のパス
-		MAP_DIV_NUM, MAP_DIV_TATE, MAP_DIV_YOKO,			//赤弾を分割する数
+		GAME_MAP_PATH,										//マップチップパス
+		MAP_DIV_NUM, MAP_DIV_TATE, MAP_DIV_YOKO,			//マップチップを分割する数
 		MAP_DIV_WIDTH, MAP_DIV_HEIGHT,						//画像を分割するの幅と高さ
 		&mapChip.handle[0]);								//分割した画像が入るハンドル
 
@@ -3371,12 +3186,10 @@ BOOL LOAD_IMAGE(VOID)
 	GetGraphSize(mapChip.handle[0], &mapChip.width, &mapChip.height);
 
 	int mapRes10 = LoadDivGraph(
-		GAME_MAP_PATH2,										//赤弾のパス
-		MAP_NUM, MAP_YOKO, MAP_TATE,			//赤弾を分割する数
+		GAME_MAP_PATH2,										//二つ目のマップチップのパス
+		MAP_NUM, MAP_YOKO, MAP_TATE,						//マップを分割する数
 		MAP_DIV_WIDTH, MAP_DIV_HEIGHT,						//画像を分割するの幅と高さ
 		&mapChip2.handle[0]);								//分割した画像が入るハンドル
-
-
 
 	if (mapRes10 == -1)
 	{
@@ -3388,111 +3201,9 @@ BOOL LOAD_IMAGE(VOID)
 	//幅と高さを取得
 	GetGraphSize(mapChip2.handle[0], &mapChip2.width, &mapChip2.height);
 
-	//for (int tate = 0; tate < MAP_HEIGHT_MAX; tate++)
-	//{
-	//	for (int yoko = 0; yoko < MAP_WIDTH_MAX; yoko++)
-	//	{
-	//		//マップデータ初期化用に情報をコピー
-	//		mapDataInit[tate][yoko] = MapData[tate][yoko];
-
-	//		//マップの種類をコピー
-	//		map[tate][yoko].kind = MapData[tate][yoko];
-
-	//		//マップの幅と高さをコピー
-	//		map[tate][yoko].width = mapChip.width;
-	//		map[tate][yoko].height = mapChip.height;
-
-	//		//マップの座標を設定
-	//		map[tate][yoko].x = yoko * map[tate][yoko].width;
-	//		map[tate][yoko].y = tate * map[tate][yoko].height;
-	//	}
-	//}
-
-	int mapRes2 = LoadDivGraph(
-		GAME_MAP_PATH,										//赤弾のパス
-		MAP_DIV_NUM, MAP_DIV_TATE, MAP_DIV_YOKO,			//赤弾を分割する数
-		MAP_DIV_WIDTH, MAP_DIV_HEIGHT,						//画像を分割するの幅と高さ
-		&mapChip_Nowalk.handle[0]);								//分割した画像が入るハンドル
-
-	if (mapRes2 == -1)
-	{
-		//エラーメッセージ表示
-		MessageBox(GetMainWindowHandle(), GAME_MAP_PATH, IMAGE_LOAD_ERR_TITLE, MB_OK);
-		return FALSE;
-	}
-
-	GetGraphSize(mapChip_Nowalk.handle[0], &mapChip_Nowalk.width, &mapChip_Nowalk.height);
-	//for (int tate = 0; tate < MAP_HEIGHT_MAX; tate++)
-	//{
-	//	for (int yoko = 0; yoko < MAP_WIDTH_MAX; yoko++)
-	//	{
-	//		//マップデータ初期化用に情報をコピー
-	//		mapDataInit_Nowalk[tate][yoko] = MapData_NoWalk[tate][yoko];
-
-	//		//マップの種類をコピー
-	//		map2[tate][yoko].kind = MapData_NoWalk[tate][yoko];
-
-	//		//マップの幅と高さをコピー
-	//		map2[tate][yoko].width = mapChip.width;
-	//		map2[tate][yoko].height = mapChip.height;
-
-	//		//マップの座標を設定
-	//		map2[tate][yoko].x = yoko * map2[tate][yoko].width;
-	//		map2[tate][yoko].y = tate * map2[tate][yoko].height;
-	//	}
-	//}
-
-
 	
 
-
-	int mapRes3 = LoadDivGraph(
-		GAME_MAP_PATH,										//赤弾のパス
-		MAP_DIV_NUM, MAP_DIV_TATE, MAP_DIV_YOKO,			//赤弾を分割する数
-		MAP_DIV_WIDTH, MAP_DIV_HEIGHT,						//画像を分割するの幅と高さ
-		&mapChip_Object.handle[0]);								//分割した画像が入るハンドル
-
-	if (mapRes3 == -1)
-	{
-		//エラーメッセージ表示
-		MessageBox(GetMainWindowHandle(), GAME_MAP_PATH, IMAGE_LOAD_ERR_TITLE, MB_OK);
-		return FALSE;
-	}
-
-	GetGraphSize(mapChip_Object.handle[0], &mapChip_Object.width, &mapChip_Object.height);
-	//for (int tate = 0; tate < MAP_HEIGHT_MAX; tate++)
-	//{
-	//	for (int yoko = 0; yoko < MAP_WIDTH_MAX; yoko++)
-	//	{
-	//		//マップデータ初期化用に情報をコピー
-	//		mapDataInit_Object[tate][yoko] = MapData_Object[tate][yoko];
-
-	//		//マップの種類をコピー
-	//		map3[tate][yoko].kind = MapData_Object[tate][yoko];
-
-	//		//マップの幅と高さをコピー
-	//		map3[tate][yoko].width = mapChip.width;
-	//		map3[tate][yoko].height = mapChip.height;
-
-	//		//マップの座標を設定
-	//		map3[tate][yoko].x = yoko * map3[tate][yoko].width;
-	//		map3[tate][yoko].y = tate * map3[tate][yoko].height;
-	//	}
-	//}
-
-	//LoadDivGraph(
-	//	GAME_PLAYER_PATH,										//プレイヤーのパス
-	//	PLAYER_DIV_NUM, PLAYER_DIV_TATE, PLAYER_DIV_YOKO,			//赤弾を分割する数
-	//	PLAYER_DIV_WIDTH, PLAYER_DIV_HEIGHT,						//画像を分割するの幅と高さ
-	//	&playerhandle[0]);								//分割した画像が入るハンドル
-
-	//strcpy_s(player.image.path, GAME_PLAYER_PATH);
-	//player.image.handle = LoadGraph(player.image.path);
-	//if (player.image.handle == -1)
-	//{
-	//	MessageBox(GetMainWindowHandle(), GAME_PLAYER_PATH, IMAGE_LOAD_ERR_TITLE, MB_OK);
-	//	return(FALSE);
-	//}
+	
 	GetGraphSize(player.image.handle, &player.image.width, &player.image.height);
 	player.image.x = GAME_WIDTH / 2 - player.image.width / 2;
 	player.image.y = GAME_HEIGHT / 2 - player.image.height / 2;
@@ -3515,65 +3226,13 @@ BOOL LOAD_IMAGE(VOID)
 		}
 	}
 
-	//LoadDivGraph(
-	//	GAME_MAP_PATH,										//廊下のパス
-	//	MAP_DIV_NUM, MAP_DIV_TATE, MAP_DIV_YOKO,			//マップチップを分割する数
-	//	MAP_DIV_WIDTH, MAP_DIV_HEIGHT,						//画像を分割するの幅と高さ
-	//	&mapChip_Roka.handle[0]);								//分割した画像が入るハンドル
-
-	//GetGraphSize(mapChip_Roka.handle[0], &mapChip_Roka.width, &mapChip_Roka.height);
-	//for (int tate = 0; tate < MAP_HEIGHT_MAX; tate++)
-	//{
-	//	for (int yoko = 0; yoko < MAP_WIDTH_MAX; yoko++)
-	//	{
-	//		//マップデータ初期化用に情報をコピー
-	//		mapDataInit_Roka[tate][yoko] = MapData_Roka[tate][yoko];
-
-	//		//マップの種類をコピー
-	//		map4[tate][yoko].kind = MapData_Roka[tate][yoko];
-
-	//		//マップの幅と高さをコピー
-	//		map4[tate][yoko].width = mapChip.width;
-	//		map4[tate][yoko].height = mapChip.height;
-
-	//		//マップの座標を設定
-	//		map4[tate][yoko].x = yoko * map4[tate][yoko].width;
-	//		map4[tate][yoko].y = tate * map4[tate][yoko].height;
-	//	}
-	//}
-
-	//LoadDivGraph(
-	//	GAME_MAP_PATH,										//赤弾のパス
-	//	MAP_DIV_NUM, MAP_DIV_TATE, MAP_DIV_YOKO,			//赤弾を分割する数
-	//	MAP_DIV_WIDTH, MAP_DIV_HEIGHT,						//画像を分割するの幅と高さ
-	//	&mapChip_RokaNowalk.handle[0]);								//分割した画像が入るハンドル
-
-	//GetGraphSize(mapChip_RokaNowalk.handle[0], &mapChip_RokaNowalk.width, &mapChip_RokaNowalk.height);
-	//for (int tate = 0; tate < MAP_HEIGHT_MAX; tate++)
-	//{
-	//	for (int yoko = 0; yoko < MAP_WIDTH_MAX; yoko++)
-	//	{
-	//		//マップデータ初期化用に情報をコピー
-	//		mapDataInit_RokaNoWalk[tate][yoko] = MapData_RokaNoWalk[tate][yoko];
-
-	//		//マップの種類をコピー
-	//		map5[tate][yoko].kind = MapData_RokaNoWalk[tate][yoko];
-
-	//		//マップの幅と高さをコピー
-	//		map5[tate][yoko].width = mapChip.width;
-	//		map5[tate][yoko].height = mapChip.height;
-
-	//		//マップの座標を設定
-	//		map5[tate][yoko].x = yoko * map5[tate][yoko].width;
-	//		map5[tate][yoko].y = tate * map5[tate][yoko].height;
-	//	}
-	//}
+	
 	return TRUE;
 }
 
 BOOL MY_LOAD_PLAYER(const char* path, PLAYERCHIP* player)
 {
-	//マップの画像を分割する
+	//プレイヤーの画像を分割する
 	int mapRes = LoadDivGraph(
 		GAME_PLAYER_PATH,										//プレイヤーのパス
 		PLAYER_DIV_NUM, PLAYER_DIV_TATE, PLAYER_DIV_YOKO,			
@@ -3614,7 +3273,7 @@ VOID DELETE_IMAGE(VOID)
 BOOL LOAD_MUSIC(VOID)
 {
 	//タイトルBGM
-	strcpy_s(BGM.path, TITLE_BGM_PATH);		//パスの設定
+	strcpy_s(BGM.path, TITLE_BGM_PATH);		//タイトルBGMの設定
 	BGM.handle = LoadSoundMem(BGM.path);	//読み込み
 	if (BGM.handle == -1)
 	{
@@ -3623,7 +3282,7 @@ BOOL LOAD_MUSIC(VOID)
 		return FALSE;
 	}
 
-	strcpy_s(ROKA.path, ROKA_BGM_PATH);		//パスの設定
+	strcpy_s(ROKA.path, ROKA_BGM_PATH);		//廊下BGMの設定
 	ROKA.handle = LoadSoundMem(ROKA.path);	//読み込み
 	if (ROKA.handle == -1)
 	{
@@ -3632,7 +3291,7 @@ BOOL LOAD_MUSIC(VOID)
 		return FALSE;
 	}
 
-	strcpy_s(FLAG.path, FLAG_BGM_PATH);		//パスの設定
+	strcpy_s(FLAG.path, FLAG_BGM_PATH);		//アイテム獲得時効果音の設定
 	FLAG.handle = LoadSoundMem(FLAG.path);	//読み込み
 	if (FLAG.handle == -1)
 	{
@@ -3667,12 +3326,9 @@ BOOL MY_CHECK_MAP1_PLAYER_COLL(RECT player)
 			//プレイヤーとマップが当たっているとき
 			if (MY_CHECK_RECT_COLL(player, mapColl[tate][yoko]) == TRUE)
 			{
-				/*if (GAME_SCENE_PLAY2 == TRUE)
-				{
-					return false;
-				}*/
+				
 	
-				//壁のときは、プレイヤーとマップが当たっている
+				//プレイヤーとマップが当たっている
 				if (mapdata3[tate][yoko] == d) { return TRUE; }
 				if (mapdata3[tate][yoko] == B) { return TRUE; }
 				if (mapdata2[tate][yoko] == t) { return TRUE; }
@@ -3737,13 +3393,11 @@ BOOL MY_CHECK_MAP3_PLAYER_COLL(RECT player)
 
 				//壁のときは、プレイヤーとマップが当たっている
 				if (mapdata8[tate][yoko] == t) { return TRUE; }
-
 				if (mapdata8[tate][yoko] == s) { return TRUE; }
 				if (mapdata8[tate][yoko] == g) { return TRUE; }
 				if (mapdata8[tate][yoko] == P) { return TRUE; }
 				if (mapdata8[tate][yoko] == N) { return TRUE; }
 				if (mapdata8[tate][yoko] == O) { return TRUE; }
-
 				if (mapdata9[tate][yoko] == d) { return TRUE; }
 				if (mapdata9[tate][yoko] == p) { return TRUE; }
 				if (mapdata9[tate][yoko] == q) { return TRUE; }
@@ -3770,7 +3424,7 @@ BOOL MY_CHECK_MAP4_PLAYER_COLL(RECT player)
 			if (MY_CHECK_RECT_COLL(player, mapColl[tate][yoko]) == TRUE)
 			{
 
-				//壁のときは、プレイヤーとマップが当たっている
+				//プレイヤーとマップが当たっている
 			
 
 				if (mapdata13[tate][yoko] == FE) { return TRUE; }
