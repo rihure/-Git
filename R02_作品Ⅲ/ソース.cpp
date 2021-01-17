@@ -63,6 +63,13 @@
 //キーボードの種類
 #define KEY_CODE_KIND		256	//256種類
 
+//文字描画用
+#define STR_DRAW_SIZE	24		//フォントのサイズ
+#define STR_DRAW_ROW_MAX	4	//文字列の最大行
+#define STR_ROW_MAX		30		//文字行の最大値
+#define STR_COL_MAX		255		//文字列の最大値
+#define STR_DRAW_SPEED	1		//文字列の描画速度(何フレームごとに、１文字描画するか？)
+
 //スタートエラー
 #define START_ERR_TITLE		TEXT("スタート位置エラー")
 #define START_ERR_CAPTION	TEXT("スタート位置が決まっていません")
@@ -75,12 +82,6 @@
 //終了ダイアログ用
 #define MOUSE_R_CLICK_TITLE		TEXT("ゲーム中断")
 #define MOUSE_R_CLICK_CAPTION	TEXT("ゲームを中断し、タイトル画面に戻りますか？")
-
-
-
-
-
-
 
 enum GAME_SCENE {
 	GAME_SCENE_START,
@@ -259,14 +260,8 @@ int MapDataMode[MAP_HEIGHT_MAX][MAP_WIDTH_MAX];
 //マップチップの画像を管理
 MAPCHIP mapChip;
 MAPCHIP mapChip2;
-MAPCHIP mapChip_Nowalk;
-MAPCHIP mapChip_Object;
-MAPCHIP mapChip_Roka;
-MAPCHIP mapChip_RokaNowalk;
 CHARA player;
 PLAYERCHIP playerChip1;
-
-
 
 RECT mapColl[MAP_HEIGHT_MAX][MAP_WIDTH_MAX]; //マップの当たり判定
 
@@ -327,6 +322,49 @@ FILE* fp = NULL; //ファイルポインタ
 int flag = 0;  //アイテムフラグ
 int flag2 = 0; //アイテムフラグ
 
+//テキストボックスを表示するかの判定
+int hyouji;
+int hyouji2;
+int hyouji3;
+int hyouji4;
+
+int DrawPointX, DrawPointY;	// 文字列描画の位置
+int RowPos;					// 文字列の行数
+int ColPos;					// 文字列の列数
+BOOL EndFlag = FALSE;		// 文字列終了フラグ
+char OneMojiBuf[3];			// １文字分一時記憶配列(１文字分＋\0)
+char DrawStringBuf[STR_DRAW_ROW_MAX][STR_COL_MAX];		// 描画する文字列を入れる
+int DefaultFontSize;								// デフォルトのフォントサイズを取得
+RECT rectString = { 0,GAME_HEIGHT - STR_DRAW_SIZE * STR_DRAW_ROW_MAX,GAME_WIDTH,GAME_HEIGHT };	// 文字列描画用エリア
+int DrawSpeedCnt = 0;					//文字の描画速度カウンタ
+int DrawSpeedCntMax = STR_DRAW_SPEED;	//文字の描画速度カウンタMAX
+
+int Kaigyou(VOID);							//改行関数
+
+
+char SCENARIO[STR_ROW_MAX][STR_COL_MAX] =
+{
+	"ある日のこと、目が覚めた主人公は見知らぬ場所にいた。B",
+	"@　倉庫として使っているのかわからないが",
+	"@　周りには多くのダンボールが積み重なっていた。B",
+	"@　主人公はこの謎の家から出るために、探索をすることにした。B",
+	"@　＊エスケープキーを押してくださいB",
+	"E"
+
+};
+
+char SCENARIO_END[STR_ROW_MAX][STR_COL_MAX] =
+{
+	"あの家になぜ自分は居たのかB",
+	"@なぜ閉じ込められていたのか、未だに分からなかった。B",
+	"@しかし、あの家には得体のしれないナニかが居るのはB",
+	"@謎の雰囲気で分かった。B",
+	"@その後日、気になって家があった場所へ行ったがB",
+	"@そこは平地で草木が一本も生えていなかった。B",
+	"E"
+
+};
+
 
 
 
@@ -370,6 +408,9 @@ VOID MY_PLAY_DRAW4(VOID);	//外の描画
 VOID MY_END(VOID);			//エンド画面
 VOID MY_END_PROC(VOID);		//エンド画面の処理
 VOID MY_END_DRAW(VOID);		//エンド画面の描画
+
+VOID NovelProc(char str[][STR_COL_MAX]);	//小説文字列処理関数（引数で描画する文字列をもらう）
+VOID NovelDraw(VOID);						//小説文字列描画関数
 
 BOOL MY_CHECK_MAP1_PLAYER_COLL(RECT);	//マップとプレイヤーの当たり判定をする関数
 BOOL MY_CHECK_RECT_COLL(RECT, RECT);	//領域の当たり判定をする関数
@@ -1512,7 +1553,6 @@ VOID MY_ALL_KEYDOWN_UPDATE(VOID)
 }
 
 //キーを押しているか、キーコードで判断する
-//引　数：int：キーコード：KEY_INPUT_???
 BOOL MY_KEY_DOWN(int KEY_INPUT_)
 {
 	//キーコードのキーを押している時
@@ -1523,6 +1563,55 @@ BOOL MY_KEY_DOWN(int KEY_INPUT_)
 	else
 	{
 		return FALSE;	//キーを押していない
+	}
+}
+
+//キーを押し上げたか、キーコードで判断する
+BOOL MY_KEY_UP(int KEY_INPUT_)
+{
+	if (OldAllKeyState[KEY_INPUT_] >= 1	//直前は押していて
+		&& AllKeyState[KEY_INPUT_] == 0)	//今は押していないとき
+	{
+		return TRUE;	//キーを押し上げている
+	}
+	else
+	{
+		return FALSE;	//キーを押し上げていない
+	}
+}
+
+//キーをプッシュしたか、キーコードで判断する
+BOOL MY_KEY_PUSH(int KEY_INPUT_)
+{
+	if (OldAllKeyState[KEY_INPUT_] == 0		//直前は押していなくて
+		&& AllKeyState[KEY_INPUT_] >= 1)	//今は押しているとき
+	{
+		return TRUE;	//キーをプッシュした（押し続けても、１回のみ発生）
+	}
+	else
+	{
+		return FALSE;	//キーをプッシュしていないか、押し続けている
+	}
+}
+
+//キーを押し続けているか、キーコードで判断する
+//引　数：int：キーコード：KEY_INPUT_???
+//引　数：int：キーを押し続ける時間(ミリ秒)
+BOOL MY_KEYDOWN_KEEP(int KEY_INPUT_, int milliTime)
+{
+	int MilliSec = 1000;	//１秒は1000ミリ秒
+
+	//押し続ける時間=秒数×FPS値
+	//例）60FPSのゲームで、1秒間押し続けるなら、1秒×60FPS
+	int UpdateTime = (milliTime / MilliSec) * GAME_FPS;
+
+	if (AllKeyState[KEY_INPUT_] > UpdateTime)
+	{
+		return TRUE;	//押し続けている
+	}
+	else
+	{
+		return FALSE;	//押し続けていない
 	}
 }
 
@@ -1564,6 +1653,212 @@ VOID MY_START_PROC(VOID)
 	return;
 }
 
+//改行関数
+int Kaigyou(VOID)
+{
+	// 描画列を最初に戻す
+	DrawPointX = 0;
+
+	DrawPointY++;	// 描画行位置を一つ下げる
+
+	
+
+	return 0;
+}
+
+//小説文字列処理関数
+//引数で、描画させたい文字列をもらってくる
+VOID NovelProc(char str[][STR_COL_MAX])
+{
+	switch (str[RowPos][ColPos])	//文字を１つ取得
+	{
+	case '@':	// 改行文字
+
+		// 改行処理および参照文字位置を一つ進める
+		Kaigyou();
+		ColPos++;	//次の文字を読み取る
+
+		break;
+
+	case 'B':	// ボタン押し待ち文字
+
+		//ボタンを押されたら、次の文章へ
+		if (MY_KEY_DOWN(KEY_INPUT_RETURN) == TRUE) { ColPos++; }
+
+		break;
+
+	case 'Q':	// 質問文字
+
+		//１ボタンを押されたとき
+		if (MY_KEY_DOWN(KEY_INPUT_1) == TRUE)
+		{
+			//最初が1から始まる文章を探す
+			for (int i = 0; i < STR_ROW_MAX; i++)
+			{
+				if (str[i][0] == '1')
+				{
+					RowPos = i;
+					ColPos = 1;
+					break;
+				}
+			}
+		}
+
+		//２ボタンを押されたとき
+		if (MY_KEY_DOWN(KEY_INPUT_2) == TRUE)
+		{
+			//最初が2から始まる文章を探す
+			for (int i = 0; i < STR_ROW_MAX; i++)
+			{
+				if (str[i][0] == '2')
+				{
+					RowPos = i;
+					ColPos = 1;
+					break;
+				}
+			}
+		}
+
+		break;
+
+	case 'X':	// 質問から戻ってくる文字
+
+		//ボタンを押されたら、次の文章へ
+		if (MY_KEY_DOWN(KEY_INPUT_RETURN) == TRUE)
+		{
+			//最初がXから始まる文章を探す
+			for (int i = 0; i < STR_ROW_MAX; i++)
+			{
+				if (str[i][0] == 'X')
+				{
+					RowPos = i;
+					ColPos = 1;
+					break;
+				}
+			}
+		}
+
+		break;
+
+	case 'E':	// 終了文字
+
+		// 終了フラグを立てるおよび参照文字位置を一つ進める
+		EndFlag = TRUE;
+		ColPos++;	//次の文字を読み取る
+
+		break;
+
+	case 'C':	// クリア文字
+
+		//描画している文字列を空にする
+		for (int i = 0; i < STR_DRAW_ROW_MAX; i++)
+		{
+			for (int j = 0; j < STR_COL_MAX; j++)
+			{
+				DrawStringBuf[i][j] = '\0';
+			}
+		}
+
+		//文字の位置を初期化
+		DrawPointY = 0;
+		DrawPointX = 0;
+		ColPos++;
+
+		break;
+
+	default:	// その他の文字
+
+		//描画タイミングを計算
+		if (DrawSpeedCnt < DrawSpeedCntMax)
+		{
+			DrawSpeedCnt++;
+		}
+		else
+		{
+			// １文字分抜き出す
+			OneMojiBuf[0] = str[RowPos][ColPos];
+			OneMojiBuf[1] = str[RowPos][ColPos + 1];
+			OneMojiBuf[2] = '\0';
+
+			// 文字列を結合する
+			strcat(DrawStringBuf[DrawPointY], OneMojiBuf);
+
+			// 参照文字位置を２バイト進める
+			ColPos += 2;
+
+			// カーソルを一文字分進める
+			DrawPointX++;
+
+			// 画面からはみ出たら改行する
+			if (DrawPointX * STR_DRAW_SIZE + STR_DRAW_SIZE > rectString.right)
+			{
+				Kaigyou();
+			}
+
+			DrawSpeedCnt = 0;
+		}
+
+		break;
+	}
+
+	// 参照文字列の終端まで行っていたら参照文字列を進める
+	if (str[RowPos][ColPos] == '\0')
+	{
+		RowPos++;
+		ColPos = 0;
+	}
+
+	return;
+}
+
+//小説文字列描画関数
+VOID NovelDraw(VOID)
+{
+	//文字を描画するときは
+	if (EndFlag == FALSE)
+	{
+		//文字列を描画
+		for (int cnt = 0; cnt <= DrawPointY; cnt++)
+		{
+			DrawString(0, 200 + cnt * STR_DRAW_SIZE, DrawStringBuf[cnt], GetColor(255, 255, 255));
+		}
+
+	}
+}
+
+//プレイ画面(初期化)
+VOID MY_PLAY_INIT(VOID)
+{
+	// 描画位置の初期位置セット
+	DrawPointX = 0;
+	DrawPointY = 0;
+
+	// 参照文字位置をセット
+	RowPos = 0;	// １行目の
+	ColPos = 0;	// ０文字
+
+	// 終了フラグを倒す
+	EndFlag = FALSE;
+
+	//デフォルトのフォントサイズを取得
+	DefaultFontSize = GetFontSize();
+
+	//文字列を空にする
+	OneMojiBuf[0] = '\0';
+	OneMojiBuf[1] = '\0';
+	OneMojiBuf[2] = '\0';
+
+	for (int i = 0; i < STR_DRAW_ROW_MAX; i++)
+	{
+		for (int j = 0; j < STR_COL_MAX; j++)
+		{
+			DrawStringBuf[i][j] = '\0';
+		}
+	}
+
+	return;
+}
+
 //スタート画面の描画
 VOID MY_START_DRAW(VOID)
 {
@@ -1584,7 +1879,8 @@ VOID MY_START_SETUMEI_DRAW(VOID)
 
 	if (MY_KEY_DOWN(KEY_INPUT_0) == TRUE) //シナリオシーンへ遷移
 	{
-		
+		//プレイ画面を初期化
+		MY_PLAY_INIT();
 		
 		GameScene = GAME_SCENE_SCENARIO;
 	}
@@ -1597,16 +1893,27 @@ VOID MY_START_SETUMEI_DRAW(VOID)
 
 VOID MY_SCENARIO(VOID)
 {
-
-	DrawString(300, 200, "ある日のこと、目が覚めた主人公は見知らぬ場所にいた。", GetColor(255, 255, 255));
-	DrawString(300, 220, "倉庫として使っているのかわからないが", GetColor(255, 255, 255));
-	DrawString(300, 240, "周りには多くのダンボールが積み重なっていた。", GetColor(255, 255, 255));
-	DrawString(300, 260, "主人公はこの謎の家から出るために、探索をすることにした。", GetColor(255, 255, 255));
-
-	DrawString(0, 0, "エンターキーを押してください", GetColor(255, 255, 255));
-
-	if (MY_KEY_DOWN(KEY_INPUT_RETURN) == TRUE) //プレイ画面へ遷移
+	if (EndFlag == FALSE)
 	{
+		//小説文字列描画
+		NovelProc(SCENARIO);
+	}
+
+	//文字列を描画
+	NovelDraw();
+
+	if (EndFlag == TRUE)
+	{
+		SetFontSize(STR_DRAW_SIZE); //フォントサイズ24
+		DrawString(0, 200, "エスケープキー(ESC)を押して下さい", GetColor(255, 255, 255));
+		
+	}
+
+
+	if (MY_KEY_DOWN(KEY_INPUT_ESCAPE) == TRUE) //プレイ画面へ遷移
+	{
+		SetFontSize(DefaultFontSize); //デフォルトにする
+
 		if (CheckSoundMem(BGM.handle) != 0)
 		{
 			StopSoundMem(BGM.handle);	//BGMを止める
@@ -1986,45 +2293,43 @@ VOID MY_PLAY_DRAW(VOID)
 		PlayerRect.right = player.CenterX + 650 / 20 - 5;
 		PlayerRect.bottom = player.CenterY + 1000 / 20 - 5;
 
-		
+	
 		//フラグを回収しているかどうかのイベント
-		if (MY_CHECK_RECT_COLL(PlayerRect, Itemflag2) == TRUE && flag == 1)
+		if (MY_CHECK_RECT_COLL(PlayerRect, Itemflag2) == TRUE && flag == 1 && MY_KEY_PUSH(KEY_INPUT_RETURN) == TRUE)
 		{
 			flag2 = 1;
+			hyouji2 = true;
+		}
 
-			//if (CheckSoundMem(FLAG.handle) == 0)
-			//{
-			//	//BGMの音量を下げる
-			//	ChangeVolumeSoundMem(255 * 50 / 100, FLAG.handle);	//50%の音量にする
-
-			//	PlaySoundMem(FLAG.handle, DX_PLAYTYPE_NORMAL);
-			//}
-
+		if (hyouji2 == true && flag2 == 1)
+		{
 			DrawGraph(TEXT_WIDTH_POSITION, TEXT_HEIGHT_POSITION, TextBox_GenkanKagi.handle, TRUE);
 
-			if (MY_KEY_DOWN(KEY_INPUT_RETURN) == TRUE)
+			if (MY_KEY_PUSH(KEY_INPUT_ESCAPE) == TRUE)
 			{
-				DeleteGraph(TextBox_GenkanKagi.handle);
+				hyouji2 = false;
 			}
+
 		}
 
 		
 		//鍵を取得していないとき
-		if (MY_CHECK_RECT_COLL(PlayerRect, Itemflag2) == TRUE && flag == 0 )
+		if (MY_CHECK_RECT_COLL(PlayerRect, Itemflag2) == TRUE && flag == 0 && MY_KEY_PUSH(KEY_INPUT_RETURN) == TRUE)
 		{
+			hyouji = true;
 			
-
-				DrawGraph(TEXT_WIDTH_POSITION, TEXT_HEIGHT_POSITION, TextBox_GenkanKagiNasi.handle, TRUE);
-
-			
-
-			if (MY_KEY_DOWN(KEY_INPUT_RETURN) == TRUE)
-			{
-				DeleteGraph(TextBox_GenkanKagiNasi.handle);
-			}
 		}
+		//テキストボックスを表示する
+		if (hyouji == true)
+		{
+			DrawGraph(TEXT_WIDTH_POSITION, TEXT_HEIGHT_POSITION, TextBox_GenkanKagiNasi.handle, TRUE);
 
-	
+			if (MY_KEY_PUSH(KEY_INPUT_ESCAPE) == TRUE)
+			{
+				hyouji = false;
+			}
+
+		}
 
 
 
@@ -2736,34 +3041,39 @@ VOID MY_PLAY_DRAW3(VOID)
 
 
 	//フラグイベント
-	if (MY_CHECK_RECT_COLL(PlayerRect, Itemflag) == TRUE /*&& MY_KEY_DOWN(KEY_INPUT_RETURN)*/)
+	if (MY_CHECK_RECT_COLL(PlayerRect, Itemflag) == TRUE && MY_KEY_PUSH(KEY_INPUT_RETURN))
 	{
-		/*DrawString(0, 0, "謎のカギを手に入れた！", GetColor(255, 0, 0));*/
-		
-		DrawGraph(TEXT_WIDTH_POSITION, TEXT_HEIGHT_POSITION, TextBox_flag.handle, TRUE);
-
+		hyouji3 = true;
 		flag = 1;
-		if (MY_KEY_DOWN(KEY_INPUT_RETURN) == TRUE)
-		{
-			DeleteGraph(TextBox_flag.handle);
-		}
+		
 	
 	}
-
+	if (hyouji3 == true)
+	{
+		DrawGraph(TEXT_WIDTH_POSITION, TEXT_HEIGHT_POSITION, TextBox_flag.handle, TRUE);
+		if (MY_KEY_PUSH(KEY_INPUT_ESCAPE) == TRUE)
+		{
+			hyouji3 = false;
+		}
+	}
 	//鍵を回収していないかつ、玄関へ行くとき
 
-	if (MY_CHECK_RECT_COLL(PlayerRect, GoalRect3) == TRUE && flag2 == 0)
+	if (MY_CHECK_RECT_COLL(PlayerRect, GoalRect3) == TRUE && flag2 == 0 && MY_KEY_PUSH(KEY_INPUT_RETURN))
 	{
-		
-
-		DrawGraph(TEXT_WIDTH_POSITION, TEXT_HEIGHT_POSITION, TextBox_Null.handle, TRUE);
-
-		if (MY_KEY_DOWN(KEY_INPUT_RETURN) == TRUE)
-		{
-			DeleteGraph(TextBox_Null.handle);
-		}
+		hyouji4 = true;
 
 	}
+	if (hyouji4 == true)
+	{
+		DrawGraph(TEXT_WIDTH_POSITION, TEXT_HEIGHT_POSITION, TextBox_Null.handle, TRUE);
+
+		if (MY_KEY_DOWN(KEY_INPUT_ESCAPE) == TRUE)
+		{
+			hyouji4 = false;
+		}
+	}
+	
+
 
 	return;
 }
@@ -2925,7 +3235,8 @@ VOID MY_PLAY_PROC4(VOID)
 	//ゴールに触れているかチェック
 	if (MY_CHECK_RECT_COLL(PlayerRect, GoalRect4) == TRUE)
 	{
-
+		//プレイ画面を初期化
+		MY_PLAY_INIT();
 
 		//エンド画面へ遷移
 
@@ -3083,8 +3394,15 @@ VOID MY_END_PROC(VOID)
 //エンド画面の描画
 VOID MY_END_DRAW(VOID)
 {
-	DrawString(400, 400, "終了時のテキスト", GetColor(255, 255, 255));
+	
+	if (EndFlag == FALSE)
+	{
+		//小説文字列描画
+		NovelProc(SCENARIO_END);
+	}
 
+	//文字列を描画
+	NovelDraw();
 	return;
 }
 
@@ -3262,10 +3580,6 @@ VOID DELETE_IMAGE(VOID)
 	DeleteGraph(TextBox_GenkanKagi.handle);
 	for (int i_num = 0; i_num < MAP_DIV_NUM; i_num++) { DeleteGraph(mapChip.handle[i_num]); }
 	for (int i_num = 0; i_num < MAP_DIV_NUM; i_num++) { DeleteGraph(mapChip2.handle[i_num]); }
-	for (int i_num = 0; i_num < MAP_DIV_NUM; i_num++) { DeleteGraph(mapChip_Nowalk.handle[i_num]); }
-	for (int i_num = 0; i_num < MAP_DIV_NUM; i_num++) { DeleteGraph(mapChip_Object.handle[i_num]); }
-	for (int i_num = 0; i_num < MAP_DIV_NUM; i_num++) { DeleteGraph(mapChip_Roka.handle[i_num]); }
-	for (int i_num = 0; i_num < MAP_DIV_NUM; i_num++) { DeleteGraph(mapChip_RokaNowalk.handle[i_num]); }
 	return;
 }
 
