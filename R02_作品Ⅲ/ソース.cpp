@@ -292,8 +292,9 @@ IMAGE TextBox_flag; //アイテム回収時のテキストボックス
 IMAGE TextBox_Null; //アイテム回収していないとき
 IMAGE TextBox_GenkanKagi;
 IMAGE TextBox_GenkanKagiNasi;
-IMAGE GameMenu_START; //スタートボタンのハンドル
-IMAGE GameMenu_EXIT;	//終了ボタンのハンドル
+IMAGE_ROTA GameMenu_START; //スタートボタンのハンドル
+IMAGE_ROTA GameMenu_EXIT;	//終了ボタンのハンドル
+
 
 iPOINT startPt{ -1, -1 }; //最初のスタートポイント
 iPOINT startPt2{ -1 , -1 };//廊下のスタートポイント
@@ -317,7 +318,7 @@ MUSIC ROKA;//廊下のBGM
 MUSIC FLAG; //アイテム取得時の効果音※現在は没
 
 int GameScene;		//ゲームシーンを管理
-int GameMenu;	//ゲームメニューを管理
+int GameMenu = 0;	//ゲームメニューを管理
 
 //キーボードの入力を取得
 char AllKeyState[KEY_CODE_KIND] = { '\0' };		//すべてのキーの状態が入る
@@ -1890,43 +1891,68 @@ VOID MY_START_DRAW(VOID)
 
 	//DrawGraph(400, 500, GameMenu_START.handle, TRUE); //ゲームメニューのスタートイメージ
 	DrawRotaGraph(
-		400, 500,			//画像の座標
-		GAME_MENU_BTN_ROTA,							//画像の拡大率
+		GameMenu_START.image.x, GameMenu_START.image.y,			//画像の座標
+		GameMenu_START.rate,							//画像の拡大率
 		0,											//画像の回転率
-		GameMenu_START.handle, TRUE);				//画像のハンドル
+		GameMenu_START.image.handle, TRUE);				//画像のハンドル
 	//DrawGraph(400, 550, GameMenu_EXIT.handle, TRUE); //ゲームメニューの終了イメージ
 
 	DrawRotaGraph(
-		400, 550,			//画像の座標
-		GAME_MENU_BTN_ROTA,							//画像の拡大率
+		GameMenu_EXIT.image.x, GameMenu_EXIT.image.y,			//画像の座標
+		GameMenu_EXIT.rate,						//画像の拡大率
 		0,											//画像の回転率
-		GameMenu_EXIT.handle, TRUE);				//画像のハンドル
+		GameMenu_EXIT.image.handle, TRUE);				//画像のハンドル
 
-	GameMenu = GAME_MENU_START; //ゲームメニューはSTARTから大きくする
-	switch (GameMenu)
-	{
-	case GAME_MENU_START:
-
-		/*GameMenu_START.x = GameMenu_START.x * GAME_MENU_BTN_ROTA;
-		GameMenu_START.y = GameMenu_START.y * GAME_MENU_BTN_ROTA;*/
-
-		if (MY_KEY_DOWN(KEY_INPUT_RETURN) == TRUE)
-		{
-
-
-			GameScene = GAME_SCENE_SETUMEI;
-		}
-		break;
-
-	case GAME_MENU_EXIT:
-		GameMenu_EXIT.width =GameMenu_EXIT.width* GAME_MENU_BTN_ROTA;
-		GameMenu_EXIT.width = GameMenu_EXIT.width* GAME_MENU_BTN_ROTA;
-		break;
-	}
+	int gamemenu_flag = 1;
 	
-	if (MY_KEY_PUSH(KEY_INPUT_1) == TRUE)
+	
+	while (true)
 	{
-		GameMenu = +1;
+		switch (GameMenu)
+		{
+		case GAME_MENU_START:
+
+			GameMenu_START.rate = 1.2;
+			GameMenu_EXIT.rate = 1;
+
+			if (MY_KEY_PUSH(KEY_INPUT_DOWN) == TRUE)
+			{
+				GameMenu = GAME_MENU_EXIT;
+			}
+
+			if (MY_KEY_DOWN(KEY_INPUT_RETURN) == TRUE)
+			{
+
+
+				GameScene = GAME_SCENE_SETUMEI;
+			}
+			break;
+
+		case GAME_MENU_EXIT:
+
+			GameMenu_EXIT.rate = 1.2;
+			GameMenu_START.rate = 1;
+
+
+			if (MY_KEY_PUSH(KEY_INPUT_DOWN) == TRUE)
+			{
+				GameMenu = GAME_MENU_START;
+			}
+
+
+			/*if (MY_KEY_DOWN(KEY_INPUT_RETURN) == TRUE)
+			{
+
+
+
+			}*/
+			break;
+
+
+
+		}
+
+		break;
 	}
 	
 	
@@ -3503,30 +3529,32 @@ BOOL LOAD_IMAGE(VOID)
 
 	//######################メニュー画面のボタン画像の読込#############
 
-	strcpy_s(GameMenu_START.path, GAME_MENU_BTN);	//スタートボタン画像読込
-	GameMenu_START.handle = LoadGraph(GameMenu_START.path);			//読み込み
-	if (GameMenu_START.handle == -1)
+	strcpy_s(GameMenu_START.image.path, GAME_MENU_BTN);	//スタートボタン画像読込
+	GameMenu_START.image.handle = LoadGraph(GameMenu_START.image.path);			//読み込み
+	if (GameMenu_START.image.handle == -1)
 	{
 		//エラーメッセージ表示
 		MessageBox(GetMainWindowHandle(), GAME_MENU_BTN, IMAGE_LOAD_ERR_TITLE, MB_OK);
 		return FALSE;
 	}
-	GetGraphSize(GameMenu_START.handle, &GameMenu_START.width, &GameMenu_START.height);	//画像の幅と高さを取得
-	GameMenu_START.x = GAME_WIDTH / 2 - GameMenu_START.width / 2;		//左右中央揃え
-	GameMenu_START.y = GAME_HEIGHT / 2 - GameMenu_START.height / 2;		//上下中央揃え
+	GetGraphSize(GameMenu_START.image.handle, &GameMenu_START.image.width, &GameMenu_START.image.height);	//画像の幅と高さを取得
+	GameMenu_START.image.x = (GAME_WIDTH / 2 - GameMenu_START.image.width / 2) + 50;		//左右中央揃え
+	GameMenu_START.image.y = (GAME_HEIGHT / 2 - GameMenu_START.image.height / 2) + 250;		//上下中央揃え
+	GameMenu_START.rate = 2;
 
 
-	strcpy_s(GameMenu_EXIT.path, GAME_MENU_BTN2);	//終了ボタン画像読込
-	GameMenu_EXIT.handle = LoadGraph(GameMenu_EXIT.path);			//読み込み
-	if (GameMenu_EXIT.handle == -1)
+	strcpy_s(GameMenu_EXIT.image.path, GAME_MENU_BTN2);	//終了ボタン画像読込
+	GameMenu_EXIT.image.handle = LoadGraph(GameMenu_EXIT.image.path);			//読み込み
+	if (GameMenu_EXIT.image.handle == -1)
 	{
 		//エラーメッセージ表示
 		MessageBox(GetMainWindowHandle(), GAME_MENU_BTN2, IMAGE_LOAD_ERR_TITLE, MB_OK);
 		return FALSE;
 	}
-	GetGraphSize(GameMenu_EXIT.handle, &GameMenu_EXIT.width, &GameMenu_EXIT.height);	//画像の幅と高さを取得
-	GameMenu_EXIT.x = GAME_WIDTH / 2 - GameMenu_EXIT.width / 2;		//左右中央揃え
-	GameMenu_EXIT.y = GAME_HEIGHT / 2 - GameMenu_EXIT.height / 2;		//上下中央揃え
+	GetGraphSize(GameMenu_EXIT.image.handle, &GameMenu_EXIT.image.width, &GameMenu_EXIT.image.height);	//画像の幅と高さを取得
+	GameMenu_EXIT.image.x = (GAME_WIDTH / 2 - GameMenu_EXIT.image.width / 2)+ 50;		//左右中央揃え
+	GameMenu_EXIT.image.y = (GAME_HEIGHT / 2 - GameMenu_EXIT.image.height / 2) + 300;		//上下中央揃え
+	GameMenu_EXIT.rate = 1;
 
 
 
@@ -3676,8 +3704,8 @@ VOID DELETE_IMAGE(VOID)
 	DeleteGraph(TextBox_Null.handle);
 	DeleteGraph(TextBox_GenkanKagiNasi.handle);
 	DeleteGraph(TextBox_GenkanKagi.handle);
-	DeleteGraph(GameMenu_START.handle);
-	DeleteGraph(GameMenu_EXIT.handle);
+	DeleteGraph(GameMenu_START.image.handle);
+	DeleteGraph(GameMenu_EXIT.image.handle);
 	for (int i_num = 0; i_num < MAP_DIV_NUM; i_num++) { DeleteGraph(mapChip.handle[i_num]); }
 	for (int i_num = 0; i_num < MAP_DIV_NUM; i_num++) { DeleteGraph(mapChip2.handle[i_num]); }
 	return;
