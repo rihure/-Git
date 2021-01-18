@@ -41,11 +41,13 @@
 #define GAME_MAP_PATH TEXT(".\\IMAGE\\ST-Town-I01.png") //マップチップ
 #define GAME_MAP_PATH2 TEXT(".\\IMAGE\\mapchip1.png") //マップチップ2
 #define GAME_PLAYER_PATH TEXT(".\\IMAGE\\joshi03.png") //プレイヤーの画像
-#define TEXT_BOX (".\\IMAGE\\TextBox_start.png")  //現在は没である
-#define TEXT_BOX_1 (".\\IMAGE\\TextBox1.png") //アイテム回収時のテキストボックス
-#define TEXT_BOX_2 (".\\IMAGE\\TextBox鍵無し.png") //アイテム回収していないとき
-#define TEXT_BOX_3 (".\\IMAGE\\TextBox玄関鍵無し.png")//鍵を取得時
-#define TEXT_BOX_4 (".\\IMAGE\\TextBox玄関鍵あり.png")//鍵を持っていない
+#define TEXT_BOX TEXT(".\\IMAGE\\TextBox_start.png")  //現在は没である
+#define TEXT_BOX_1 TEXT(".\\IMAGE\\TextBox1.png") //アイテム回収時のテキストボックス
+#define TEXT_BOX_2 TEXT(".\\IMAGE\\TextBox鍵無し.png") //アイテム回収していないとき
+#define TEXT_BOX_3 TEXT(".\\IMAGE\\TextBox玄関鍵無し.png")//鍵を取得時
+#define TEXT_BOX_4 TEXT(".\\IMAGE\\TextBox玄関鍵あり.png")//鍵を持っていない
+#define GAME_MENU_BTN TEXT(".\\IMAGE\\Menu_btn1.png")//スタートボタン
+#define GAME_MENU_BTN2 TEXT(".\\IMAGE\\Menu_btn2.png")//終了ボタン
 
 //BGMのパスを設定
 #define TITLE_BGM_PATH TEXT(".\\MUSIC\\冬の情景にて.mp3") //タイトルBGM
@@ -83,6 +85,10 @@
 #define MOUSE_R_CLICK_TITLE		TEXT("ゲーム中断")
 #define MOUSE_R_CLICK_CAPTION	TEXT("ゲームを中断し、タイトル画面に戻りますか？")
 
+//画像の拡大率
+#define IMAGE_TITLE_ROGO_ROTA		0.005		//拡大率
+#define GAME_MENU_BTN_ROTA	1			//拡大率MAX
+
 enum GAME_SCENE {
 	GAME_SCENE_START,
 	GAME_SCENE_SETUMEI,
@@ -91,8 +97,13 @@ enum GAME_SCENE {
 	GAME_SCENE_PLAY2,
 	GAME_SCENE_PLAY3,
 	GAME_SCENE_PLAY4,
-	GAME_SCENE_END,
+	GAME_SCENE_END
 };	//ゲームのシーン
+
+enum GAME_MENU {
+	GAME_MENU_START,
+	GAME_MENU_EXIT
+};
 
 enum GAME_MAP_KIND
 {
@@ -228,6 +239,14 @@ typedef struct STRUCT_PLAYERCHIP
 	int height;							//高さ
 }PLAYERCHIP;
 
+typedef struct STRUCT_IMAGE_ROTA
+{
+	IMAGE image;		//IMAGE構造体
+	double rate;		//拡大率
+	double rateMAX;		//拡大率MAX
+
+}IMAGE_ROTA;	//回転拡大する画像の構造体
+
 enum PLAYER_KIND_1 {
 	D_1, D_2, D_3,D_4,
 	L_1, L_2, L_3,L_4,
@@ -273,6 +292,8 @@ IMAGE TextBox_flag; //アイテム回収時のテキストボックス
 IMAGE TextBox_Null; //アイテム回収していないとき
 IMAGE TextBox_GenkanKagi;
 IMAGE TextBox_GenkanKagiNasi;
+IMAGE GameMenu_START; //スタートボタンのハンドル
+IMAGE GameMenu_EXIT;	//終了ボタンのハンドル
 
 iPOINT startPt{ -1, -1 }; //最初のスタートポイント
 iPOINT startPt2{ -1 , -1 };//廊下のスタートポイント
@@ -296,6 +317,7 @@ MUSIC ROKA;//廊下のBGM
 MUSIC FLAG; //アイテム取得時の効果音※現在は没
 
 int GameScene;		//ゲームシーンを管理
+int GameMenu;	//ゲームメニューを管理
 
 //キーボードの入力を取得
 char AllKeyState[KEY_CODE_KIND] = { '\0' };		//すべてのキーの状態が入る
@@ -1637,18 +1659,20 @@ VOID MY_START_PROC(VOID)
 
 		PlaySoundMem(BGM.handle, DX_PLAYTYPE_LOOP);
 	}
+
+
 	
 	//エンターキーを押したら、プレイシーンへ移動する
-	if (MY_KEY_DOWN(KEY_INPUT_RETURN) == TRUE)
-	{
-		
+	//if (MY_KEY_DOWN(KEY_INPUT_RETURN) == TRUE)
+	//{
+	//	
 
 
-		//ゲームのシーンをプレイ画面にする
-		GameScene = GAME_SCENE_SETUMEI;
+	//	//ゲームのシーンをプレイ画面にする
+	//	GameScene = GAME_SCENE_SETUMEI;
 
-		return;
-	}
+	//	return;
+	//}
 
 	return;
 }
@@ -1863,6 +1887,49 @@ VOID MY_PLAY_INIT(VOID)
 VOID MY_START_DRAW(VOID)
 {
 	DrawGraph(imageBACK.x, imageBACK.y, imageBACK.handle, TRUE); //タイトルのバックイメージ
+
+	//DrawGraph(400, 500, GameMenu_START.handle, TRUE); //ゲームメニューのスタートイメージ
+	DrawRotaGraph(
+		400, 500,			//画像の座標
+		GAME_MENU_BTN_ROTA,							//画像の拡大率
+		0,											//画像の回転率
+		GameMenu_START.handle, TRUE);				//画像のハンドル
+	//DrawGraph(400, 550, GameMenu_EXIT.handle, TRUE); //ゲームメニューの終了イメージ
+
+	DrawRotaGraph(
+		400, 550,			//画像の座標
+		GAME_MENU_BTN_ROTA,							//画像の拡大率
+		0,											//画像の回転率
+		GameMenu_EXIT.handle, TRUE);				//画像のハンドル
+
+	GameMenu = GAME_MENU_START; //ゲームメニューはSTARTから大きくする
+	switch (GameMenu)
+	{
+	case GAME_MENU_START:
+
+		/*GameMenu_START.x = GameMenu_START.x * GAME_MENU_BTN_ROTA;
+		GameMenu_START.y = GameMenu_START.y * GAME_MENU_BTN_ROTA;*/
+
+		if (MY_KEY_DOWN(KEY_INPUT_RETURN) == TRUE)
+		{
+
+
+			GameScene = GAME_SCENE_SETUMEI;
+		}
+		break;
+
+	case GAME_MENU_EXIT:
+		GameMenu_EXIT.width =GameMenu_EXIT.width* GAME_MENU_BTN_ROTA;
+		GameMenu_EXIT.width = GameMenu_EXIT.width* GAME_MENU_BTN_ROTA;
+		break;
+	}
+	
+	if (MY_KEY_PUSH(KEY_INPUT_1) == TRUE)
+	{
+		GameMenu = +1;
+	}
+	
+	
 
 	return;
 }
@@ -3434,6 +3501,37 @@ BOOL LOAD_IMAGE(VOID)
 	ImageSetumei.x = GAME_WIDTH / 2 - ImageSetumei.width / 2;		//左右中央揃え
 	ImageSetumei.y = GAME_HEIGHT / 2 - ImageSetumei.height / 2;		//上下中央揃え
 
+	//######################メニュー画面のボタン画像の読込#############
+
+	strcpy_s(GameMenu_START.path, GAME_MENU_BTN);	//スタートボタン画像読込
+	GameMenu_START.handle = LoadGraph(GameMenu_START.path);			//読み込み
+	if (GameMenu_START.handle == -1)
+	{
+		//エラーメッセージ表示
+		MessageBox(GetMainWindowHandle(), GAME_MENU_BTN, IMAGE_LOAD_ERR_TITLE, MB_OK);
+		return FALSE;
+	}
+	GetGraphSize(GameMenu_START.handle, &GameMenu_START.width, &GameMenu_START.height);	//画像の幅と高さを取得
+	GameMenu_START.x = GAME_WIDTH / 2 - GameMenu_START.width / 2;		//左右中央揃え
+	GameMenu_START.y = GAME_HEIGHT / 2 - GameMenu_START.height / 2;		//上下中央揃え
+
+
+	strcpy_s(GameMenu_EXIT.path, GAME_MENU_BTN2);	//終了ボタン画像読込
+	GameMenu_EXIT.handle = LoadGraph(GameMenu_EXIT.path);			//読み込み
+	if (GameMenu_EXIT.handle == -1)
+	{
+		//エラーメッセージ表示
+		MessageBox(GetMainWindowHandle(), GAME_MENU_BTN2, IMAGE_LOAD_ERR_TITLE, MB_OK);
+		return FALSE;
+	}
+	GetGraphSize(GameMenu_EXIT.handle, &GameMenu_EXIT.width, &GameMenu_EXIT.height);	//画像の幅と高さを取得
+	GameMenu_EXIT.x = GAME_WIDTH / 2 - GameMenu_EXIT.width / 2;		//左右中央揃え
+	GameMenu_EXIT.y = GAME_HEIGHT / 2 - GameMenu_EXIT.height / 2;		//上下中央揃え
+
+
+
+
+
 	//########################################################################
 	
 	strcpy_s(TextBox_start.path, TEXT_BOX);	//没画像
@@ -3578,6 +3676,8 @@ VOID DELETE_IMAGE(VOID)
 	DeleteGraph(TextBox_Null.handle);
 	DeleteGraph(TextBox_GenkanKagiNasi.handle);
 	DeleteGraph(TextBox_GenkanKagi.handle);
+	DeleteGraph(GameMenu_START.handle);
+	DeleteGraph(GameMenu_EXIT.handle);
 	for (int i_num = 0; i_num < MAP_DIV_NUM; i_num++) { DeleteGraph(mapChip.handle[i_num]); }
 	for (int i_num = 0; i_num < MAP_DIV_NUM; i_num++) { DeleteGraph(mapChip2.handle[i_num]); }
 	return;
