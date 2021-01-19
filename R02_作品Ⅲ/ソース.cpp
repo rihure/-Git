@@ -1902,8 +1902,6 @@ VOID MY_START_DRAW(VOID)
 		GameMenu_EXIT.rate,						//âÊëúÇÃägëÂó¶
 		0,											//âÊëúÇÃâÒì]ó¶
 		GameMenu_EXIT.image.handle, TRUE);				//âÊëúÇÃÉnÉìÉhÉã
-
-	int gamemenu_flag = 1;
 	
 	
 	while (true)
@@ -1915,7 +1913,7 @@ VOID MY_START_DRAW(VOID)
 			GameMenu_START.rate = 1.2;
 			GameMenu_EXIT.rate = 1;
 
-			if (MY_KEY_PUSH(KEY_INPUT_DOWN) == TRUE)
+			if (MY_KEY_PUSH(KEY_INPUT_DOWN) == TRUE || MY_KEY_PUSH(KEY_INPUT_UP) == TRUE)
 			{
 				GameMenu = GAME_MENU_EXIT;
 			}
@@ -1934,18 +1932,18 @@ VOID MY_START_DRAW(VOID)
 			GameMenu_START.rate = 1;
 
 
-			if (MY_KEY_PUSH(KEY_INPUT_DOWN) == TRUE)
+			if (MY_KEY_PUSH(KEY_INPUT_DOWN) == TRUE || MY_KEY_PUSH(KEY_INPUT_UP) == TRUE)
 			{
 				GameMenu = GAME_MENU_START;
 			}
 
 
-			/*if (MY_KEY_DOWN(KEY_INPUT_RETURN) == TRUE)
+			if (MY_KEY_DOWN(KEY_INPUT_RETURN) == TRUE)
 			{
 
+				DxLib_End();	//èIóπèàóù
 
-
-			}*/
+			}
 			break;
 
 
@@ -2392,11 +2390,22 @@ VOID MY_PLAY_DRAW(VOID)
 		{
 			flag2 = 1;
 			hyouji2 = true;
+
+			if (CheckSoundMem(FLAG.handle) == 0)
+			{
+				//BGMÇÃâπó Çâ∫Ç∞ÇÈ
+				ChangeVolumeSoundMem(255 * 50 / 100, FLAG.handle);	//50%ÇÃâπó Ç…Ç∑ÇÈ
+
+				PlaySoundMem(FLAG.handle, DX_PLAYTYPE_BACK);
+			}
 		}
 
 		if (hyouji2 == true && flag2 == 1)
 		{
 			DrawGraph(TEXT_WIDTH_POSITION, TEXT_HEIGHT_POSITION, TextBox_GenkanKagi.handle, TRUE);
+			
+			
+
 
 			if (MY_KEY_PUSH(KEY_INPUT_ESCAPE) == TRUE)
 			{
@@ -3138,12 +3147,24 @@ VOID MY_PLAY_DRAW3(VOID)
 	{
 		hyouji3 = true;
 		flag = 1;
+
+
+		if (CheckSoundMem(FLAG.handle) == 0)
+		{
+			//BGMÇÃâπó Çâ∫Ç∞ÇÈ
+			ChangeVolumeSoundMem(255 * 50 / 100, FLAG.handle);	//50%ÇÃâπó Ç…Ç∑ÇÈ
+
+			PlaySoundMem(FLAG.handle, DX_PLAYTYPE_BACK);
+		}
 		
 	
 	}
 	if (hyouji3 == true)
 	{
 		DrawGraph(TEXT_WIDTH_POSITION, TEXT_HEIGHT_POSITION, TextBox_flag.handle, TRUE);
+
+		
+
 		if (MY_KEY_PUSH(KEY_INPUT_ESCAPE) == TRUE)
 		{
 			hyouji3 = false;
