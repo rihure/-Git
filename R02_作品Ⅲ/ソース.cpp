@@ -38,6 +38,10 @@
 //画像のパス設定
 #define TITLE_BACK_PATH TEXT(".\\IMAGE\\ゲームタイトル.png") //タイトルの画像
 #define IMAGE_SETUMEI_PATH		TEXT(".\\IMAGE\\操作説明3.png") //説明画面の画像
+#define IMAGE_SETUMEI_KEY_W TEXT(".\\IMAGE\\操作説明3_W.png")//Wキー入力時
+#define IMAGE_SETUMEI_KEY_A TEXT(".\\IMAGE\\操作説明3_A.png")//Aキー入力時
+#define IMAGE_SETUMEI_KEY_S TEXT(".\\IMAGE\\操作説明3_S.png")//Sキー入力時
+#define IMAGE_SETUMEI_KEY_D TEXT(".\\IMAGE\\操作説明3_D.png")//Dキー入力時
 #define GAME_MAP_PATH TEXT(".\\IMAGE\\ST-Town-I01.png") //マップチップ
 #define GAME_MAP_PATH2 TEXT(".\\IMAGE\\mapchip1.png") //マップチップ2
 #define GAME_PLAYER_PATH TEXT(".\\IMAGE\\joshi03.png") //プレイヤーの画像
@@ -46,6 +50,7 @@
 #define TEXT_BOX_2 TEXT(".\\IMAGE\\TextBox鍵無し.png") //アイテム回収していないとき
 #define TEXT_BOX_3 TEXT(".\\IMAGE\\TextBox玄関鍵無し.png")//鍵を取得時
 #define TEXT_BOX_4 TEXT(".\\IMAGE\\TextBox玄関鍵あり.png")//鍵を持っていない
+#define TEXT_BOX_5 TEXT(".\\IMAGE\\TextBox_kanban.png")//外の看板
 #define GAME_MENU_BTN TEXT(".\\IMAGE\\Menu_btn1.png")//スタートボタン
 #define GAME_MENU_BTN2 TEXT(".\\IMAGE\\Menu_btn2.png")//終了ボタン
 
@@ -292,8 +297,13 @@ IMAGE TextBox_flag; //アイテム回収時のテキストボックス
 IMAGE TextBox_Null; //アイテム回収していないとき
 IMAGE TextBox_GenkanKagi;
 IMAGE TextBox_GenkanKagiNasi;
+IMAGE TextBox_Kanban; //看板
 IMAGE_ROTA GameMenu_START; //スタートボタンのハンドル
 IMAGE_ROTA GameMenu_EXIT;	//終了ボタンのハンドル
+IMAGE ImageSetumei_KEY_W; //各キー
+IMAGE ImageSetumei_KEY_A;
+IMAGE ImageSetumei_KEY_S;
+IMAGE ImageSetumei_KEY_D;
 
 
 iPOINT startPt{ -1, -1 }; //最初のスタートポイント
@@ -309,6 +319,7 @@ RECT Modoru = { -1, -1, -1,-1 }; //一つ前の部屋に戻る判定
 RECT Modoru2 = { -1,-1,-1,-1 };//廊下に戻る判定
 RECT Itemflag = { -1,-1,-1,-1 }; //アイテムフラグの当たり判定
 RECT Itemflag2 = { -1,-1,-1,-1 };//最初の部屋のフラグ判定
+RECT Kanban = { -1,-1,-1,-1 }; 
 iPOINT ModoruPt{ -1,-1 };
 iPOINT Modoru2Pt{ -1,-1, };
 
@@ -350,6 +361,11 @@ int hyouji;
 int hyouji2;
 int hyouji3;
 int hyouji4;
+int hyouji5;
+int KEY_A;
+int KEY_W;
+int KEY_S;
+int KEY_D;
 
 int DrawPointX, DrawPointY;	// 文字列描画の位置
 int RowPos;					// 文字列の行数
@@ -390,7 +406,6 @@ char SCENARIO_END[STR_ROW_MAX][STR_COL_MAX] =
 
 
 
-
 VOID MY_FPS_UPDATE(VOID);			//FPS値を計測、更新する
 BOOL LOAD_IMAGE(VOID);		//画像をまとめて読み込む関数
 VOID DELETE_IMAGE(VOID);		//画像をまとめて削除する関数
@@ -402,7 +417,6 @@ VOID DELETE_MUSIC(VOID);		//音楽をまとめて削除する関数
 VOID MY_ALL_KEYDOWN_UPDATE(VOID);	//キーの入力状態を更新する
 BOOL MY_KEY_DOWN(int);				//キーを押しているか、キーコードで判断する
 BOOL MY_KEY_UP(int);				//キーを押し上げたか、キーコードで判断する
-BOOL MY_KEYDOWN_KEEP(int, int);		//キーを押し続けているか、キーコードで判断する
 
 
 VOID MY_START(VOID);		//スタート画面
@@ -1412,6 +1426,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 				//壁のとき
 				mapdata13[tateCnt][yokoCnt] = SB;
 				yokoCnt++;
+
+				Kanban.left = mapChip.width * yokoCnt;
+				Kanban.top = mapChip.height * tateCnt;
+				Kanban.right = mapChip.width * (yokoCnt + 1);
+				Kanban.bottom = mapChip.height * (tateCnt + 1);
+
+				//!! 当たり判定がおかしいので次回直します
 				break;
 
 			default:
@@ -1614,27 +1635,6 @@ BOOL MY_KEY_PUSH(int KEY_INPUT_)
 	else
 	{
 		return FALSE;	//キーをプッシュしていないか、押し続けている
-	}
-}
-
-//キーを押し続けているか、キーコードで判断する
-//引　数：int：キーコード：KEY_INPUT_???
-//引　数：int：キーを押し続ける時間(ミリ秒)
-BOOL MY_KEYDOWN_KEEP(int KEY_INPUT_, int milliTime)
-{
-	int MilliSec = 1000;	//１秒は1000ミリ秒
-
-	//押し続ける時間=秒数×FPS値
-	//例）60FPSのゲームで、1秒間押し続けるなら、1秒×60FPS
-	int UpdateTime = (milliTime / MilliSec) * GAME_FPS;
-
-	if (AllKeyState[KEY_INPUT_] > UpdateTime)
-	{
-		return TRUE;	//押し続けている
-	}
-	else
-	{
-		return FALSE;	//押し続けていない
 	}
 }
 
@@ -1936,6 +1936,7 @@ VOID MY_START_DRAW(VOID)
 			{
 				GameMenu = GAME_MENU_START;
 			}
+			
 
 
 			if (MY_KEY_DOWN(KEY_INPUT_RETURN) == TRUE)
@@ -1967,6 +1968,84 @@ VOID MY_START_SETUMEI_DRAW(VOID)
 {
 	DrawGraph(ImageSetumei.x, ImageSetumei.y, ImageSetumei.handle, TRUE); //説明画像
 	DrawString(0, 0, "スタート画面(ゼロ(0)キーを押して下さい)", GetColor(255, 255, 255));
+
+	if(MY_KEY_DOWN(KEY_INPUT_W) == TRUE) //キー画像を赤くする
+	{
+		KEY_W = true;
+		KEY_A = false;
+		KEY_S = false;
+		KEY_D = false;
+		
+	
+	}
+
+	if (MY_KEY_DOWN(KEY_INPUT_A) == TRUE) //キー画像を赤くする
+	{
+		KEY_W = false;
+		KEY_A = true;
+		KEY_S = false;
+		KEY_D = false;
+
+	}
+
+	if (MY_KEY_DOWN(KEY_INPUT_S) == TRUE) //キー画像を赤くする
+	{
+		KEY_W = false;
+		KEY_A = false;
+		KEY_S = true;
+		KEY_D = false;
+
+	}
+
+	if (MY_KEY_DOWN(KEY_INPUT_D) == TRUE) //キー画像を赤くする
+	{
+		KEY_W = false;
+		KEY_A = false;
+		KEY_S = false;
+		KEY_D = true;
+	}
+
+	if (KEY_W == true) //trueであるとき、赤くする
+	{
+		DrawGraph(ImageSetumei_KEY_W.x, ImageSetumei_KEY_W.y, ImageSetumei_KEY_W.handle, TRUE);
+	}
+
+	if (MY_KEY_DOWN(KEY_INPUT_W) == FALSE)//falseであるとき、赤く光っているのを解除する
+	{
+		KEY_W = false;
+	}
+
+	if (KEY_A == true)//trueであるとき、赤くする
+	{
+		DrawGraph(ImageSetumei_KEY_A.x, ImageSetumei_KEY_A.y, ImageSetumei_KEY_A.handle, TRUE);
+	}
+
+	if (MY_KEY_DOWN(KEY_INPUT_A) == FALSE) //falseであるとき、赤く光っているのを解除する
+	{
+		KEY_A = false;
+	}
+
+	if (KEY_S == true)//trueであるとき、赤くする
+	{
+		DrawGraph(ImageSetumei_KEY_S.x, ImageSetumei_KEY_S.y, ImageSetumei_KEY_S.handle, TRUE);
+	}
+
+	if (MY_KEY_DOWN(KEY_INPUT_S) == FALSE)//falseであるとき、赤く光っているのを解除する
+	{
+		KEY_S = false;
+	}
+
+	if (KEY_D == true)//trueであるとき、赤くする
+	{
+		DrawGraph(ImageSetumei_KEY_D.x, ImageSetumei_KEY_D.y, ImageSetumei_KEY_D.handle, TRUE);
+	}
+
+	if (MY_KEY_DOWN(KEY_INPUT_D) == FALSE)//falseであるとき、赤く光っているのを解除する
+	{
+		KEY_D = false;
+	}
+
+
 
 	if (MY_KEY_DOWN(KEY_INPUT_0) == TRUE) //シナリオシーンへ遷移
 	{
@@ -3472,6 +3551,33 @@ VOID MY_PLAY_DRAW4(VOID)
 
 	}
 
+	RECT PlayerRect;
+	PlayerRect.left = player.CenterX - 40 / 20 + 5;
+	PlayerRect.top = player.CenterY + 200 / 20 + 5;
+	PlayerRect.right = player.CenterX + 650 / 20 - 5;
+	PlayerRect.bottom = player.CenterY + 1000 / 20 - 5;
+
+	//フラグを回収しているかどうかのイベント
+	if (MY_CHECK_RECT_COLL(PlayerRect, Kanban) == TRUE && MY_KEY_PUSH(KEY_INPUT_RETURN) == TRUE)
+	{
+
+		hyouji5 = true;
+	}
+
+	if (hyouji5 == true)
+	{
+		DrawGraph(TEXT_WIDTH_POSITION, TEXT_HEIGHT_POSITION, TextBox_Kanban.handle, TRUE);
+
+
+
+
+		if (MY_KEY_PUSH(KEY_INPUT_ESCAPE) == TRUE)
+		{
+			hyouji5 = false;
+		}
+
+	}
+
 	DrawGraph(player.image.x, player.image.y, playerChip1.handle[player.kind1], TRUE);//プレイヤの描画
 
 	//出口用
@@ -3547,6 +3653,66 @@ BOOL LOAD_IMAGE(VOID)
 	GetGraphSize(ImageSetumei.handle, &ImageSetumei.width, &ImageSetumei.height);	//画像の幅と高さを取得
 	ImageSetumei.x = GAME_WIDTH / 2 - ImageSetumei.width / 2;		//左右中央揃え
 	ImageSetumei.y = GAME_HEIGHT / 2 - ImageSetumei.height / 2;		//上下中央揃え
+
+	//######################説明画面のキー入力画像####################
+
+	strcpy_s(ImageSetumei_KEY_W.path, IMAGE_SETUMEI_KEY_W);	//説明画面背景画像読込
+	ImageSetumei_KEY_W.handle = LoadGraph(ImageSetumei_KEY_W.path);			//読み込み
+	if (ImageSetumei_KEY_W.handle == -1)
+	{
+		//エラーメッセージ表示
+		MessageBox(GetMainWindowHandle(), IMAGE_SETUMEI_KEY_W, IMAGE_LOAD_ERR_TITLE, MB_OK);
+		return FALSE;
+	}
+	GetGraphSize(ImageSetumei_KEY_W.handle, &ImageSetumei_KEY_W.width, &ImageSetumei_KEY_W.height);	//画像の幅と高さを取得
+	ImageSetumei_KEY_W.x = GAME_WIDTH / 2 - ImageSetumei_KEY_W.width / 2;		//左右中央揃え
+	ImageSetumei_KEY_W.y = GAME_HEIGHT / 2 - ImageSetumei_KEY_W.height / 2;		//上下中央揃え
+
+
+	//-----------------------------------------------------------------------
+
+	strcpy_s(ImageSetumei_KEY_A.path, IMAGE_SETUMEI_KEY_A);	//説明画面背景画像読込
+	ImageSetumei_KEY_A.handle = LoadGraph(ImageSetumei_KEY_A.path);			//読み込み
+	if (ImageSetumei_KEY_A.handle == -1)
+	{
+		//エラーメッセージ表示
+		MessageBox(GetMainWindowHandle(), IMAGE_SETUMEI_KEY_A, IMAGE_LOAD_ERR_TITLE, MB_OK);
+		return FALSE;
+	}
+	GetGraphSize(ImageSetumei_KEY_A.handle, &ImageSetumei_KEY_A.width, &ImageSetumei_KEY_A.height);	//画像の幅と高さを取得
+	ImageSetumei_KEY_A.x = GAME_WIDTH / 2 - ImageSetumei_KEY_A.width / 2;		//左右中央揃え
+	ImageSetumei_KEY_A.y = GAME_HEIGHT / 2 - ImageSetumei_KEY_A.height / 2;		//上下中央揃え
+
+	//-----------------------------------------------------------------------
+
+	strcpy_s(ImageSetumei_KEY_S.path, IMAGE_SETUMEI_KEY_S);	//説明画面背景画像読込
+	ImageSetumei_KEY_S.handle = LoadGraph(ImageSetumei_KEY_S.path);			//読み込み
+	if (ImageSetumei_KEY_S.handle == -1)
+	{
+		//エラーメッセージ表示
+		MessageBox(GetMainWindowHandle(), IMAGE_SETUMEI_KEY_S, IMAGE_LOAD_ERR_TITLE, MB_OK);
+		return FALSE;
+	}
+	GetGraphSize(ImageSetumei_KEY_S.handle, &ImageSetumei_KEY_S.width, &ImageSetumei_KEY_S.height);	//画像の幅と高さを取得
+	ImageSetumei_KEY_S.x = GAME_WIDTH / 2 - ImageSetumei_KEY_S.width / 2;		//左右中央揃え
+	ImageSetumei_KEY_S.y = GAME_HEIGHT / 2 - ImageSetumei_KEY_S.height / 2;		//上下中央揃え
+
+	//-----------------------------------------------------------------------
+
+	strcpy_s(ImageSetumei_KEY_D.path, IMAGE_SETUMEI_KEY_D);	//説明画面背景画像読込
+	ImageSetumei_KEY_D.handle = LoadGraph(ImageSetumei_KEY_D.path);			//読み込み
+	if (ImageSetumei_KEY_D.handle == -1)
+	{
+		//エラーメッセージ表示
+		MessageBox(GetMainWindowHandle(), IMAGE_SETUMEI_KEY_D, IMAGE_LOAD_ERR_TITLE, MB_OK);
+		return FALSE;
+	}
+	GetGraphSize(ImageSetumei_KEY_D.handle, &ImageSetumei_KEY_D.width, &ImageSetumei_KEY_D.height);	//画像の幅と高さを取得
+	ImageSetumei_KEY_D.x = GAME_WIDTH / 2 - ImageSetumei_KEY_D.width / 2;		//左右中央揃え
+	ImageSetumei_KEY_D.y = GAME_HEIGHT / 2 - ImageSetumei_KEY_D.height / 2;		//上下中央揃え
+
+
+
 
 	//######################メニュー画面のボタン画像の読込#############
 
@@ -3629,6 +3795,14 @@ BOOL LOAD_IMAGE(VOID)
 	}
 
 
+	strcpy_s(TextBox_Kanban.path, TEXT_BOX_5); //看板
+	TextBox_Kanban.handle = LoadGraph(TextBox_Kanban.path);			//読み込み
+	if (TextBox_Kanban.handle == -1)
+	{
+		//エラーメッセージ表示
+		MessageBox(GetMainWindowHandle(), TEXT_BOX_5, IMAGE_LOAD_ERR_TITLE, MB_OK);
+		return FALSE;
+	}
 
 	//###########################################################################
 
@@ -3725,8 +3899,13 @@ VOID DELETE_IMAGE(VOID)
 	DeleteGraph(TextBox_Null.handle);
 	DeleteGraph(TextBox_GenkanKagiNasi.handle);
 	DeleteGraph(TextBox_GenkanKagi.handle);
+	DeleteGraph(TextBox_Kanban.handle);
 	DeleteGraph(GameMenu_START.image.handle);
 	DeleteGraph(GameMenu_EXIT.image.handle);
+	DeleteGraph(ImageSetumei_KEY_W.handle);
+	DeleteGraph(ImageSetumei_KEY_A.handle);
+	DeleteGraph(ImageSetumei_KEY_S.handle);
+	DeleteGraph(ImageSetumei_KEY_D.handle);
 	for (int i_num = 0; i_num < MAP_DIV_NUM; i_num++) { DeleteGraph(mapChip.handle[i_num]); }
 	for (int i_num = 0; i_num < MAP_DIV_NUM; i_num++) { DeleteGraph(mapChip2.handle[i_num]); }
 	return;
