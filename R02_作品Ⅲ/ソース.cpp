@@ -53,6 +53,13 @@
 #define TEXT_BOX_5 TEXT(".\\IMAGE\\TextBox_kanban.png")//外の看板
 #define GAME_MENU_BTN TEXT(".\\IMAGE\\Menu_btn1.png")//スタートボタン
 #define GAME_MENU_BTN2 TEXT(".\\IMAGE\\Menu_btn2.png")//終了ボタン
+#define GAME_MENU_BTN3 TEXT(".\\IMAGE\\Menu_btn3.png")//オプションボタン
+
+#define OPTION_SOUND_VOLUME TEXT(".\\IMAGE\\Volume0.png")//音量ボタン
+#define OPTION_SOUND_VOLUME1 TEXT(".\\IMAGE\\Volume25.png")//音量ボタン
+#define OPTION_SOUND_VOLUME2 TEXT(".\\IMAGE\\Volume50.png")//音量ボタン
+#define OPTION_SOUND_VOLUME3 TEXT(".\\IMAGE\\Volume75.png")//音量ボタン
+#define OPTION_SOUND_VOLUME4 TEXT(".\\IMAGE\\Volume100.png")//音量ボタン
 
 //BGMのパスを設定
 #define TITLE_BGM_PATH TEXT(".\\MUSIC\\冬の情景にて.mp3") //タイトルBGM
@@ -98,6 +105,7 @@ enum GAME_SCENE {
 	GAME_SCENE_START,
 	GAME_SCENE_SETUMEI,
 	GAME_SCENE_SCENARIO,
+	GAME_SCENE_OPTION,
 	GAME_SCENE_PLAY,
 	GAME_SCENE_PLAY2,
 	GAME_SCENE_PLAY3,
@@ -107,7 +115,16 @@ enum GAME_SCENE {
 
 enum GAME_MENU {
 	GAME_MENU_START,
-	GAME_MENU_EXIT
+	GAME_MENU_EXIT,
+	GAME_MENU_OPTION
+};
+
+enum VOLUME {
+	VOLUME0,
+	VOLUME25,
+	VOLUME50,
+	VOLUME75,
+	VOLUME100
 };
 
 enum GAME_MAP_KIND
@@ -298,12 +315,18 @@ IMAGE TextBox_Null; //アイテム回収していないとき
 IMAGE TextBox_GenkanKagi;
 IMAGE TextBox_GenkanKagiNasi;
 IMAGE TextBox_Kanban; //看板
-IMAGE_ROTA GameMenu_START; //スタートボタンのハンドル
-IMAGE_ROTA GameMenu_EXIT;	//終了ボタンのハンドル
+IMAGE_ROTA GameMenu_START; //スタートボタン
+IMAGE_ROTA GameMenu_EXIT;	//終了ボタン
+IMAGE_ROTA GameMenu_OPTION; //設定ボタン
 IMAGE ImageSetumei_KEY_W; //各キー
 IMAGE ImageSetumei_KEY_A;
 IMAGE ImageSetumei_KEY_S;
 IMAGE ImageSetumei_KEY_D;
+IMAGE_ROTA SOUND_VOLUME;//各音量調整ボタン
+IMAGE_ROTA SOUND_VOLUME1;
+IMAGE_ROTA SOUND_VOLUME2;
+IMAGE_ROTA SOUND_VOLUME3;
+IMAGE_ROTA SOUND_VOLUME4;
 
 
 iPOINT startPt{ -1, -1 }; //最初のスタートポイント
@@ -330,6 +353,7 @@ MUSIC FLAG; //アイテム取得時の効果音※現在は没
 
 int GameScene;		//ゲームシーンを管理
 int GameMenu = 0;	//ゲームメニューを管理
+int OptionMenu = 2; //オプションシーンを管理
 
 //キーボードの入力を取得
 char AllKeyState[KEY_CODE_KIND] = { '\0' };		//すべてのキーの状態が入る
@@ -427,6 +451,7 @@ VOID MY_SETUMEI(VOID); //説明画面
 VOID MY_START_SETUMEI_DRAW(VOID); //説明画面の描画
 
 VOID MY_SCENARIO(VOID); //シナリオ説明
+VOID MY_OPTION(VOID); //設定画面(開発中)
 
 VOID MY_PLAY_INIT(VOID);	//プレイ画面初期化
 VOID MY_PLAY(VOID);			//プレイ画面
@@ -1427,12 +1452,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 				mapdata13[tateCnt][yokoCnt] = SB;
 				yokoCnt++;
 
-				Kanban.left = mapChip.width * yokoCnt;
-				Kanban.top = mapChip.height * tateCnt;
-				Kanban.right = mapChip.width * (yokoCnt + 1);
-				Kanban.bottom = mapChip.height * (tateCnt + 1);
-
-				//!! 当たり判定がおかしいので次回直します
+				Kanban.left = (mapChip2.width * yokoCnt) - mapChip2.width;
+				Kanban.top = (mapChip2.height * tateCnt) + 20;
+				Kanban.right = (mapChip2.width * (yokoCnt + 1)) - mapChip2.width;
+				Kanban.bottom = mapChip2.height * (tateCnt + 1);
 				break;
 
 			default:
@@ -1493,6 +1516,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 		case GAME_SCENE_SCENARIO:
 			MY_SCENARIO(); //シナリオ画面
+			break;
+
+		case GAME_SCENE_OPTION:
+			MY_OPTION();
 			break;
 
 		case GAME_SCENE_PLAY:
@@ -1891,17 +1918,23 @@ VOID MY_START_DRAW(VOID)
 
 	//DrawGraph(400, 500, GameMenu_START.handle, TRUE); //ゲームメニューのスタートイメージ
 	DrawRotaGraph(
-		GameMenu_START.image.x, GameMenu_START.image.y,			//画像の座標
+		GameMenu_START.image.x, GameMenu_START.image.y - 50,			//画像の座標
 		GameMenu_START.rate,							//画像の拡大率
 		0,											//画像の回転率
 		GameMenu_START.image.handle, TRUE);				//画像のハンドル
 	//DrawGraph(400, 550, GameMenu_EXIT.handle, TRUE); //ゲームメニューの終了イメージ
 
 	DrawRotaGraph(
-		GameMenu_EXIT.image.x, GameMenu_EXIT.image.y,			//画像の座標
+		GameMenu_EXIT.image.x + 200, GameMenu_EXIT.image.y - 50,			//画像の座標
 		GameMenu_EXIT.rate,						//画像の拡大率
 		0,											//画像の回転率
 		GameMenu_EXIT.image.handle, TRUE);				//画像のハンドル
+
+	DrawRotaGraph(
+		GameMenu_OPTION.image.x + 100, GameMenu_OPTION.image.y - 50,			//画像の座標
+		GameMenu_OPTION.rate,						//画像の拡大率
+		0,											//画像の回転率
+		GameMenu_OPTION.image.handle, TRUE);				//画像のハンドル
 	
 	
 	while (true)
@@ -1912,8 +1945,14 @@ VOID MY_START_DRAW(VOID)
 
 			GameMenu_START.rate = 1.2;
 			GameMenu_EXIT.rate = 1;
+			GameMenu_OPTION.rate = 1;
 
-			if (MY_KEY_PUSH(KEY_INPUT_DOWN) == TRUE || MY_KEY_PUSH(KEY_INPUT_UP) == TRUE)
+			if (MY_KEY_PUSH(KEY_INPUT_DOWN) == TRUE)
+			{
+				GameMenu = GAME_MENU_OPTION;
+			}
+
+			if (MY_KEY_PUSH(KEY_INPUT_UP) == TRUE)
 			{
 				GameMenu = GAME_MENU_EXIT;
 			}
@@ -1930,12 +1969,19 @@ VOID MY_START_DRAW(VOID)
 
 			GameMenu_EXIT.rate = 1.2;
 			GameMenu_START.rate = 1;
+			GameMenu_OPTION.rate = 1;
 
 
-			if (MY_KEY_PUSH(KEY_INPUT_DOWN) == TRUE || MY_KEY_PUSH(KEY_INPUT_UP) == TRUE)
+			if (MY_KEY_PUSH(KEY_INPUT_DOWN) == TRUE)
 			{
 				GameMenu = GAME_MENU_START;
 			}
+
+			if (MY_KEY_PUSH(KEY_INPUT_UP) == TRUE)
+			{
+				GameMenu = GAME_MENU_OPTION;
+			}
+
 			
 
 
@@ -1948,6 +1994,35 @@ VOID MY_START_DRAW(VOID)
 			break;
 
 
+		case GAME_MENU_OPTION:
+
+			GameMenu_EXIT.rate = 1;
+			GameMenu_START.rate = 1;
+			GameMenu_OPTION.rate = 1.2;
+
+
+			if (MY_KEY_PUSH(KEY_INPUT_DOWN) == TRUE )
+			{
+				GameMenu = GAME_MENU_EXIT;
+			}
+
+			if (MY_KEY_PUSH(KEY_INPUT_UP) == TRUE)
+			{
+				GameMenu = GAME_MENU_START;
+			}
+
+
+
+			if (MY_KEY_DOWN(KEY_INPUT_RETURN) == TRUE)
+			{
+
+				GameScene = GAME_SCENE_OPTION;
+
+			}
+
+			break;
+
+
 
 		}
 
@@ -1957,6 +2032,203 @@ VOID MY_START_DRAW(VOID)
 	
 
 	return;
+}
+
+VOID MY_OPTION(VOID)
+{
+	DrawString(0, 0, "オプション画面【開発中】(ESCキーを押してスタート画面に戻ります)", GetColor(255, 255, 255));
+	DrawString(60, 100, "BGM音量設定", GetColor(255, 0, 0));
+
+	DrawRotaGraph(
+		SOUND_VOLUME.image.x - 200, SOUND_VOLUME.image.y - 100,			//画像の座標
+		SOUND_VOLUME.rate,						//画像の拡大率
+		0,											//画像の回転率
+		SOUND_VOLUME.image.handle, TRUE);				//画像のハンドル
+
+	DrawRotaGraph(
+		SOUND_VOLUME1.image.x - 200, SOUND_VOLUME1.image.y - 50,			//画像の座標
+		SOUND_VOLUME1.rate,						//画像の拡大率
+		0,											//画像の回転率
+		SOUND_VOLUME1.image.handle, TRUE);				//画像のハンドル
+
+	DrawRotaGraph(
+		SOUND_VOLUME2.image.x - 200, SOUND_VOLUME2.image.y ,			//画像の座標
+		SOUND_VOLUME2.rate,						//画像の拡大率
+		0,											//画像の回転率
+		SOUND_VOLUME2.image.handle, TRUE);				//画像のハンドル
+
+	DrawRotaGraph(
+		SOUND_VOLUME3.image.x - 200, SOUND_VOLUME3.image.y + 50,			//画像の座標
+		SOUND_VOLUME3.rate,						//画像の拡大率
+		0,											//画像の回転率
+		SOUND_VOLUME3.image.handle, TRUE);				//画像のハンドル
+
+	DrawRotaGraph(
+		SOUND_VOLUME4.image.x - 200, SOUND_VOLUME4.image.y + 100,			//画像の座標
+		SOUND_VOLUME4.rate,						//画像の拡大率
+		0,											//画像の回転率
+		SOUND_VOLUME4.image.handle, TRUE);				//画像のハンドル
+
+	while (true)
+	{
+		
+		switch (OptionMenu)
+		{
+			case VOLUME0:
+				SOUND_VOLUME.rate = 1.2;
+				SOUND_VOLUME1.rate = 1;
+				SOUND_VOLUME2.rate = 1;
+				SOUND_VOLUME3.rate = 1;
+				SOUND_VOLUME4.rate = 1;
+
+
+				if (MY_KEY_DOWN(KEY_INPUT_RETURN) == TRUE)
+				{
+
+					// 音量の設定
+					ChangeVolumeSoundMem(255 * 0 / 100, BGM.handle);
+
+				}
+
+				if (MY_KEY_PUSH(KEY_INPUT_DOWN) == TRUE)
+				{
+					OptionMenu = VOLUME25;
+				}
+
+				if (MY_KEY_PUSH(KEY_INPUT_UP) == TRUE)
+				{
+					OptionMenu = VOLUME100;
+				}
+
+				break;
+
+
+
+			case VOLUME25:
+				SOUND_VOLUME.rate = 1;
+				SOUND_VOLUME1.rate = 1.2;
+				SOUND_VOLUME2.rate = 1;
+				SOUND_VOLUME3.rate = 1;
+				SOUND_VOLUME4.rate = 1;
+
+
+				if (MY_KEY_DOWN(KEY_INPUT_RETURN) == TRUE)
+				{
+
+					// 音量の設定
+					ChangeVolumeSoundMem(255 * 25 / 100, BGM.handle);
+
+				}
+
+				if (MY_KEY_PUSH(KEY_INPUT_DOWN) == TRUE)
+				{
+					OptionMenu = VOLUME50;
+				}
+
+				if (MY_KEY_PUSH(KEY_INPUT_UP) == TRUE)
+				{
+					OptionMenu = VOLUME0;
+				}
+
+				break;
+
+			case VOLUME50:
+				SOUND_VOLUME.rate = 1;
+				SOUND_VOLUME1.rate = 1;
+				SOUND_VOLUME2.rate = 1.2;
+				SOUND_VOLUME3.rate = 1;
+				SOUND_VOLUME4.rate = 1;
+
+
+				if (MY_KEY_DOWN(KEY_INPUT_RETURN) == TRUE)
+				{
+
+					// 音量の設定
+					ChangeVolumeSoundMem(255 * 50 / 100, BGM.handle);
+
+				}
+
+				if (MY_KEY_PUSH(KEY_INPUT_DOWN) == TRUE)
+				{
+					OptionMenu = VOLUME75;
+				}
+
+				if (MY_KEY_PUSH(KEY_INPUT_UP) == TRUE)
+				{
+					OptionMenu = VOLUME25;
+				}
+
+				break;
+
+			case VOLUME75:
+				SOUND_VOLUME.rate = 1;
+				SOUND_VOLUME1.rate = 1;
+				SOUND_VOLUME2.rate = 1;
+				SOUND_VOLUME3.rate = 1.2;
+				SOUND_VOLUME4.rate = 1;
+
+
+				if (MY_KEY_DOWN(KEY_INPUT_RETURN) == TRUE)
+				{
+
+					// 音量の設定
+					ChangeVolumeSoundMem(255 * 75 / 100, BGM.handle);
+
+				}
+
+				if (MY_KEY_PUSH(KEY_INPUT_DOWN) == TRUE)
+				{
+					OptionMenu = VOLUME100;
+				}
+
+				if (MY_KEY_PUSH(KEY_INPUT_UP) == TRUE)
+				{
+					OptionMenu = VOLUME50;
+				}
+
+				break;
+
+			case VOLUME100:
+				SOUND_VOLUME.rate = 1;
+				SOUND_VOLUME1.rate = 1;
+				SOUND_VOLUME2.rate = 1;
+				SOUND_VOLUME3.rate = 1;
+				SOUND_VOLUME4.rate = 1.2;
+
+
+				if (MY_KEY_DOWN(KEY_INPUT_RETURN) == TRUE)
+				{
+
+					// 音量の設定
+					ChangeVolumeSoundMem(255 * 100 / 100, BGM.handle);
+
+				}
+
+				if (MY_KEY_PUSH(KEY_INPUT_DOWN) == TRUE)
+				{
+					OptionMenu = VOLUME0;
+				}
+
+				if (MY_KEY_PUSH(KEY_INPUT_UP) == TRUE)
+				{
+					OptionMenu = VOLUME75;
+				}
+
+			break;
+
+		}
+
+		break;
+	}
+
+	if (MY_KEY_DOWN(KEY_INPUT_ESCAPE) == TRUE) 
+	{
+	
+
+		GameScene = GAME_SCENE_START;
+
+
+	}
 }
 
 VOID MY_SETUMEI(VOID)
@@ -2052,7 +2324,8 @@ VOID MY_START_SETUMEI_DRAW(VOID)
 		//プレイ画面を初期化
 		MY_PLAY_INIT();
 		
-		GameScene = GAME_SCENE_SCENARIO;
+		/*GameScene = GAME_SCENE_SCENARIO;*/
+		GameScene = GAME_SCENE_PLAY4;
 	}
 	
 	
@@ -3582,7 +3855,7 @@ VOID MY_PLAY_DRAW4(VOID)
 
 	//出口用
 	//DrawBox(GoalRect4.left, GoalRect4.top, GoalRect4.right, GoalRect4.bottom, GetColor(255, 255, 0), TRUE);
-
+	DrawBox(Kanban.left, Kanban.top, Kanban.right, Kanban.bottom, GetColor(255, 255, 0), TRUE);
 	return;
 }
 
@@ -3729,6 +4002,7 @@ BOOL LOAD_IMAGE(VOID)
 	GameMenu_START.image.y = (GAME_HEIGHT / 2 - GameMenu_START.image.height / 2) + 250;		//上下中央揃え
 	GameMenu_START.rate = 2;
 
+	//--------------------------------------------------------------------------------------------
 
 	strcpy_s(GameMenu_EXIT.image.path, GAME_MENU_BTN2);	//終了ボタン画像読込
 	GameMenu_EXIT.image.handle = LoadGraph(GameMenu_EXIT.image.path);			//読み込み
@@ -3740,10 +4014,98 @@ BOOL LOAD_IMAGE(VOID)
 	}
 	GetGraphSize(GameMenu_EXIT.image.handle, &GameMenu_EXIT.image.width, &GameMenu_EXIT.image.height);	//画像の幅と高さを取得
 	GameMenu_EXIT.image.x = (GAME_WIDTH / 2 - GameMenu_EXIT.image.width / 2)+ 50;		//左右中央揃え
-	GameMenu_EXIT.image.y = (GAME_HEIGHT / 2 - GameMenu_EXIT.image.height / 2) + 300;		//上下中央揃え
+	GameMenu_EXIT.image.y = (GAME_HEIGHT / 2 - GameMenu_EXIT.image.height / 2) + 350;		//上下中央揃え
 	GameMenu_EXIT.rate = 1;
 
+	//--------------------------------------------------------------------------------------------
 
+	strcpy_s(GameMenu_OPTION.image.path, GAME_MENU_BTN3);	//設定ボタン画像読込
+	GameMenu_OPTION.image.handle = LoadGraph(GameMenu_OPTION.image.path);			//読み込み
+	if (GameMenu_OPTION.image.handle == -1)
+	{
+		//エラーメッセージ表示
+		MessageBox(GetMainWindowHandle(), GAME_MENU_BTN3, IMAGE_LOAD_ERR_TITLE, MB_OK);
+		return FALSE;
+	}
+	GetGraphSize(GameMenu_OPTION.image.handle, &GameMenu_OPTION.image.width, &GameMenu_OPTION.image.height);	//画像の幅と高さを取得
+	GameMenu_OPTION.image.x = (GAME_WIDTH / 2 - GameMenu_OPTION.image.width / 2) + 50;		//左右中央揃え
+	GameMenu_OPTION.image.y = (GAME_HEIGHT / 2 - GameMenu_OPTION.image.height / 2) + 300;		//上下中央揃え
+	GameMenu_OPTION.rate = 1;
+
+	//##################################オプション画面・音量調整ボタン#############################
+
+	strcpy_s(SOUND_VOLUME.image.path, OPTION_SOUND_VOLUME);	//終了ボタン画像読込
+	SOUND_VOLUME.image.handle = LoadGraph(SOUND_VOLUME.image.path);			//読み込み
+	if (SOUND_VOLUME.image.handle == -1)
+	{
+		//エラーメッセージ表示
+		MessageBox(GetMainWindowHandle(), OPTION_SOUND_VOLUME, IMAGE_LOAD_ERR_TITLE, MB_OK);
+		return FALSE;
+	}
+	GetGraphSize(SOUND_VOLUME.image.handle, &SOUND_VOLUME.image.width, &SOUND_VOLUME.image.height);	//画像の幅と高さを取得
+	SOUND_VOLUME.image.x = (GAME_WIDTH / 2 - SOUND_VOLUME.image.width / 2);		//左右中央揃え
+	SOUND_VOLUME.image.y = (GAME_HEIGHT / 2 - SOUND_VOLUME.image.height / 2);		//上下中央揃え
+	SOUND_VOLUME.rate = 1;
+
+	//--------------------------------------------------------------------------------------------
+
+	strcpy_s(SOUND_VOLUME1.image.path, OPTION_SOUND_VOLUME1);	//終了ボタン画像読込
+	SOUND_VOLUME1.image.handle = LoadGraph(SOUND_VOLUME1.image.path);			//読み込み
+	if (SOUND_VOLUME1.image.handle == -1)
+	{
+		//エラーメッセージ表示
+		MessageBox(GetMainWindowHandle(), OPTION_SOUND_VOLUME1, IMAGE_LOAD_ERR_TITLE, MB_OK);
+		return FALSE;
+	}
+	GetGraphSize(SOUND_VOLUME1.image.handle, &SOUND_VOLUME1.image.width, &SOUND_VOLUME1.image.height);	//画像の幅と高さを取得
+	SOUND_VOLUME1.image.x = (GAME_WIDTH / 2 - SOUND_VOLUME1.image.width / 2);		//左右中央揃え
+	SOUND_VOLUME1.image.y = (GAME_HEIGHT / 2 - SOUND_VOLUME1.image.height / 2);		//上下中央揃え
+	SOUND_VOLUME1.rate = 1;
+
+	//--------------------------------------------------------------------------------------------
+
+	strcpy_s(SOUND_VOLUME2.image.path, OPTION_SOUND_VOLUME2);	//終了ボタン画像読込
+	SOUND_VOLUME2.image.handle = LoadGraph(SOUND_VOLUME2.image.path);			//読み込み
+	if (SOUND_VOLUME2.image.handle == -1)
+	{
+		//エラーメッセージ表示
+		MessageBox(GetMainWindowHandle(), OPTION_SOUND_VOLUME2, IMAGE_LOAD_ERR_TITLE, MB_OK);
+		return FALSE;
+	}
+	GetGraphSize(SOUND_VOLUME2.image.handle, &SOUND_VOLUME2.image.width, &SOUND_VOLUME2.image.height);	//画像の幅と高さを取得
+	SOUND_VOLUME2.image.x = (GAME_WIDTH / 2 - SOUND_VOLUME2.image.width / 2);		//左右中央揃え
+	SOUND_VOLUME2.image.y = (GAME_HEIGHT / 2 - SOUND_VOLUME2.image.height / 2);		//上下中央揃え
+	SOUND_VOLUME2.rate = 1;
+
+	//--------------------------------------------------------------------------------------------
+
+	strcpy_s(SOUND_VOLUME3.image.path, OPTION_SOUND_VOLUME3);	//終了ボタン画像読込
+	SOUND_VOLUME3.image.handle = LoadGraph(SOUND_VOLUME3.image.path);			//読み込み
+	if (SOUND_VOLUME3.image.handle == -1)
+	{
+		//エラーメッセージ表示
+		MessageBox(GetMainWindowHandle(), OPTION_SOUND_VOLUME3, IMAGE_LOAD_ERR_TITLE, MB_OK);
+		return FALSE;
+	}
+	GetGraphSize(SOUND_VOLUME3.image.handle, &SOUND_VOLUME3.image.width, &SOUND_VOLUME3.image.height);	//画像の幅と高さを取得
+	SOUND_VOLUME3.image.x = (GAME_WIDTH / 2 - SOUND_VOLUME3.image.width / 2);		//左右中央揃え
+	SOUND_VOLUME3.image.y = (GAME_HEIGHT / 2 - SOUND_VOLUME3.image.height / 2);		//上下中央揃え
+	SOUND_VOLUME3.rate = 1;
+
+	//--------------------------------------------------------------------------------------------
+
+	strcpy_s(SOUND_VOLUME4.image.path, OPTION_SOUND_VOLUME4);	//終了ボタン画像読込
+	SOUND_VOLUME4.image.handle = LoadGraph(SOUND_VOLUME4.image.path);			//読み込み
+	if (SOUND_VOLUME4.image.handle == -1)
+	{
+		//エラーメッセージ表示
+		MessageBox(GetMainWindowHandle(), OPTION_SOUND_VOLUME4, IMAGE_LOAD_ERR_TITLE, MB_OK);
+		return FALSE;
+	}
+	GetGraphSize(SOUND_VOLUME4.image.handle, &SOUND_VOLUME4.image.width, &SOUND_VOLUME4.image.height);	//画像の幅と高さを取得
+	SOUND_VOLUME4.image.x = (GAME_WIDTH / 2 - SOUND_VOLUME4.image.width / 2);		//左右中央揃え
+	SOUND_VOLUME4.image.y = (GAME_HEIGHT / 2 - SOUND_VOLUME4.image.height / 2);		//上下中央揃え
+	SOUND_VOLUME4.rate = 1;
 
 
 
@@ -3902,10 +4264,16 @@ VOID DELETE_IMAGE(VOID)
 	DeleteGraph(TextBox_Kanban.handle);
 	DeleteGraph(GameMenu_START.image.handle);
 	DeleteGraph(GameMenu_EXIT.image.handle);
+	DeleteGraph(GameMenu_OPTION.image.handle);
 	DeleteGraph(ImageSetumei_KEY_W.handle);
 	DeleteGraph(ImageSetumei_KEY_A.handle);
 	DeleteGraph(ImageSetumei_KEY_S.handle);
 	DeleteGraph(ImageSetumei_KEY_D.handle);
+	DeleteGraph(SOUND_VOLUME.image.handle);
+	DeleteGraph(SOUND_VOLUME1.image.handle);
+	DeleteGraph(SOUND_VOLUME2.image.handle);
+	DeleteGraph(SOUND_VOLUME3.image.handle);
+	DeleteGraph(SOUND_VOLUME4.image.handle);
 	for (int i_num = 0; i_num < MAP_DIV_NUM; i_num++) { DeleteGraph(mapChip.handle[i_num]); }
 	for (int i_num = 0; i_num < MAP_DIV_NUM; i_num++) { DeleteGraph(mapChip2.handle[i_num]); }
 	return;
