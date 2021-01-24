@@ -2,8 +2,10 @@
 #include "stdlib.h"
 #include "string.h"
 
+#define TITLE_NAME TEXT("不思議な家")
 
 #define _CRT_SECURE_NO_WARNINGS
+#pragma warning(disable : 4996)
 #define MAP_NUM         3           // マップの数
 #define GAME_WIDTH			800	//画面の横の大きさ
 #define GAME_HEIGHT			640	//画面の縦の大きさ
@@ -411,7 +413,6 @@ char SCENARIO[STR_ROW_MAX][STR_COL_MAX] =
 	"@　倉庫として使っているのかわからないが",
 	"@　周りには多くのダンボールが積み重なっていた。B",
 	"@　主人公はこの謎の家から出るために、探索をすることにした。B",
-	"@　＊エスケープキーを押してくださいB",
 	"E"
 
 };
@@ -492,7 +493,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	SetGraphMode(GAME_WIDTH, GAME_HEIGHT, GAME_COLOR);	//指定の数値でウィンドウを表示する
 	SetWindowStyleMode(0);				//タイトルバーはデフォルトにする
 	SetAlwaysRunFlag(TRUE);								//非アクティブでも実行する
-	
+	SetMainWindowText(TITLE_NAME);								//タイトルネーム
+	SetWindowIconID(444);									//ゲームアイコン
 	SetWindowUserCloseEnableFlag(FALSE);				//閉じるボタンで、勝手にウィンドウが閉じないようにする
 
 
@@ -2324,8 +2326,8 @@ VOID MY_START_SETUMEI_DRAW(VOID)
 		//プレイ画面を初期化
 		MY_PLAY_INIT();
 		
-		/*GameScene = GAME_SCENE_SCENARIO;*/
-		GameScene = GAME_SCENE_PLAY4;
+		GameScene = GAME_SCENE_SCENARIO;
+		
 	}
 	
 	
@@ -2353,7 +2355,7 @@ VOID MY_SCENARIO(VOID)
 	}
 
 
-	if (MY_KEY_DOWN(KEY_INPUT_ESCAPE) == TRUE) //プレイ画面へ遷移
+	if (MY_KEY_DOWN(KEY_INPUT_ESCAPE) == TRUE || MY_KEY_DOWN(KEY_INPUT_6) == TRUE) //プレイ画面へ遷移
 	{
 		SetFontSize(DefaultFontSize); //デフォルトにする
 
@@ -2382,8 +2384,6 @@ VOID MY_PLAY(VOID)
 {
 	MY_PLAY_PROC();	//プレイ画面の処理
 	MY_PLAY_DRAW();	//プレイ画面の描画
-
-	DrawString(0, 0, "プレイ画面(スペースキーを押して下さい)", GetColor(255, 255, 255));
 	return;
 }
 
@@ -2716,9 +2716,9 @@ VOID MY_PLAY_DRAW(VOID)
 	}
 
 	//ゴール当たり判定用
-	DrawBox(GoalRect.left, GoalRect.top, GoalRect.right, GoalRect.bottom, GetColor(255, 255, 0), TRUE);
+	//DrawBox(GoalRect.left, GoalRect.top, GoalRect.right, GoalRect.bottom, GetColor(255, 255, 0), TRUE);
 	//プレイヤーの当たり判定用
-	DrawBox(player.coll.left, player.coll.top, player.coll.right, player.coll.bottom, GetColor(255, 0, 0), FALSE);
+	/*DrawBox(player.coll.left, player.coll.top, player.coll.right, player.coll.bottom, GetColor(255, 0, 0), FALSE);*/
 
 	//現在は没の予定
 	//DrawGraph(TEXT_WIDTH_POSITION, TEXT_HEIGHT_POSITION, TextBox_start.handle, TRUE);
@@ -3141,7 +3141,7 @@ VOID MY_PLAY_DRAW2(VOID)
 			//一つ前に戻る判定
 			if (mapdata6[tate][yoko] == M)
 			{
-				DrawBox(mapColl[tate][yoko].left, mapColl[tate][yoko].top, mapColl[tate][yoko].right, mapColl[tate][yoko].bottom, GetColor(255, 0, 0), FALSE);
+			/*	DrawBox(mapColl[tate][yoko].left, mapColl[tate][yoko].top, mapColl[tate][yoko].right, mapColl[tate][yoko].bottom, GetColor(255, 0, 0), FALSE);*/
 			}
 
 		}
@@ -3855,7 +3855,7 @@ VOID MY_PLAY_DRAW4(VOID)
 
 	//出口用
 	//DrawBox(GoalRect4.left, GoalRect4.top, GoalRect4.right, GoalRect4.bottom, GetColor(255, 255, 0), TRUE);
-	DrawBox(Kanban.left, Kanban.top, Kanban.right, Kanban.bottom, GetColor(255, 255, 0), TRUE);
+	/*DrawBox(Kanban.left, Kanban.top, Kanban.right, Kanban.bottom, GetColor(255, 255, 0), TRUE);*/
 	return;
 }
 
@@ -3880,7 +3880,7 @@ VOID MY_END_PROC(VOID)
 		GameScene = GAME_SCENE_START;
 	}
 
-	DrawString(0, 0, "エンド画面(エスケープキーを押して下さい)", GetColor(255, 255, 255));
+	DrawString(0, 0, "エンドロールテキスト終了後、エスケープキーを押して下さい", GetColor(255, 255, 255));
 	return;
 }
 
