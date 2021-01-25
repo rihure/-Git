@@ -24,6 +24,9 @@
   <ItemGroup>
     <ResourceCompile Include="Resource.rc" />
   </ItemGroup>
+  <ItemGroup>
+    <Image Include="IMAGE\ゲームアイコン.ico" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <ProjectGuid>{89F090AB-285E-44AC-819A-280E0199C87B}</ProjectGuid>
