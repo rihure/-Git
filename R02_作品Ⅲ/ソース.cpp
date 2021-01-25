@@ -57,16 +57,30 @@
 #define GAME_MENU_BTN2 TEXT(".\\IMAGE\\Menu_btn2.png")//終了ボタン
 #define GAME_MENU_BTN3 TEXT(".\\IMAGE\\Menu_btn3.png")//オプションボタン
 
-#define OPTION_SOUND_VOLUME TEXT(".\\IMAGE\\Volume0.png")//音量ボタン
+#define OPTION_SOUND_VOLUME  TEXT(".\\IMAGE\\Volume0.png")//音量ボタン
 #define OPTION_SOUND_VOLUME1 TEXT(".\\IMAGE\\Volume25.png")//音量ボタン
 #define OPTION_SOUND_VOLUME2 TEXT(".\\IMAGE\\Volume50.png")//音量ボタン
 #define OPTION_SOUND_VOLUME3 TEXT(".\\IMAGE\\Volume75.png")//音量ボタン
 #define OPTION_SOUND_VOLUME4 TEXT(".\\IMAGE\\Volume100.png")//音量ボタン
 
+#define OPTION_SOUND_EFFECT  TEXT(".\\IMAGE\\SE_Volume0.png")//効果音音量ボタン
+#define OPTION_SOUND_EFFECT1 TEXT(".\\IMAGE\\SE_Volume25.png")//効果音音量ボタン
+#define OPTION_SOUND_EFFECT2 TEXT(".\\IMAGE\\SE_Volume50.png")//効果音音量ボタン
+#define OPTION_SOUND_EFFECT3 TEXT(".\\IMAGE\\SE_Volume75.png")//効果音音量ボタン
+#define OPTION_SOUND_EFFECT4 TEXT(".\\IMAGE\\SE_Volume100.png")//効果音音量ボタン
+
+#define OPTION_SOUND_DECISION  TEXT(".\\IMAGE\\DC_Volume0.png")//決定音音量ボタン
+#define OPTION_SOUND_DECISION1 TEXT(".\\IMAGE\\DC_Volume25.png")//決定音音量ボタン
+#define OPTION_SOUND_DECISION2 TEXT(".\\IMAGE\\DC_Volume50.png")//決定音音量ボタン
+#define OPTION_SOUND_DECISION3 TEXT(".\\IMAGE\\DC_Volume75.png")//決定音音量ボタン
+#define OPTION_SOUND_DECISION4 TEXT(".\\IMAGE\\DC_Volume100.png")//決定音音量ボタン
+
 //BGMのパスを設定
 #define TITLE_BGM_PATH TEXT(".\\MUSIC\\冬の情景にて.mp3") //タイトルBGM
 #define ROKA_BGM_PATH TEXT(".\\MUSIC\\死霊の館.mp3") //廊下のちょっと怖いBGM
 #define FLAG_BGM_PATH TEXT(".\\MUSIC\\se_maoudamashii_onepoint07.mp3")//アイテム取得時の効果音
+#define SERECT_EFFECT TEXT(".\\MUSIC\\セレクト音_3.mp3")//選択時の効果音
+#define DECISION_EFFECT TEXT(".\\MUSIC\\システム決定音_11.mp3")//決定時の効果音
 
 //エラーメッセージ
 #define IMAGE_LOAD_ERR_TITLE	TEXT("画像読み込みエラー")
@@ -126,7 +140,17 @@ enum VOLUME {
 	VOLUME25,
 	VOLUME50,
 	VOLUME75,
-	VOLUME100
+	VOLUME100,
+	EFFECT0,
+	EFFECT25,
+	EFFECT50,
+	EFFECT75,
+	EFFECT100,
+	DECISION0,
+	DECISION25,
+	DECISION50,
+	DECISION75,
+	DECISION100
 };
 
 enum GAME_MAP_KIND
@@ -330,6 +354,18 @@ IMAGE_ROTA SOUND_VOLUME2;
 IMAGE_ROTA SOUND_VOLUME3;
 IMAGE_ROTA SOUND_VOLUME4;
 
+IMAGE_ROTA SOUND_EFFECT;//効果音各音量調整ボタン
+IMAGE_ROTA SOUND_EFFECT1;
+IMAGE_ROTA SOUND_EFFECT2;
+IMAGE_ROTA SOUND_EFFECT3;
+IMAGE_ROTA SOUND_EFFECT4;
+
+IMAGE_ROTA SOUND_DECISION;//決定音各音量調整ボタン
+IMAGE_ROTA SOUND_DECISION1;
+IMAGE_ROTA SOUND_DECISION2;
+IMAGE_ROTA SOUND_DECISION3;
+IMAGE_ROTA SOUND_DECISION4;
+
 
 iPOINT startPt{ -1, -1 }; //最初のスタートポイント
 iPOINT startPt2{ -1 , -1 };//廊下のスタートポイント
@@ -351,7 +387,10 @@ iPOINT Modoru2Pt{ -1,-1, };
 //BGM
 MUSIC BGM; //タイトルBGM
 MUSIC ROKA;//廊下のBGM
+//SE
 MUSIC FLAG; //アイテム取得時の効果音※現在は没
+MUSIC SERECT; //セレクト効果音
+MUSIC DECISION; //決定
 
 int GameScene;		//ゲームシーンを管理
 int GameMenu = 0;	//ゲームメニューを管理
@@ -1521,7 +1560,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			break;
 
 		case GAME_SCENE_OPTION:
-			MY_OPTION();
+			MY_OPTION(); //オプション画面
 			break;
 
 		case GAME_SCENE_PLAY:
@@ -1692,17 +1731,7 @@ VOID MY_START_PROC(VOID)
 
 
 	
-	//エンターキーを押したら、プレイシーンへ移動する
-	//if (MY_KEY_DOWN(KEY_INPUT_RETURN) == TRUE)
-	//{
-	//	
-
-
-	//	//ゲームのシーンをプレイ画面にする
-	//	GameScene = GAME_SCENE_SETUMEI;
-
-	//	return;
-	//}
+	
 
 	return;
 }
@@ -1952,16 +1981,38 @@ VOID MY_START_DRAW(VOID)
 			if (MY_KEY_PUSH(KEY_INPUT_DOWN) == TRUE)
 			{
 				GameMenu = GAME_MENU_OPTION;
+
+				if (CheckSoundMem(SERECT.handle) == 0)
+				{
+					//BGMの音量を下げる
+					ChangeVolumeSoundMem(255 * 60 / 100, SERECT.handle);	//60%の音量にする
+
+					PlaySoundMem(SERECT.handle, DX_PLAYTYPE_BACK);
+				}
 			}
 
 			if (MY_KEY_PUSH(KEY_INPUT_UP) == TRUE)
 			{
 				GameMenu = GAME_MENU_EXIT;
+
+				if (CheckSoundMem(SERECT.handle) == 0)
+				{
+					//BGMの音量を下げる
+					ChangeVolumeSoundMem(255 * 60 / 100, SERECT.handle);	//60%の音量にする
+
+					PlaySoundMem(SERECT.handle, DX_PLAYTYPE_BACK);
+				}
 			}
 
 			if (MY_KEY_DOWN(KEY_INPUT_RETURN) == TRUE)
 			{
+				if (CheckSoundMem(DECISION.handle) == 0)
+				{
+					//BGMの音量を下げる
+					ChangeVolumeSoundMem(255 * 60 / 100, DECISION.handle);	//60%の音量にする
 
+					PlaySoundMem(DECISION.handle, DX_PLAYTYPE_BACK);
+				}
 
 				GameScene = GAME_SCENE_SETUMEI;
 			}
@@ -1976,12 +2027,31 @@ VOID MY_START_DRAW(VOID)
 
 			if (MY_KEY_PUSH(KEY_INPUT_DOWN) == TRUE)
 			{
+
+				if (CheckSoundMem(SERECT.handle) == 0)
+				{
+
+					PlaySoundMem(SERECT.handle, DX_PLAYTYPE_BACK);
+				}
+
 				GameMenu = GAME_MENU_START;
+
+				
 			}
 
 			if (MY_KEY_PUSH(KEY_INPUT_UP) == TRUE)
 			{
+
+				if (CheckSoundMem(SERECT.handle) == 0)
+				{
+					
+
+					PlaySoundMem(SERECT.handle, DX_PLAYTYPE_BACK);
+				}
+
 				GameMenu = GAME_MENU_OPTION;
+
+				
 			}
 
 			
@@ -1989,6 +2059,13 @@ VOID MY_START_DRAW(VOID)
 
 			if (MY_KEY_DOWN(KEY_INPUT_RETURN) == TRUE)
 			{
+
+				if (CheckSoundMem(DECISION.handle) == 0)
+				{
+					//BGMの音量を下げる
+					ChangeVolumeSoundMem(255 * 60 / 100, DECISION.handle);	//60%の音量にする
+					PlaySoundMem(DECISION.handle, DX_PLAYTYPE_BACK);
+				}
 
 				DxLib_End();	//終了処理
 
@@ -2005,11 +2082,28 @@ VOID MY_START_DRAW(VOID)
 
 			if (MY_KEY_PUSH(KEY_INPUT_DOWN) == TRUE )
 			{
+
+				if (CheckSoundMem(SERECT.handle) == 0)
+				{
+
+					PlaySoundMem(SERECT.handle, DX_PLAYTYPE_BACK);
+				}
+
 				GameMenu = GAME_MENU_EXIT;
+
+
 			}
 
 			if (MY_KEY_PUSH(KEY_INPUT_UP) == TRUE)
 			{
+
+				if (CheckSoundMem(SERECT.handle) == 0)
+				{
+					
+
+					PlaySoundMem(SERECT.handle, DX_PLAYTYPE_BACK);
+				}
+
 				GameMenu = GAME_MENU_START;
 			}
 
@@ -2017,6 +2111,16 @@ VOID MY_START_DRAW(VOID)
 
 			if (MY_KEY_DOWN(KEY_INPUT_RETURN) == TRUE)
 			{
+
+				if (CheckSoundMem(DECISION.handle) == 0)
+				{
+						//BGMの音量を下げる
+						ChangeVolumeSoundMem(255 * 60 / 100, DECISION.handle);	//60%の音量にする
+
+					
+
+					PlaySoundMem(DECISION.handle, DX_PLAYTYPE_BACK);
+				}
 
 				GameScene = GAME_SCENE_OPTION;
 
@@ -2041,6 +2145,8 @@ VOID MY_OPTION(VOID)
 	DrawString(0, 0, "オプション画面【開発中】(ESCキーを押してスタート画面に戻ります)", GetColor(255, 255, 255));
 	DrawString(60, 100, "BGM音量設定", GetColor(255, 0, 0));
 
+
+	//BGM音量設定
 	DrawRotaGraph(
 		SOUND_VOLUME.image.x - 200, SOUND_VOLUME.image.y - 100,			//画像の座標
 		SOUND_VOLUME.rate,						//画像の拡大率
@@ -2071,6 +2177,77 @@ VOID MY_OPTION(VOID)
 		0,											//画像の回転率
 		SOUND_VOLUME4.image.handle, TRUE);				//画像のハンドル
 
+	//ここまでがBGM音量設定
+
+	//ここから効果音音量設定
+
+	DrawRotaGraph(
+		SOUND_EFFECT.image.x  + 50, SOUND_EFFECT.image.y - 100,			//画像の座標
+		SOUND_EFFECT.rate,						//画像の拡大率
+		0,											//画像の回転率
+		SOUND_EFFECT.image.handle, TRUE);				//画像のハンドル
+
+	DrawRotaGraph(
+		SOUND_EFFECT1.image.x + 50, SOUND_EFFECT1.image.y - 50,			//画像の座標
+		SOUND_EFFECT1.rate,						//画像の拡大率
+		0,											//画像の回転率
+		SOUND_EFFECT1.image.handle, TRUE);				//画像のハンドル
+
+	DrawRotaGraph(
+		SOUND_EFFECT2.image.x + 50, SOUND_EFFECT2.image.y,			//画像の座標
+		SOUND_EFFECT2.rate,						//画像の拡大率
+		0,											//画像の回転率
+		SOUND_EFFECT2.image.handle, TRUE);				//画像のハンドル
+
+	DrawRotaGraph(
+		SOUND_EFFECT3.image.x + 50, SOUND_EFFECT3.image.y + 50,			//画像の座標
+		SOUND_EFFECT3.rate,						//画像の拡大率
+		0,											//画像の回転率
+		SOUND_EFFECT3.image.handle, TRUE);				//画像のハンドル
+
+	DrawRotaGraph(
+		SOUND_EFFECT4.image.x + 50, SOUND_EFFECT4.image.y + 100,			//画像の座標
+		SOUND_EFFECT4.rate,						//画像の拡大率
+		0,											//画像の回転率
+		SOUND_EFFECT4.image.handle, TRUE);				//画像のハンドル
+
+	//ここまで効果音ボタン
+
+	//ここから決定ボタン
+
+	DrawRotaGraph(
+		SOUND_DECISION.image.x + 300, SOUND_DECISION.image.y - 100,			//画像の座標
+		SOUND_DECISION.rate,						//画像の拡大率
+		0,											//画像の回転率
+		SOUND_DECISION.image.handle, TRUE);				//画像のハンドル
+
+	DrawRotaGraph(
+		SOUND_DECISION1.image.x + 300, SOUND_DECISION1.image.y - 50,			//画像の座標
+		SOUND_DECISION1.rate,						//画像の拡大率
+		0,											//画像の回転率
+		SOUND_DECISION1.image.handle, TRUE);				//画像のハンドル
+
+	DrawRotaGraph(
+		SOUND_DECISION2.image.x + 300, SOUND_DECISION2.image.y,			//画像の座標
+		SOUND_DECISION2.rate,						//画像の拡大率
+		0,											//画像の回転率
+		SOUND_DECISION2.image.handle, TRUE);				//画像のハンドル
+
+	DrawRotaGraph(
+		SOUND_DECISION3.image.x + 300, SOUND_DECISION3.image.y + 50,			//画像の座標
+		SOUND_DECISION3.rate,						//画像の拡大率
+		0,											//画像の回転率
+		SOUND_DECISION3.image.handle, TRUE);				//画像のハンドル
+
+	DrawRotaGraph(
+		SOUND_DECISION4.image.x + 300, SOUND_DECISION4.image.y + 100,			//画像の座標
+		SOUND_DECISION4.rate,						//画像の拡大率
+		0,											//画像の回転率
+		SOUND_DECISION4.image.handle, TRUE);				//画像のハンドル
+
+
+
+
 	while (true)
 	{
 		
@@ -2086,6 +2263,11 @@ VOID MY_OPTION(VOID)
 
 				if (MY_KEY_DOWN(KEY_INPUT_RETURN) == TRUE)
 				{
+					if (CheckSoundMem(DECISION.handle) == 0)
+					{
+					
+						PlaySoundMem(DECISION.handle, DX_PLAYTYPE_BACK);
+					}
 
 					// 音量の設定
 					ChangeVolumeSoundMem(255 * 0 / 100, BGM.handle);
@@ -2094,13 +2276,52 @@ VOID MY_OPTION(VOID)
 
 				if (MY_KEY_PUSH(KEY_INPUT_DOWN) == TRUE)
 				{
+					if (CheckSoundMem(SERECT.handle) == 0)
+					{
+						
+
+						PlaySoundMem(SERECT.handle, DX_PLAYTYPE_BACK);
+					}
+
 					OptionMenu = VOLUME25;
 				}
 
 				if (MY_KEY_PUSH(KEY_INPUT_UP) == TRUE)
 				{
+
+					if (CheckSoundMem(SERECT.handle) == 0)
+					{
+						
+
+						PlaySoundMem(SERECT.handle, DX_PLAYTYPE_BACK);
+					}
+
 					OptionMenu = VOLUME100;
 				}
+
+				if (MY_KEY_PUSH(KEY_INPUT_LEFT) == TRUE)
+				{
+					if (CheckSoundMem(SERECT.handle) == 0)
+					{
+						PlaySoundMem(SERECT.handle, DX_PLAYTYPE_BACK);
+					}
+
+					OptionMenu = DECISION0;
+
+				}
+
+				if (MY_KEY_PUSH(KEY_INPUT_RIGHT) == TRUE)
+				{
+					if (CheckSoundMem(SERECT.handle) == 0)
+					{
+						PlaySoundMem(SERECT.handle, DX_PLAYTYPE_BACK);
+					}
+
+					OptionMenu = EFFECT0;
+
+				}
+
+
 
 				break;
 
@@ -2116,6 +2337,11 @@ VOID MY_OPTION(VOID)
 
 				if (MY_KEY_DOWN(KEY_INPUT_RETURN) == TRUE)
 				{
+					if (CheckSoundMem(DECISION.handle) == 0)
+					{
+
+						PlaySoundMem(DECISION.handle, DX_PLAYTYPE_BACK);
+					}
 
 					// 音量の設定
 					ChangeVolumeSoundMem(255 * 25 / 100, BGM.handle);
@@ -2124,11 +2350,26 @@ VOID MY_OPTION(VOID)
 
 				if (MY_KEY_PUSH(KEY_INPUT_DOWN) == TRUE)
 				{
+					if (CheckSoundMem(SERECT.handle) == 0)
+					{
+						
+
+						PlaySoundMem(SERECT.handle, DX_PLAYTYPE_BACK);
+					}
+
 					OptionMenu = VOLUME50;
 				}
 
 				if (MY_KEY_PUSH(KEY_INPUT_UP) == TRUE)
 				{
+
+					if (CheckSoundMem(SERECT.handle) == 0)
+					{
+						
+
+						PlaySoundMem(SERECT.handle, DX_PLAYTYPE_BACK);
+					}
+
 					OptionMenu = VOLUME0;
 				}
 
@@ -2145,6 +2386,13 @@ VOID MY_OPTION(VOID)
 				if (MY_KEY_DOWN(KEY_INPUT_RETURN) == TRUE)
 				{
 
+					if (CheckSoundMem(DECISION.handle) == 0)
+					{
+
+						PlaySoundMem(DECISION.handle, DX_PLAYTYPE_BACK);
+					}
+
+
 					// 音量の設定
 					ChangeVolumeSoundMem(255 * 50 / 100, BGM.handle);
 
@@ -2152,11 +2400,26 @@ VOID MY_OPTION(VOID)
 
 				if (MY_KEY_PUSH(KEY_INPUT_DOWN) == TRUE)
 				{
+
+					if (CheckSoundMem(SERECT.handle) == 0)
+					{
+
+						PlaySoundMem(SERECT.handle, DX_PLAYTYPE_BACK);
+					}
+
 					OptionMenu = VOLUME75;
 				}
 
 				if (MY_KEY_PUSH(KEY_INPUT_UP) == TRUE)
 				{
+
+					if (CheckSoundMem(SERECT.handle) == 0)
+					{
+						
+
+						PlaySoundMem(SERECT.handle, DX_PLAYTYPE_BACK);
+					}
+
 					OptionMenu = VOLUME25;
 				}
 
@@ -2173,6 +2436,13 @@ VOID MY_OPTION(VOID)
 				if (MY_KEY_DOWN(KEY_INPUT_RETURN) == TRUE)
 				{
 
+					if (CheckSoundMem(DECISION.handle) == 0)
+					{
+
+						PlaySoundMem(DECISION.handle, DX_PLAYTYPE_BACK);
+					}
+
+
 					// 音量の設定
 					ChangeVolumeSoundMem(255 * 75 / 100, BGM.handle);
 
@@ -2180,11 +2450,27 @@ VOID MY_OPTION(VOID)
 
 				if (MY_KEY_PUSH(KEY_INPUT_DOWN) == TRUE)
 				{
+
+					if (CheckSoundMem(SERECT.handle) == 0)
+					{
+						
+
+						PlaySoundMem(SERECT.handle, DX_PLAYTYPE_BACK);
+					}
+
 					OptionMenu = VOLUME100;
 				}
 
 				if (MY_KEY_PUSH(KEY_INPUT_UP) == TRUE)
 				{
+
+					if (CheckSoundMem(SERECT.handle) == 0)
+					{
+						
+
+						PlaySoundMem(SERECT.handle, DX_PLAYTYPE_BACK);
+					}
+
 					OptionMenu = VOLUME50;
 				}
 
@@ -2201,6 +2487,13 @@ VOID MY_OPTION(VOID)
 				if (MY_KEY_DOWN(KEY_INPUT_RETURN) == TRUE)
 				{
 
+					if (CheckSoundMem(DECISION.handle) == 0)
+					{
+
+						PlaySoundMem(DECISION.handle, DX_PLAYTYPE_BACK);
+					}
+
+
 					// 音量の設定
 					ChangeVolumeSoundMem(255 * 100 / 100, BGM.handle);
 
@@ -2208,11 +2501,26 @@ VOID MY_OPTION(VOID)
 
 				if (MY_KEY_PUSH(KEY_INPUT_DOWN) == TRUE)
 				{
+
+					if (CheckSoundMem(SERECT.handle) == 0)
+					{
+						
+
+						PlaySoundMem(SERECT.handle, DX_PLAYTYPE_BACK);
+					}
+
 					OptionMenu = VOLUME0;
 				}
 
 				if (MY_KEY_PUSH(KEY_INPUT_UP) == TRUE)
 				{
+
+					if (CheckSoundMem(SERECT.handle) == 0)
+					{
+
+						PlaySoundMem(SERECT.handle, DX_PLAYTYPE_BACK);
+					}
+
 					OptionMenu = VOLUME75;
 				}
 
@@ -2225,7 +2533,13 @@ VOID MY_OPTION(VOID)
 
 	if (MY_KEY_DOWN(KEY_INPUT_ESCAPE) == TRUE) 
 	{
-	
+
+		if (CheckSoundMem(DECISION.handle) == 0)
+		{
+					
+			PlaySoundMem(DECISION.handle, DX_PLAYTYPE_BACK);
+		
+		}
 
 		GameScene = GAME_SCENE_START;
 
@@ -2390,7 +2704,7 @@ VOID MY_PLAY(VOID)
 //プレイ画面の処理
 VOID MY_PLAY_PROC(VOID)
 {
-
+	
 	
 	count++;
 	//スペースキーを押したら、エンドシーンへ移動する
@@ -2785,7 +3099,7 @@ VOID MY_PLAY_DRAW(VOID)
 
 		}
 
-
+		DrawString(0, 0, "テキストボックスはESCキーで閉じることができます。", GetColor(255, 255, 255));
 
 	return;
 }
@@ -4107,6 +4421,157 @@ BOOL LOAD_IMAGE(VOID)
 	SOUND_VOLUME4.image.y = (GAME_HEIGHT / 2 - SOUND_VOLUME4.image.height / 2);		//上下中央揃え
 	SOUND_VOLUME4.rate = 1;
 
+	//################################効果音ボタン画像########################
+
+	strcpy_s(SOUND_EFFECT.image.path, OPTION_SOUND_EFFECT);	//終了ボタン画像読込
+	SOUND_EFFECT.image.handle = LoadGraph(SOUND_EFFECT.image.path);			//読み込み
+	if (SOUND_EFFECT.image.handle == -1)
+	{
+		//エラーメッセージ表示
+		MessageBox(GetMainWindowHandle(), OPTION_SOUND_EFFECT, IMAGE_LOAD_ERR_TITLE, MB_OK);
+		return FALSE;
+	}
+	GetGraphSize(SOUND_EFFECT.image.handle, &SOUND_EFFECT.image.width, &SOUND_EFFECT.image.height);	//画像の幅と高さを取得
+	SOUND_EFFECT.image.x = (GAME_WIDTH / 2 - SOUND_EFFECT.image.width / 2);		//左右中央揃え
+	SOUND_EFFECT.image.y = (GAME_HEIGHT / 2 - SOUND_EFFECT.image.height / 2);		//上下中央揃え
+	SOUND_EFFECT.rate = 1;
+
+	//------------------------------------------------------------------------------------
+
+	strcpy_s(SOUND_EFFECT1.image.path, OPTION_SOUND_EFFECT1);	//効果音ボタン画像読込
+	SOUND_EFFECT1.image.handle = LoadGraph(SOUND_EFFECT1.image.path);			//読み込み
+	if (SOUND_EFFECT1.image.handle == -1)
+	{
+		//エラーメッセージ表示
+		MessageBox(GetMainWindowHandle(), OPTION_SOUND_EFFECT1, IMAGE_LOAD_ERR_TITLE, MB_OK);
+		return FALSE;
+	}
+	GetGraphSize(SOUND_EFFECT1.image.handle, &SOUND_EFFECT1.image.width, &SOUND_EFFECT1.image.height);	//画像の幅と高さを取得
+	SOUND_EFFECT1.image.x = (GAME_WIDTH / 2 - SOUND_EFFECT1.image.width / 2);		//左右中央揃え
+	SOUND_EFFECT1.image.y = (GAME_HEIGHT / 2 - SOUND_EFFECT1.image.height / 2);		//上下中央揃え
+	SOUND_EFFECT1.rate = 1;
+
+	//------------------------------------------------------------------------------------
+
+	strcpy_s(SOUND_EFFECT2.image.path, OPTION_SOUND_EFFECT2);	//効果音ボタン画像読込
+	SOUND_EFFECT2.image.handle = LoadGraph(SOUND_EFFECT2.image.path);			//読み込み
+	if (SOUND_EFFECT2.image.handle == -1)
+	{
+		//エラーメッセージ表示
+		MessageBox(GetMainWindowHandle(), OPTION_SOUND_EFFECT2, IMAGE_LOAD_ERR_TITLE, MB_OK);
+		return FALSE;
+	}
+	GetGraphSize(SOUND_EFFECT2.image.handle, &SOUND_EFFECT2.image.width, &SOUND_EFFECT2.image.height);	//画像の幅と高さを取得
+	SOUND_EFFECT2.image.x = (GAME_WIDTH / 2 - SOUND_EFFECT2.image.width / 2);		//左右中央揃え
+	SOUND_EFFECT2.image.y = (GAME_HEIGHT / 2 - SOUND_EFFECT2.image.height / 2);		//上下中央揃え
+	SOUND_EFFECT2.rate = 1;
+
+	//------------------------------------------------------------------------------------
+
+	strcpy_s(SOUND_EFFECT3.image.path, OPTION_SOUND_EFFECT3);	//効果音ボタン画像読込
+	SOUND_EFFECT3.image.handle = LoadGraph(SOUND_EFFECT3.image.path);			//読み込み
+	if (SOUND_EFFECT3.image.handle == -1)
+	{
+		//エラーメッセージ表示
+		MessageBox(GetMainWindowHandle(), OPTION_SOUND_EFFECT3, IMAGE_LOAD_ERR_TITLE, MB_OK);
+		return FALSE;
+	}
+	GetGraphSize(SOUND_EFFECT3.image.handle, &SOUND_EFFECT3.image.width, &SOUND_EFFECT3.image.height);	//画像の幅と高さを取得
+	SOUND_EFFECT3.image.x = (GAME_WIDTH / 2 - SOUND_EFFECT3.image.width / 2);		//左右中央揃え
+	SOUND_EFFECT3.image.y = (GAME_HEIGHT / 2 - SOUND_EFFECT3.image.height / 2);		//上下中央揃え
+	SOUND_EFFECT3.rate = 1;
+
+	//------------------------------------------------------------------------------------
+
+	strcpy_s(SOUND_EFFECT4.image.path, OPTION_SOUND_EFFECT4);	//効果音ボタン画像読込
+	SOUND_EFFECT4.image.handle = LoadGraph(SOUND_EFFECT4.image.path);			//読み込み
+	if (SOUND_EFFECT4.image.handle == -1)
+	{
+		//エラーメッセージ表示
+		MessageBox(GetMainWindowHandle(), OPTION_SOUND_EFFECT4, IMAGE_LOAD_ERR_TITLE, MB_OK);
+		return FALSE;
+	}
+	GetGraphSize(SOUND_EFFECT4.image.handle, &SOUND_EFFECT4.image.width, &SOUND_EFFECT4.image.height);	//画像の幅と高さを取得
+	SOUND_EFFECT4.image.x = (GAME_WIDTH / 2 - SOUND_EFFECT4.image.width / 2);		//左右中央揃え
+	SOUND_EFFECT4.image.y = (GAME_HEIGHT / 2 - SOUND_EFFECT4.image.height / 2);		//上下中央揃え
+	SOUND_EFFECT4.rate = 1;
+
+	//############################決定ボタン読込#############################
+
+	strcpy_s(SOUND_DECISION.image.path, OPTION_SOUND_DECISION);	//効果音ボタン画像読込
+	SOUND_DECISION.image.handle = LoadGraph(SOUND_DECISION.image.path);			//読み込み
+	if (SOUND_DECISION.image.handle == -1)
+	{
+		//エラーメッセージ表示
+		MessageBox(GetMainWindowHandle(), OPTION_SOUND_DECISION, IMAGE_LOAD_ERR_TITLE, MB_OK);
+		return FALSE;
+	}
+	GetGraphSize(SOUND_DECISION.image.handle, &SOUND_DECISION.image.width, &SOUND_DECISION.image.height);	//画像の幅と高さを取得
+	SOUND_DECISION.image.x = (GAME_WIDTH / 2 - SOUND_DECISION.image.width / 2);		//左右中央揃え
+	SOUND_DECISION.image.y = (GAME_HEIGHT / 2 - SOUND_DECISION.image.height / 2);		//上下中央揃え
+	SOUND_DECISION.rate = 1;
+
+	//-------------------------------------------------------------------------------------
+
+	strcpy_s(SOUND_DECISION1.image.path, OPTION_SOUND_DECISION1);	//効果音ボタン画像読込
+	SOUND_DECISION1.image.handle = LoadGraph(SOUND_DECISION1.image.path);			//読み込み
+	if (SOUND_DECISION1.image.handle == -1)
+	{
+		//エラーメッセージ表示
+		MessageBox(GetMainWindowHandle(), OPTION_SOUND_DECISION1, IMAGE_LOAD_ERR_TITLE, MB_OK);
+		return FALSE;
+	}
+	GetGraphSize(SOUND_DECISION1.image.handle, &SOUND_DECISION1.image.width, &SOUND_DECISION1.image.height);	//画像の幅と高さを取得
+	SOUND_DECISION1.image.x = (GAME_WIDTH / 2 - SOUND_DECISION1.image.width / 2);		//左右中央揃え
+	SOUND_DECISION1.image.y = (GAME_HEIGHT / 2 - SOUND_DECISION1.image.height / 2);		//上下中央揃え
+	SOUND_DECISION1.rate = 1;
+
+	//-------------------------------------------------------------------------------------
+
+	strcpy_s(SOUND_DECISION2.image.path, OPTION_SOUND_DECISION2);	//効果音ボタン画像読込
+	SOUND_DECISION2.image.handle = LoadGraph(SOUND_DECISION2.image.path);			//読み込み
+	if (SOUND_DECISION2.image.handle == -1)
+	{
+		//エラーメッセージ表示
+		MessageBox(GetMainWindowHandle(), OPTION_SOUND_DECISION2, IMAGE_LOAD_ERR_TITLE, MB_OK);
+		return FALSE;
+	}
+	GetGraphSize(SOUND_DECISION2.image.handle, &SOUND_DECISION2.image.width, &SOUND_DECISION2.image.height);	//画像の幅と高さを取得
+	SOUND_DECISION2.image.x = (GAME_WIDTH / 2 - SOUND_DECISION2.image.width / 2);		//左右中央揃え
+	SOUND_DECISION2.image.y = (GAME_HEIGHT / 2 - SOUND_DECISION2.image.height / 2);		//上下中央揃え
+	SOUND_DECISION2.rate = 1;
+
+	//-------------------------------------------------------------------------------------
+
+	strcpy_s(SOUND_DECISION3.image.path, OPTION_SOUND_DECISION3);	//効果音ボタン画像読込
+	SOUND_DECISION3.image.handle = LoadGraph(SOUND_DECISION3.image.path);			//読み込み
+	if (SOUND_DECISION3.image.handle == -1)
+	{
+		//エラーメッセージ表示
+		MessageBox(GetMainWindowHandle(), OPTION_SOUND_DECISION3, IMAGE_LOAD_ERR_TITLE, MB_OK);
+		return FALSE;
+	}
+	GetGraphSize(SOUND_DECISION3.image.handle, &SOUND_DECISION3.image.width, &SOUND_DECISION3.image.height);	//画像の幅と高さを取得
+	SOUND_DECISION3.image.x = (GAME_WIDTH / 2 - SOUND_DECISION3.image.width / 2);		//左右中央揃え
+	SOUND_DECISION3.image.y = (GAME_HEIGHT / 2 - SOUND_DECISION3.image.height / 2);		//上下中央揃え
+	SOUND_DECISION3.rate = 1;
+
+	//-------------------------------------------------------------------------------------
+
+	strcpy_s(SOUND_DECISION4.image.path, OPTION_SOUND_DECISION4);	//効果音ボタン画像読込
+	SOUND_DECISION4.image.handle = LoadGraph(SOUND_DECISION4.image.path);			//読み込み
+	if (SOUND_DECISION4.image.handle == -1)
+	{
+		//エラーメッセージ表示
+		MessageBox(GetMainWindowHandle(), OPTION_SOUND_DECISION4, IMAGE_LOAD_ERR_TITLE, MB_OK);
+		return FALSE;
+	}
+	GetGraphSize(SOUND_DECISION4.image.handle, &SOUND_DECISION4.image.width, &SOUND_DECISION4.image.height);	//画像の幅と高さを取得
+	SOUND_DECISION4.image.x = (GAME_WIDTH / 2 - SOUND_DECISION4.image.width / 2);		//左右中央揃え
+	SOUND_DECISION4.image.y = (GAME_HEIGHT / 2 - SOUND_DECISION4.image.height / 2);		//上下中央揃え
+	SOUND_DECISION4.rate = 1;
+
+
 
 
 	//########################################################################
@@ -4274,6 +4739,16 @@ VOID DELETE_IMAGE(VOID)
 	DeleteGraph(SOUND_VOLUME2.image.handle);
 	DeleteGraph(SOUND_VOLUME3.image.handle);
 	DeleteGraph(SOUND_VOLUME4.image.handle);
+	DeleteGraph(SOUND_EFFECT.image.handle);
+	DeleteGraph(SOUND_EFFECT1.image.handle);
+	DeleteGraph(SOUND_EFFECT2.image.handle);
+	DeleteGraph(SOUND_EFFECT3.image.handle);
+	DeleteGraph(SOUND_EFFECT4.image.handle);
+	DeleteGraph(SOUND_DECISION.image.handle);
+	DeleteGraph(SOUND_DECISION1.image.handle);
+	DeleteGraph(SOUND_DECISION2.image.handle);
+	DeleteGraph(SOUND_DECISION3.image.handle);
+	DeleteGraph(SOUND_DECISION4.image.handle);
 	for (int i_num = 0; i_num < MAP_DIV_NUM; i_num++) { DeleteGraph(mapChip.handle[i_num]); }
 	for (int i_num = 0; i_num < MAP_DIV_NUM; i_num++) { DeleteGraph(mapChip2.handle[i_num]); }
 	return;
@@ -4310,6 +4785,26 @@ BOOL LOAD_MUSIC(VOID)
 		return FALSE;
 	}
 
+	strcpy_s(SERECT.path, SERECT_EFFECT);		//セレクト時効果音の設定
+	SERECT.handle = LoadSoundMem(SERECT.path);	//読み込み
+	if (SERECT.handle == -1)
+	{
+		//エラーメッセージ表示
+		MessageBox(GetMainWindowHandle(), SERECT_EFFECT, MUSIC_LOAD_ERR_TITLE, MB_OK);
+		return FALSE;
+	}
+
+	strcpy_s(DECISION.path, DECISION_EFFECT);		//決定時効果音の設定
+	DECISION.handle = LoadSoundMem(DECISION.path);	//読み込み
+	if (DECISION.handle == -1)
+	{
+		//エラーメッセージ表示
+		MessageBox(GetMainWindowHandle(), DECISION_EFFECT, MUSIC_LOAD_ERR_TITLE, MB_OK);
+		return FALSE;
+	}
+
+
+
 
 
 
@@ -4322,6 +4817,9 @@ VOID DELETE_MUSIC(VOID)
 	DeleteSoundMem(BGM.handle);
 	DeleteSoundMem(ROKA.handle);
 	DeleteSoundMem(FLAG.handle);
+	DeleteSoundMem(SERECT.handle);
+	DeleteSoundMem(DECISION.handle);
+
 	return;
 }
 
