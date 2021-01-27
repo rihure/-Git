@@ -2143,7 +2143,10 @@ VOID MY_START_DRAW(VOID)
 VOID MY_OPTION(VOID)
 {
 	DrawString(0, 0, "オプション画面【開発中】(ESCキーを押してスタート画面に戻ります)", GetColor(255, 255, 255));
-	DrawString(60, 100, "BGM音量設定", GetColor(255, 0, 0));
+	DrawString(SOUND_VOLUME.image.x - 240, 100, "BGM音量設定", GetColor(255, 0, 0));
+	DrawString(SOUND_EFFECT.image.x , 100, "SE音量設定", GetColor(255, 0, 0));
+	DrawString(SOUND_DECISION.image.x + 240, 100, "決定音音量設定", GetColor(255, 0, 0));
+
 
 
 	//BGM音量設定
@@ -2259,6 +2262,18 @@ VOID MY_OPTION(VOID)
 				SOUND_VOLUME2.rate = 1;
 				SOUND_VOLUME3.rate = 1;
 				SOUND_VOLUME4.rate = 1;
+				SOUND_EFFECT.rate = 1;
+				SOUND_EFFECT1.rate = 1;
+				SOUND_EFFECT2.rate = 1;
+				SOUND_EFFECT3.rate = 1;
+				SOUND_EFFECT4.rate = 1;
+				SOUND_DECISION.rate = 1;
+				SOUND_DECISION1.rate = 1;
+				SOUND_DECISION2.rate = 1;
+				SOUND_DECISION3.rate = 1;
+				SOUND_DECISION4.rate = 1;
+				
+
 
 
 				if (MY_KEY_DOWN(KEY_INPUT_RETURN) == TRUE)
@@ -2333,6 +2348,16 @@ VOID MY_OPTION(VOID)
 				SOUND_VOLUME2.rate = 1;
 				SOUND_VOLUME3.rate = 1;
 				SOUND_VOLUME4.rate = 1;
+				SOUND_EFFECT.rate = 1;
+				SOUND_EFFECT1.rate = 1;
+				SOUND_EFFECT2.rate = 1;
+				SOUND_EFFECT3.rate = 1;
+				SOUND_EFFECT4.rate = 1;
+				SOUND_DECISION.rate = 1;
+				SOUND_DECISION1.rate = 1;
+				SOUND_DECISION2.rate = 1;
+				SOUND_DECISION3.rate = 1;
+				SOUND_DECISION4.rate = 1;
 
 
 				if (MY_KEY_DOWN(KEY_INPUT_RETURN) == TRUE)
@@ -2373,6 +2398,28 @@ VOID MY_OPTION(VOID)
 					OptionMenu = VOLUME0;
 				}
 
+				if (MY_KEY_PUSH(KEY_INPUT_LEFT) == TRUE)
+				{
+					if (CheckSoundMem(SERECT.handle) == 0)
+					{
+						PlaySoundMem(SERECT.handle, DX_PLAYTYPE_BACK);
+					}
+
+					OptionMenu = DECISION25;
+
+				}
+
+				if (MY_KEY_PUSH(KEY_INPUT_RIGHT) == TRUE)
+				{
+					if (CheckSoundMem(SERECT.handle) == 0)
+					{
+						PlaySoundMem(SERECT.handle, DX_PLAYTYPE_BACK);
+					}
+
+					OptionMenu = EFFECT25;
+
+				}
+
 				break;
 
 			case VOLUME50:
@@ -2381,6 +2428,16 @@ VOID MY_OPTION(VOID)
 				SOUND_VOLUME2.rate = 1.2;
 				SOUND_VOLUME3.rate = 1;
 				SOUND_VOLUME4.rate = 1;
+				SOUND_EFFECT.rate = 1;
+				SOUND_EFFECT1.rate = 1;
+				SOUND_EFFECT2.rate = 1;
+				SOUND_EFFECT3.rate = 1;
+				SOUND_EFFECT4.rate = 1;
+				SOUND_DECISION.rate = 1;
+				SOUND_DECISION1.rate = 1;
+				SOUND_DECISION2.rate = 1;
+				SOUND_DECISION3.rate = 1;
+				SOUND_DECISION4.rate = 1;
 
 
 				if (MY_KEY_DOWN(KEY_INPUT_RETURN) == TRUE)
@@ -2423,6 +2480,30 @@ VOID MY_OPTION(VOID)
 					OptionMenu = VOLUME25;
 				}
 
+				if (MY_KEY_PUSH(KEY_INPUT_LEFT) == TRUE)
+				{
+					if (CheckSoundMem(SERECT.handle) == 0)
+					{
+						PlaySoundMem(SERECT.handle, DX_PLAYTYPE_BACK);
+					}
+
+					OptionMenu = DECISION50;
+
+				}
+
+				if (MY_KEY_PUSH(KEY_INPUT_RIGHT) == TRUE)
+				{
+					if (CheckSoundMem(SERECT.handle) == 0)
+					{
+						PlaySoundMem(SERECT.handle, DX_PLAYTYPE_BACK);
+					}
+
+					OptionMenu = EFFECT50;
+
+				}
+
+
+
 				break;
 
 			case VOLUME75:
@@ -2431,6 +2512,16 @@ VOID MY_OPTION(VOID)
 				SOUND_VOLUME2.rate = 1;
 				SOUND_VOLUME3.rate = 1.2;
 				SOUND_VOLUME4.rate = 1;
+				SOUND_EFFECT.rate = 1;
+				SOUND_EFFECT1.rate = 1;
+				SOUND_EFFECT2.rate = 1;
+				SOUND_EFFECT3.rate = 1;
+				SOUND_EFFECT4.rate = 1;
+				SOUND_DECISION.rate = 1;
+				SOUND_DECISION1.rate = 1;
+				SOUND_DECISION2.rate = 1;
+				SOUND_DECISION3.rate = 1;
+				SOUND_DECISION4.rate = 1;
 
 
 				if (MY_KEY_DOWN(KEY_INPUT_RETURN) == TRUE)
@@ -2474,6 +2565,28 @@ VOID MY_OPTION(VOID)
 					OptionMenu = VOLUME50;
 				}
 
+				if (MY_KEY_PUSH(KEY_INPUT_LEFT) == TRUE)
+				{
+					if (CheckSoundMem(SERECT.handle) == 0)
+					{
+						PlaySoundMem(SERECT.handle, DX_PLAYTYPE_BACK);
+					}
+
+					OptionMenu = DECISION75;
+
+				}
+
+				if (MY_KEY_PUSH(KEY_INPUT_RIGHT) == TRUE)
+				{
+					if (CheckSoundMem(SERECT.handle) == 0)
+					{
+						PlaySoundMem(SERECT.handle, DX_PLAYTYPE_BACK);
+					}
+
+					OptionMenu = EFFECT75;
+
+				}
+
 				break;
 
 			case VOLUME100:
@@ -2482,6 +2595,16 @@ VOID MY_OPTION(VOID)
 				SOUND_VOLUME2.rate = 1;
 				SOUND_VOLUME3.rate = 1;
 				SOUND_VOLUME4.rate = 1.2;
+				SOUND_EFFECT.rate = 1;
+				SOUND_EFFECT1.rate = 1;
+				SOUND_EFFECT2.rate = 1;
+				SOUND_EFFECT3.rate = 1;
+				SOUND_EFFECT4.rate = 1;
+				SOUND_DECISION.rate = 1;
+				SOUND_DECISION1.rate = 1;
+				SOUND_DECISION2.rate = 1;
+				SOUND_DECISION3.rate = 1;
+				SOUND_DECISION4.rate = 1;
 
 
 				if (MY_KEY_DOWN(KEY_INPUT_RETURN) == TRUE)
@@ -2524,7 +2647,850 @@ VOID MY_OPTION(VOID)
 					OptionMenu = VOLUME75;
 				}
 
+				if (MY_KEY_PUSH(KEY_INPUT_LEFT) == TRUE)
+				{
+					if (CheckSoundMem(SERECT.handle) == 0)
+					{
+						PlaySoundMem(SERECT.handle, DX_PLAYTYPE_BACK);
+					}
+
+					OptionMenu = DECISION100;
+
+				}
+
+				if (MY_KEY_PUSH(KEY_INPUT_RIGHT) == TRUE)
+				{
+					if (CheckSoundMem(SERECT.handle) == 0)
+					{
+						PlaySoundMem(SERECT.handle, DX_PLAYTYPE_BACK);
+					}
+
+					OptionMenu = EFFECT100;
+
+				}
+
+				break;
+
+			case EFFECT0:
+				SOUND_VOLUME.rate = 1;
+				SOUND_VOLUME1.rate = 1;
+				SOUND_VOLUME2.rate = 1;
+				SOUND_VOLUME3.rate = 1;
+				SOUND_VOLUME4.rate = 1;
+				SOUND_EFFECT.rate = 1.2;
+				SOUND_EFFECT1.rate = 1;
+				SOUND_EFFECT2.rate = 1;
+				SOUND_EFFECT3.rate = 1;
+				SOUND_EFFECT4.rate = 1;
+				SOUND_DECISION.rate = 1;
+				SOUND_DECISION1.rate = 1;
+				SOUND_DECISION2.rate = 1;
+				SOUND_DECISION3.rate = 1;
+				SOUND_DECISION4.rate = 1;
+
+
+				if (MY_KEY_DOWN(KEY_INPUT_RETURN) == TRUE)
+				{
+
+					if (CheckSoundMem(DECISION.handle) == 0)
+					{
+
+						PlaySoundMem(DECISION.handle, DX_PLAYTYPE_BACK);
+					}
+
+
+					// 音量の設定
+					ChangeVolumeSoundMem(255 * 0 / 100, SERECT.handle);
+
+				}
+
+				if (MY_KEY_PUSH(KEY_INPUT_DOWN) == TRUE)
+				{
+
+					if (CheckSoundMem(SERECT.handle) == 0)
+					{
+
+
+						PlaySoundMem(SERECT.handle, DX_PLAYTYPE_BACK);
+					}
+
+					OptionMenu = EFFECT25;
+				}
+
+				if (MY_KEY_PUSH(KEY_INPUT_UP) == TRUE)
+				{
+
+					if (CheckSoundMem(SERECT.handle) == 0)
+					{
+
+						PlaySoundMem(SERECT.handle, DX_PLAYTYPE_BACK);
+					}
+
+					OptionMenu = EFFECT100;
+				}
+
+				if (MY_KEY_PUSH(KEY_INPUT_LEFT) == TRUE)
+				{
+					if (CheckSoundMem(SERECT.handle) == 0)
+					{
+						PlaySoundMem(SERECT.handle, DX_PLAYTYPE_BACK);
+					}
+
+					OptionMenu = VOLUME0;
+
+				}
+
+				if (MY_KEY_PUSH(KEY_INPUT_RIGHT) == TRUE)
+				{
+					if (CheckSoundMem(SERECT.handle) == 0)
+					{
+						PlaySoundMem(SERECT.handle, DX_PLAYTYPE_BACK);
+					}
+
+					OptionMenu = DECISION0;
+
+				}
+
+				break;
+
+			case EFFECT25:
+				SOUND_VOLUME.rate = 1;
+				SOUND_VOLUME1.rate = 1;
+				SOUND_VOLUME2.rate = 1;
+				SOUND_VOLUME3.rate = 1;
+				SOUND_VOLUME4.rate = 1;
+				SOUND_EFFECT.rate = 1;
+				SOUND_EFFECT1.rate = 1.2;
+				SOUND_EFFECT2.rate = 1;
+				SOUND_EFFECT3.rate = 1;
+				SOUND_EFFECT4.rate = 1;
+				SOUND_DECISION.rate = 1;
+				SOUND_DECISION1.rate = 1;
+				SOUND_DECISION2.rate = 1;
+				SOUND_DECISION3.rate = 1;
+				SOUND_DECISION4.rate = 1;
+
+
+				if (MY_KEY_DOWN(KEY_INPUT_RETURN) == TRUE)
+				{
+
+					if (CheckSoundMem(DECISION.handle) == 0)
+					{
+
+						PlaySoundMem(DECISION.handle, DX_PLAYTYPE_BACK);
+					}
+
+
+					// 音量の設定
+					ChangeVolumeSoundMem(255 * 25 / 100, SERECT.handle);
+
+				}
+
+				if (MY_KEY_PUSH(KEY_INPUT_DOWN) == TRUE)
+				{
+
+					if (CheckSoundMem(SERECT.handle) == 0)
+					{
+
+
+						PlaySoundMem(SERECT.handle, DX_PLAYTYPE_BACK);
+					}
+
+					OptionMenu = EFFECT50;
+				}
+
+				if (MY_KEY_PUSH(KEY_INPUT_UP) == TRUE)
+				{
+
+					if (CheckSoundMem(SERECT.handle) == 0)
+					{
+
+						PlaySoundMem(SERECT.handle, DX_PLAYTYPE_BACK);
+					}
+
+					OptionMenu = EFFECT0;
+				}
+
+				if (MY_KEY_PUSH(KEY_INPUT_LEFT) == TRUE)
+				{
+					if (CheckSoundMem(SERECT.handle) == 0)
+					{
+						PlaySoundMem(SERECT.handle, DX_PLAYTYPE_BACK);
+					}
+
+					OptionMenu = VOLUME25;
+
+				}
+
+				if (MY_KEY_PUSH(KEY_INPUT_RIGHT) == TRUE)
+				{
+					if (CheckSoundMem(SERECT.handle) == 0)
+					{
+						PlaySoundMem(SERECT.handle, DX_PLAYTYPE_BACK);
+					}
+
+					OptionMenu = DECISION25;
+
+				}
+
+				break;
+
+			case EFFECT50:
+				SOUND_VOLUME.rate = 1;
+				SOUND_VOLUME1.rate = 1;
+				SOUND_VOLUME2.rate = 1;
+				SOUND_VOLUME3.rate = 1;
+				SOUND_VOLUME4.rate = 1;
+				SOUND_EFFECT.rate = 1;
+				SOUND_EFFECT1.rate = 1;
+				SOUND_EFFECT2.rate = 1.2;
+				SOUND_EFFECT3.rate = 1;
+				SOUND_EFFECT4.rate = 1;
+				SOUND_DECISION.rate = 1;
+				SOUND_DECISION1.rate = 1;
+				SOUND_DECISION2.rate = 1;
+				SOUND_DECISION3.rate = 1;
+				SOUND_DECISION4.rate = 1;
+
+
+				if (MY_KEY_DOWN(KEY_INPUT_RETURN) == TRUE)
+				{
+
+					if (CheckSoundMem(DECISION.handle) == 0)
+					{
+
+						PlaySoundMem(DECISION.handle, DX_PLAYTYPE_BACK);
+					}
+
+
+					// 音量の設定
+					ChangeVolumeSoundMem(255 * 50 / 100, SERECT.handle);
+
+				}
+
+				if (MY_KEY_PUSH(KEY_INPUT_DOWN) == TRUE)
+				{
+
+					if (CheckSoundMem(SERECT.handle) == 0)
+					{
+
+
+						PlaySoundMem(SERECT.handle, DX_PLAYTYPE_BACK);
+					}
+
+					OptionMenu = EFFECT75;
+				}
+
+				if (MY_KEY_PUSH(KEY_INPUT_UP) == TRUE)
+				{
+
+					if (CheckSoundMem(SERECT.handle) == 0)
+					{
+
+						PlaySoundMem(SERECT.handle, DX_PLAYTYPE_BACK);
+					}
+
+					OptionMenu = EFFECT25;
+				}
+
+				if (MY_KEY_PUSH(KEY_INPUT_LEFT) == TRUE)
+				{
+					if (CheckSoundMem(SERECT.handle) == 0)
+					{
+						PlaySoundMem(SERECT.handle, DX_PLAYTYPE_BACK);
+					}
+
+					OptionMenu = VOLUME50;
+
+				}
+
+				if (MY_KEY_PUSH(KEY_INPUT_RIGHT) == TRUE)
+				{
+					if (CheckSoundMem(SERECT.handle) == 0)
+					{
+						PlaySoundMem(SERECT.handle, DX_PLAYTYPE_BACK);
+					}
+
+					OptionMenu = DECISION50;
+
+				}
+
+				break;
+
+			case EFFECT75:
+				SOUND_VOLUME.rate = 1;
+				SOUND_VOLUME1.rate = 1;
+				SOUND_VOLUME2.rate = 1;
+				SOUND_VOLUME3.rate = 1;
+				SOUND_VOLUME4.rate = 1;
+				SOUND_EFFECT.rate = 1;
+				SOUND_EFFECT1.rate = 1;
+				SOUND_EFFECT2.rate = 1;
+				SOUND_EFFECT3.rate = 1.2;
+				SOUND_EFFECT4.rate = 1;
+				SOUND_DECISION.rate = 1;
+				SOUND_DECISION1.rate = 1;
+				SOUND_DECISION2.rate = 1;
+				SOUND_DECISION3.rate = 1;
+				SOUND_DECISION4.rate = 1;
+
+
+				if (MY_KEY_DOWN(KEY_INPUT_RETURN) == TRUE)
+				{
+
+					if (CheckSoundMem(DECISION.handle) == 0)
+					{
+
+						PlaySoundMem(DECISION.handle, DX_PLAYTYPE_BACK);
+					}
+
+
+					// 音量の設定
+					ChangeVolumeSoundMem(255 * 75 / 100, SERECT.handle);
+
+				}
+
+				if (MY_KEY_PUSH(KEY_INPUT_DOWN) == TRUE)
+				{
+
+					if (CheckSoundMem(SERECT.handle) == 0)
+					{
+
+
+						PlaySoundMem(SERECT.handle, DX_PLAYTYPE_BACK);
+					}
+
+					OptionMenu = EFFECT100;
+				}
+
+				if (MY_KEY_PUSH(KEY_INPUT_UP) == TRUE)
+				{
+
+					if (CheckSoundMem(SERECT.handle) == 0)
+					{
+
+						PlaySoundMem(SERECT.handle, DX_PLAYTYPE_BACK);
+					}
+
+					OptionMenu = EFFECT50;
+				}
+
+				if (MY_KEY_PUSH(KEY_INPUT_LEFT) == TRUE)
+				{
+					if (CheckSoundMem(SERECT.handle) == 0)
+					{
+						PlaySoundMem(SERECT.handle, DX_PLAYTYPE_BACK);
+					}
+
+					OptionMenu = VOLUME75;
+
+				}
+
+				if (MY_KEY_PUSH(KEY_INPUT_RIGHT) == TRUE)
+				{
+					if (CheckSoundMem(SERECT.handle) == 0)
+					{
+						PlaySoundMem(SERECT.handle, DX_PLAYTYPE_BACK);
+					}
+
+					OptionMenu = DECISION75;
+
+				}
 			break;
+
+			case EFFECT100:
+				SOUND_VOLUME.rate = 1;
+				SOUND_VOLUME1.rate = 1;
+				SOUND_VOLUME2.rate = 1;
+				SOUND_VOLUME3.rate = 1;
+				SOUND_VOLUME4.rate = 1;
+				SOUND_EFFECT.rate = 1;
+				SOUND_EFFECT1.rate = 1;
+				SOUND_EFFECT2.rate = 1;
+				SOUND_EFFECT3.rate = 1;
+				SOUND_EFFECT4.rate = 1.2;
+				SOUND_DECISION.rate = 1;
+				SOUND_DECISION1.rate = 1;
+				SOUND_DECISION2.rate = 1;
+				SOUND_DECISION3.rate = 1;
+				SOUND_DECISION4.rate = 1;
+
+
+				if (MY_KEY_DOWN(KEY_INPUT_RETURN) == TRUE)
+				{
+
+					if (CheckSoundMem(DECISION.handle) == 0)
+					{
+
+						PlaySoundMem(DECISION.handle, DX_PLAYTYPE_BACK);
+					}
+
+
+					// 音量の設定
+					ChangeVolumeSoundMem(255 * 100 / 100, SERECT.handle);
+
+				}
+
+				if (MY_KEY_PUSH(KEY_INPUT_DOWN) == TRUE)
+				{
+
+					if (CheckSoundMem(SERECT.handle) == 0)
+					{
+
+
+						PlaySoundMem(SERECT.handle, DX_PLAYTYPE_BACK);
+					}
+
+					OptionMenu = EFFECT0;
+				}
+
+				if (MY_KEY_PUSH(KEY_INPUT_UP) == TRUE)
+				{
+
+					if (CheckSoundMem(SERECT.handle) == 0)
+					{
+
+						PlaySoundMem(SERECT.handle, DX_PLAYTYPE_BACK);
+					}
+
+					OptionMenu = EFFECT75;
+				}
+
+				if (MY_KEY_PUSH(KEY_INPUT_LEFT) == TRUE)
+				{
+					if (CheckSoundMem(SERECT.handle) == 0)
+					{
+						PlaySoundMem(SERECT.handle, DX_PLAYTYPE_BACK);
+					}
+
+					OptionMenu = VOLUME100;
+
+				}
+
+				if (MY_KEY_PUSH(KEY_INPUT_RIGHT) == TRUE)
+				{
+					if (CheckSoundMem(SERECT.handle) == 0)
+					{
+						PlaySoundMem(SERECT.handle, DX_PLAYTYPE_BACK);
+					}
+
+					OptionMenu = DECISION100;
+
+				}
+
+				break;
+
+			case DECISION0:
+				SOUND_VOLUME.rate = 1;
+				SOUND_VOLUME1.rate = 1;
+				SOUND_VOLUME2.rate = 1;
+				SOUND_VOLUME3.rate = 1;
+				SOUND_VOLUME4.rate = 1;
+				SOUND_EFFECT.rate = 1;
+				SOUND_EFFECT1.rate = 1;
+				SOUND_EFFECT2.rate = 1;
+				SOUND_EFFECT3.rate = 1;
+				SOUND_EFFECT4.rate = 1;
+				SOUND_DECISION.rate = 1.2;
+				SOUND_DECISION1.rate = 1;
+				SOUND_DECISION2.rate = 1;
+				SOUND_DECISION3.rate = 1;
+				SOUND_DECISION4.rate = 1;
+
+
+				if (MY_KEY_DOWN(KEY_INPUT_RETURN) == TRUE)
+				{
+
+					if (CheckSoundMem(DECISION.handle) == 0)
+					{
+
+						PlaySoundMem(DECISION.handle, DX_PLAYTYPE_BACK);
+					}
+
+
+					// 音量の設定
+					ChangeVolumeSoundMem(255 * 0 / 100, DECISION.handle);
+
+				}
+
+				if (MY_KEY_PUSH(KEY_INPUT_DOWN) == TRUE)
+				{
+
+					if (CheckSoundMem(SERECT.handle) == 0)
+					{
+
+
+						PlaySoundMem(SERECT.handle, DX_PLAYTYPE_BACK);
+					}
+
+					OptionMenu = DECISION25;
+				}
+
+				if (MY_KEY_PUSH(KEY_INPUT_UP) == TRUE)
+				{
+
+					if (CheckSoundMem(SERECT.handle) == 0)
+					{
+
+						PlaySoundMem(SERECT.handle, DX_PLAYTYPE_BACK);
+					}
+
+					OptionMenu = DECISION100;
+				}
+
+				if (MY_KEY_PUSH(KEY_INPUT_LEFT) == TRUE)
+				{
+					if (CheckSoundMem(SERECT.handle) == 0)
+					{
+						PlaySoundMem(SERECT.handle, DX_PLAYTYPE_BACK);
+					}
+
+					OptionMenu = EFFECT0;
+
+				}
+
+				if (MY_KEY_PUSH(KEY_INPUT_RIGHT) == TRUE)
+				{
+					if (CheckSoundMem(SERECT.handle) == 0)
+					{
+						PlaySoundMem(SERECT.handle, DX_PLAYTYPE_BACK);
+					}
+
+					OptionMenu = VOLUME0;
+
+				}
+
+				break;
+
+			case DECISION25:
+				SOUND_VOLUME.rate = 1;
+				SOUND_VOLUME1.rate = 1;
+				SOUND_VOLUME2.rate = 1;
+				SOUND_VOLUME3.rate = 1;
+				SOUND_VOLUME4.rate = 1;
+				SOUND_EFFECT.rate = 1;
+				SOUND_EFFECT1.rate = 1;
+				SOUND_EFFECT2.rate = 1;
+				SOUND_EFFECT3.rate = 1;
+				SOUND_EFFECT4.rate = 1;
+				SOUND_DECISION.rate = 1;
+				SOUND_DECISION1.rate = 1.2;
+				SOUND_DECISION2.rate = 1;
+				SOUND_DECISION3.rate = 1;
+				SOUND_DECISION4.rate = 1;
+
+
+				if (MY_KEY_DOWN(KEY_INPUT_RETURN) == TRUE)
+				{
+
+					if (CheckSoundMem(DECISION.handle) == 0)
+					{
+
+						PlaySoundMem(DECISION.handle, DX_PLAYTYPE_BACK);
+					}
+
+
+					// 音量の設定
+					ChangeVolumeSoundMem(255 * 25 / 100, DECISION.handle);
+
+				}
+
+				if (MY_KEY_PUSH(KEY_INPUT_DOWN) == TRUE)
+				{
+
+					if (CheckSoundMem(SERECT.handle) == 0)
+					{
+
+
+						PlaySoundMem(SERECT.handle, DX_PLAYTYPE_BACK);
+					}
+
+					OptionMenu = DECISION50;
+				}
+
+				if (MY_KEY_PUSH(KEY_INPUT_UP) == TRUE)
+				{
+
+					if (CheckSoundMem(SERECT.handle) == 0)
+					{
+
+						PlaySoundMem(SERECT.handle, DX_PLAYTYPE_BACK);
+					}
+
+					OptionMenu = DECISION0;
+				}
+
+				if (MY_KEY_PUSH(KEY_INPUT_LEFT) == TRUE)
+				{
+					if (CheckSoundMem(SERECT.handle) == 0)
+					{
+						PlaySoundMem(SERECT.handle, DX_PLAYTYPE_BACK);
+					}
+
+					OptionMenu = EFFECT25;
+
+				}
+
+				if (MY_KEY_PUSH(KEY_INPUT_RIGHT) == TRUE)
+				{
+					if (CheckSoundMem(SERECT.handle) == 0)
+					{
+						PlaySoundMem(SERECT.handle, DX_PLAYTYPE_BACK);
+					}
+
+					OptionMenu = VOLUME25;
+
+				}
+
+				break;
+
+			case DECISION50:
+				SOUND_VOLUME.rate = 1;
+				SOUND_VOLUME1.rate = 1;
+				SOUND_VOLUME2.rate = 1;
+				SOUND_VOLUME3.rate = 1;
+				SOUND_VOLUME4.rate = 1;
+				SOUND_EFFECT.rate = 1;
+				SOUND_EFFECT1.rate = 1;
+				SOUND_EFFECT2.rate = 1;
+				SOUND_EFFECT3.rate = 1;
+				SOUND_EFFECT4.rate = 1;
+				SOUND_DECISION.rate = 1;
+				SOUND_DECISION1.rate = 1;
+				SOUND_DECISION2.rate = 1.2;
+				SOUND_DECISION3.rate = 1;
+				SOUND_DECISION4.rate = 1;
+
+
+				if (MY_KEY_DOWN(KEY_INPUT_RETURN) == TRUE)
+				{
+
+					if (CheckSoundMem(DECISION.handle) == 0)
+					{
+
+						PlaySoundMem(DECISION.handle, DX_PLAYTYPE_BACK);
+					}
+
+
+					// 音量の設定
+					ChangeVolumeSoundMem(255 * 50 / 100, DECISION.handle);
+
+				}
+
+				if (MY_KEY_PUSH(KEY_INPUT_DOWN) == TRUE)
+				{
+
+					if (CheckSoundMem(SERECT.handle) == 0)
+					{
+
+
+						PlaySoundMem(SERECT.handle, DX_PLAYTYPE_BACK);
+					}
+
+					OptionMenu = DECISION75;
+				}
+
+				if (MY_KEY_PUSH(KEY_INPUT_UP) == TRUE)
+				{
+
+					if (CheckSoundMem(SERECT.handle) == 0)
+					{
+
+						PlaySoundMem(SERECT.handle, DX_PLAYTYPE_BACK);
+					}
+
+					OptionMenu = DECISION25;
+				}
+
+				if (MY_KEY_PUSH(KEY_INPUT_LEFT) == TRUE)
+				{
+					if (CheckSoundMem(SERECT.handle) == 0)
+					{
+						PlaySoundMem(SERECT.handle, DX_PLAYTYPE_BACK);
+					}
+
+					OptionMenu = EFFECT50;
+
+				}
+
+				if (MY_KEY_PUSH(KEY_INPUT_RIGHT) == TRUE)
+				{
+					if (CheckSoundMem(SERECT.handle) == 0)
+					{
+						PlaySoundMem(SERECT.handle, DX_PLAYTYPE_BACK);
+					}
+
+					OptionMenu = VOLUME50;
+
+				}
+
+				break;
+
+			case DECISION75:
+				SOUND_VOLUME.rate = 1;
+				SOUND_VOLUME1.rate = 1;
+				SOUND_VOLUME2.rate = 1;
+				SOUND_VOLUME3.rate = 1;
+				SOUND_VOLUME4.rate = 1;
+				SOUND_EFFECT.rate = 1;
+				SOUND_EFFECT1.rate = 1;
+				SOUND_EFFECT2.rate = 1;
+				SOUND_EFFECT3.rate = 1;
+				SOUND_EFFECT4.rate = 1;
+				SOUND_DECISION.rate = 1;
+				SOUND_DECISION1.rate = 1;
+				SOUND_DECISION2.rate = 1;
+				SOUND_DECISION3.rate = 1.2;
+				SOUND_DECISION4.rate = 1;
+
+
+				if (MY_KEY_DOWN(KEY_INPUT_RETURN) == TRUE)
+				{
+
+					if (CheckSoundMem(DECISION.handle) == 0)
+					{
+
+						PlaySoundMem(DECISION.handle, DX_PLAYTYPE_BACK);
+					}
+
+
+					// 音量の設定
+					ChangeVolumeSoundMem(255 * 75 / 100, DECISION.handle);
+
+				}
+
+				if (MY_KEY_PUSH(KEY_INPUT_DOWN) == TRUE)
+				{
+
+					if (CheckSoundMem(SERECT.handle) == 0)
+					{
+
+
+						PlaySoundMem(SERECT.handle, DX_PLAYTYPE_BACK);
+					}
+
+					OptionMenu = DECISION100;
+				}
+
+				if (MY_KEY_PUSH(KEY_INPUT_UP) == TRUE)
+				{
+
+					if (CheckSoundMem(SERECT.handle) == 0)
+					{
+
+						PlaySoundMem(SERECT.handle, DX_PLAYTYPE_BACK);
+					}
+
+					OptionMenu = DECISION50;
+				}
+
+				if (MY_KEY_PUSH(KEY_INPUT_LEFT) == TRUE)
+				{
+					if (CheckSoundMem(SERECT.handle) == 0)
+					{
+						PlaySoundMem(SERECT.handle, DX_PLAYTYPE_BACK);
+					}
+
+					OptionMenu = EFFECT75;
+
+				}
+
+				if (MY_KEY_PUSH(KEY_INPUT_RIGHT) == TRUE)
+				{
+					if (CheckSoundMem(SERECT.handle) == 0)
+					{
+						PlaySoundMem(SERECT.handle, DX_PLAYTYPE_BACK);
+					}
+
+					OptionMenu = VOLUME75;
+
+				}
+
+				break;
+
+			case DECISION100:
+				SOUND_VOLUME.rate = 1;
+				SOUND_VOLUME1.rate = 1;
+				SOUND_VOLUME2.rate = 1;
+				SOUND_VOLUME3.rate = 1;
+				SOUND_VOLUME4.rate = 1;
+				SOUND_EFFECT.rate = 1;
+				SOUND_EFFECT1.rate = 1;
+				SOUND_EFFECT2.rate = 1;
+				SOUND_EFFECT3.rate = 1;
+				SOUND_EFFECT4.rate = 1;
+				SOUND_DECISION.rate = 1;
+				SOUND_DECISION1.rate = 1;
+				SOUND_DECISION2.rate = 1;
+				SOUND_DECISION3.rate = 1;
+				SOUND_DECISION4.rate = 1.2;
+
+
+				if (MY_KEY_DOWN(KEY_INPUT_RETURN) == TRUE)
+				{
+
+					if (CheckSoundMem(DECISION.handle) == 0)
+					{
+
+						PlaySoundMem(DECISION.handle, DX_PLAYTYPE_BACK);
+					}
+
+
+					// 音量の設定
+					ChangeVolumeSoundMem(255 * 100 / 100, DECISION.handle);
+
+				}
+
+				if (MY_KEY_PUSH(KEY_INPUT_DOWN) == TRUE)
+				{
+
+					if (CheckSoundMem(SERECT.handle) == 0)
+					{
+
+
+						PlaySoundMem(SERECT.handle, DX_PLAYTYPE_BACK);
+					}
+
+					OptionMenu = DECISION0;
+				}
+
+				if (MY_KEY_PUSH(KEY_INPUT_UP) == TRUE)
+				{
+
+					if (CheckSoundMem(SERECT.handle) == 0)
+					{
+
+						PlaySoundMem(SERECT.handle, DX_PLAYTYPE_BACK);
+					}
+
+					OptionMenu = DECISION75;
+				}
+
+				if (MY_KEY_PUSH(KEY_INPUT_LEFT) == TRUE)
+				{
+					if (CheckSoundMem(SERECT.handle) == 0)
+					{
+						PlaySoundMem(SERECT.handle, DX_PLAYTYPE_BACK);
+					}
+
+					OptionMenu = EFFECT100;
+
+				}
+
+				if (MY_KEY_PUSH(KEY_INPUT_RIGHT) == TRUE)
+				{
+					if (CheckSoundMem(SERECT.handle) == 0)
+					{
+						PlaySoundMem(SERECT.handle, DX_PLAYTYPE_BACK);
+					}
+
+					OptionMenu = VOLUME100;
+
+				}
+
+				break;
+
+			
 
 		}
 
