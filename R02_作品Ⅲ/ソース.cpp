@@ -4453,8 +4453,8 @@ VOID MY_PLAY_PROC2(VOID)
 		return;	//強制的にエンド画面に飛ぶ
 	}
 
-	//ゴールに触れているかチェック
-	if (MY_CHECK_RECT_COLL(PlayerRect, Kakushi) == TRUE && MY_KEY_DOWN(KEY_INPUT_RETURN) == TRUE)
+	//全てを満たしているかチェック
+	if (MY_CHECK_RECT_COLL(PlayerRect, Kakushi) == TRUE && MY_KEY_DOWN(KEY_INPUT_RETURN) == TRUE && flag2 == true)
 	{
 
 		player.CenterX = startPt5.x;
