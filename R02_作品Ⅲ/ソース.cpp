@@ -404,6 +404,7 @@ MUSIC ROKA;//廊下のBGM
 MUSIC FLAG; //アイテム取得時の効果音※現在は没
 MUSIC SERECT; //セレクト効果音
 MUSIC DECISION; //決定
+MUSIC SYBERB;
 
 int GameScene;		//ゲームシーンを管理
 int GameMenu = 0;	//ゲームメニューを管理
@@ -4453,7 +4454,7 @@ VOID MY_PLAY_PROC2(VOID)
 	}
 
 	//ゴールに触れているかチェック
-	if (MY_CHECK_RECT_COLL(PlayerRect, Kakushi) == TRUE && flag2 == true)
+	if (MY_CHECK_RECT_COLL(PlayerRect, Kakushi) == TRUE && MY_KEY_DOWN(KEY_INPUT_RETURN) == TRUE)
 	{
 
 		player.CenterX = startPt5.x;
@@ -5317,6 +5318,16 @@ VOID MY_PLAY_KAKUSI(VOID)
 
 VOID MY_PLAY_PROC_KAKUSI(VOID)
 {
+
+	//隠し部屋のBGM
+	if (CheckSoundMem(SYBERB.handle) == 0)
+	{
+		//BGMの音量を下げる
+		ChangeVolumeSoundMem(255 * 50 / 100, SYBERB.handle);	//50%の音量にする
+
+		PlaySoundMem(SYBERB.handle, DX_PLAYTYPE_LOOP);
+	}
+
 	player.kind1 = D_1; //何も押していないときのプレイヤの向き
 	int old_x = player.image.x;
 	int old_y = player.image.y;
@@ -5536,8 +5547,8 @@ VOID MY_PLAY_PROC_KAKUSI(VOID)
 
 VOID MY_PLAY_KAKUSHI_DRAW(VOID)
 {
-	/*PlayMovieToGraph(SYBER.handle);
-	GetMovieStateToGraph(SYBER.handle) == 1;*/
+
+	
 
 	
 
@@ -6234,6 +6245,15 @@ BOOL LOAD_MUSIC(VOID)
 		return FALSE;
 	}
 
+	strcpy_s(SYBERB.path, SYBER_BGM);		//決定時効果音の設定
+	SYBERB.handle = LoadSoundMem(SYBERB.path);	//読み込み
+	if (SYBERB.handle == -1)
+	{
+		//エラーメッセージ表示
+		MessageBox(GetMainWindowHandle(), SYBER_BGM, MUSIC_LOAD_ERR_TITLE, MB_OK);
+		return FALSE;
+	}
+
 
 
 
@@ -6250,6 +6270,7 @@ VOID DELETE_MUSIC(VOID)
 	DeleteSoundMem(FLAG.handle);
 	DeleteSoundMem(SERECT.handle);
 	DeleteSoundMem(DECISION.handle);
+	DeleteSoundMem(SYBERB.handle);
 
 	return;
 }
