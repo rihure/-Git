@@ -53,6 +53,7 @@
 #define TEXT_BOX_3 TEXT(".\\IMAGE\\TextBox玄関鍵無し.png")//鍵を取得時
 #define TEXT_BOX_4 TEXT(".\\IMAGE\\TextBox玄関鍵あり.png")//鍵を持っていない
 #define TEXT_BOX_5 TEXT(".\\IMAGE\\TextBox_kanban.png")//外の看板
+#define TEXT_BOX_6 TEXT(".\\IMAGE\\TextBox_akanai.png") //鍵が合わないとき
 #define GAME_MENU_BTN TEXT(".\\IMAGE\\Menu_btn1.png")//スタートボタン
 #define GAME_MENU_BTN2 TEXT(".\\IMAGE\\Menu_btn2.png")//終了ボタン
 #define GAME_MENU_BTN3 TEXT(".\\IMAGE\\Menu_btn3.png")//オプションボタン
@@ -350,6 +351,7 @@ IMAGE TextBox_Null; //アイテム回収していないとき
 IMAGE TextBox_GenkanKagi;
 IMAGE TextBox_GenkanKagiNasi;
 IMAGE TextBox_Kanban; //看板
+IMAGE TextBox_akanai; //鍵が合わないとき
 IMAGE_ROTA GameMenu_START; //スタートボタン
 IMAGE_ROTA GameMenu_EXIT;	//終了ボタン
 IMAGE_ROTA GameMenu_OPTION; //設定ボタン
@@ -388,6 +390,7 @@ RECT GoalRect2 = { -1, -1 , -1, -1 };//廊下の出口ポイント
 RECT GoalRect3 = { -1, -1, -1, -1 };//玄関がある出口ポイント
 RECT GoalRect4 = { -1,-1,-1,-1 };//外の出口ポイント
 RECT Kakushi = { -1,-1,-1,-1 };//隠し部屋へ
+RECT KakushiD = { -1,-1,-1,-1 };//隠し部屋からの脱出
 
 RECT Modoru = { -1, -1, -1,-1 }; //一つ前の部屋に戻る判定
 RECT Modoru2 = { -1,-1,-1,-1 };//廊下に戻る判定
@@ -441,6 +444,7 @@ int hyouji2;
 int hyouji3;
 int hyouji4;
 int hyouji5;
+int hyouji6;
 int KEY_A;
 int KEY_W;
 int KEY_S;
@@ -1587,6 +1591,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 				mapdata14[tateCnt][yokoCnt] = G;
 				yokoCnt++;
 
+				KakushiD.left = (mapChip.width * yokoCnt) - mapChip.width;
+				KakushiD.top = (mapChip.height * tateCnt) + 20;
+				KakushiD.right = (mapChip.width * (yokoCnt + 1)) - mapChip.width;
+				KakushiD.bottom = mapChip.height * (tateCnt + 1);
+
 				break;
 
 			default:
@@ -1634,7 +1643,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 				//壁のとき
 				mapdata15[tateCnt][yokoCnt] = d;
 				yokoCnt++;
-
+				break;
+			case 'B':
+				mapdata15[tateCnt][yokoCnt] = B;
+				yokoCnt++;
 				break;
 
 			default:
@@ -4419,10 +4431,7 @@ VOID MY_PLAY_PROC2(VOID)
 			player.image.x = player.CenterX;
 			player.image.y = player.CenterY;
 
-			if (CheckSoundMem(ROKA.handle) != 0)
-			{
-				StopSoundMem(ROKA.handle);	//BGMを止める
-			}
+
 
 			GameScene = GAME_SCENE_PLAY3;
 		
@@ -4454,7 +4463,7 @@ VOID MY_PLAY_PROC2(VOID)
 	}
 
 	//全てを満たしているかチェック
-	if (MY_CHECK_RECT_COLL(PlayerRect, Kakushi) == TRUE && MY_KEY_DOWN(KEY_INPUT_RETURN) == TRUE && flag2 == true)
+	if (MY_CHECK_RECT_COLL(PlayerRect, Kakushi) == TRUE && MY_KEY_DOWN(KEY_INPUT_RETURN) == TRUE /*&& flag2 == true*/)
 	{
 
 		player.CenterX = startPt5.x;
@@ -4987,6 +4996,25 @@ VOID MY_PLAY_DRAW3(VOID)
 			hyouji4 = false;
 		}
 	}
+
+	//一つ目のカギを取得しているが、開かないとき
+
+	if (MY_CHECK_RECT_COLL(PlayerRect, GoalRect3) == TRUE && flag == 1 && MY_KEY_PUSH(KEY_INPUT_RETURN))
+	{
+		hyouji6 = true;
+
+	}
+	if (hyouji6 == true)
+	{
+		DrawGraph(TEXT_WIDTH_POSITION, TEXT_HEIGHT_POSITION, TextBox_akanai.handle, TRUE);
+
+		if (MY_KEY_DOWN(KEY_INPUT_ESCAPE) == TRUE)
+		{
+			hyouji6 = false;
+		}
+	}
+
+
 	
 
 
@@ -5471,18 +5499,23 @@ VOID MY_PLAY_PROC_KAKUSI(VOID)
 
 
 	//ゴールに触れているかチェック
-	if (MY_CHECK_RECT_COLL(PlayerRect, GoalRect) == TRUE)
+	if (MY_CHECK_RECT_COLL(PlayerRect, KakushiD) == TRUE)
 	{
 
-		player.CenterX = startPt5.x;
-		player.CenterY = startPt5.y;
+		player.CenterX = startPt3.x;
+		player.CenterY = startPt3.y;
 
 
 		player.image.x = player.CenterX;
 		player.image.y = player.CenterY;
 
+		if (CheckSoundMem(SYBERB.handle) != 0)
+		{
+			StopSoundMem(SYBERB.handle);	//BGMを止める
+		}
+
 		//廊下へ
-		GameScene = GAME_SCENE_PLAY2;
+		GameScene = GAME_SCENE_PLAY3;
 
 
 		return;
@@ -6059,6 +6092,15 @@ BOOL LOAD_IMAGE(VOID)
 		return FALSE;
 	}
 
+	strcpy_s(TextBox_akanai.path, TEXT_BOX_6); //看板
+	TextBox_akanai.handle = LoadGraph(TextBox_akanai.path);			//読み込み
+	if (TextBox_akanai.handle == -1)
+	{
+		//エラーメッセージ表示
+		MessageBox(GetMainWindowHandle(), TEXT_BOX_6, IMAGE_LOAD_ERR_TITLE, MB_OK);
+		return FALSE;
+	}
+
 	//###########################################################################
 
 	int mapRes = LoadDivGraph(
@@ -6168,6 +6210,7 @@ VOID DELETE_IMAGE(VOID)
 	DeleteGraph(TextBox_GenkanKagiNasi.handle);
 	DeleteGraph(TextBox_GenkanKagi.handle);
 	DeleteGraph(TextBox_Kanban.handle);
+	DeleteGraph(TextBox_akanai.handle);
 	DeleteGraph(GameMenu_START.image.handle);
 	DeleteGraph(GameMenu_EXIT.image.handle);
 	DeleteGraph(GameMenu_OPTION.image.handle);
