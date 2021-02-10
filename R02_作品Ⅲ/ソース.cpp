@@ -54,9 +54,12 @@
 #define TEXT_BOX_4 TEXT(".\\IMAGE\\TextBox玄関鍵あり.png")//鍵を持っていない
 #define TEXT_BOX_5 TEXT(".\\IMAGE\\TextBox_kanban.png")//外の看板
 #define TEXT_BOX_6 TEXT(".\\IMAGE\\TextBox_akanai.png") //鍵が合わないとき
+#define TEXT_BOX_7 TEXT(".\\IMAGE\\TextBoxちぎり紙.png")//隠し部屋のテキストボックス
 #define GAME_MENU_BTN TEXT(".\\IMAGE\\Menu_btn1.png")//スタートボタン
 #define GAME_MENU_BTN2 TEXT(".\\IMAGE\\Menu_btn2.png")//終了ボタン
 #define GAME_MENU_BTN3 TEXT(".\\IMAGE\\Menu_btn3.png")//オプションボタン
+
+#define HINT TEXT(".\\IMAGE\\NazotokiYoushi.png")//隠し部屋のヒント
 
 #define OPTION_SOUND_VOLUME  TEXT(".\\IMAGE\\Volume0.png")//音量ボタン
 #define OPTION_SOUND_VOLUME1 TEXT(".\\IMAGE\\Volume25.png")//音量ボタン
@@ -352,6 +355,8 @@ IMAGE TextBox_GenkanKagi;
 IMAGE TextBox_GenkanKagiNasi;
 IMAGE TextBox_Kanban; //看板
 IMAGE TextBox_akanai; //鍵が合わないとき
+IMAGE TextBox_kakushi; //隠し部屋のテキストボックス
+IMAGE HINT_KAMI; //ヒント用紙
 IMAGE_ROTA GameMenu_START; //スタートボタン
 IMAGE_ROTA GameMenu_EXIT;	//終了ボタン
 IMAGE_ROTA GameMenu_OPTION; //設定ボタン
@@ -445,6 +450,7 @@ int hyouji3;
 int hyouji4;
 int hyouji5;
 int hyouji6;
+int hyouji7;
 int KEY_A;
 int KEY_W;
 int KEY_S;
@@ -1592,11 +1598,30 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 				yokoCnt++;
 
 				KakushiD.left = (mapChip.width * yokoCnt) - mapChip.width;
-				KakushiD.top = (mapChip.height * tateCnt) + 20;
+				KakushiD.top = (mapChip.height * tateCnt);
 				KakushiD.right = (mapChip.width * (yokoCnt + 1)) - mapChip.width;
 				KakushiD.bottom = mapChip.height * (tateCnt + 1);
 
 				break;
+
+			case 'B':
+				mapdata14[tateCnt][yokoCnt] = B;
+				yokoCnt++;
+
+				Itemflag.left = (mapChip.width * yokoCnt) - mapChip.width;
+				Itemflag.top = (mapChip.height * tateCnt);
+				Itemflag.right = (mapChip.width * (yokoCnt + 1)) - mapChip.width;
+				Itemflag.bottom = mapChip.height * (tateCnt + 1);
+				break;
+
+			case 'Z':
+				mapdata14[tateCnt][yokoCnt] = Z;
+				yokoCnt++;
+
+				Itemflag2.left = (mapChip.width * yokoCnt) - mapChip.width;
+				Itemflag2.top = (mapChip.height * tateCnt);
+				Itemflag2.right = (mapChip.width * (yokoCnt + 1)) - mapChip.width;
+				Itemflag2.bottom = mapChip.height * (tateCnt + 1);
 
 			default:
 				break;
@@ -1642,10 +1667,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			case 'd':
 				//壁のとき
 				mapdata15[tateCnt][yokoCnt] = d;
-				yokoCnt++;
-				break;
-			case 'B':
-				mapdata15[tateCnt][yokoCnt] = B;
 				yokoCnt++;
 				break;
 
@@ -2442,6 +2463,8 @@ VOID MY_OPTION(VOID)
 
 					// 音量の設定
 					ChangeVolumeSoundMem(255 * 0 / 100, BGM.handle);
+					ChangeVolumeSoundMem(255 * 0 / 100, SYBERB.handle);
+
 
 				}
 
@@ -2526,6 +2549,7 @@ VOID MY_OPTION(VOID)
 
 					// 音量の設定
 					ChangeVolumeSoundMem(255 * 25 / 100, BGM.handle);
+					ChangeVolumeSoundMem(255 * 25 / 100, SYBERB.handle);
 
 				}
 
@@ -2608,6 +2632,7 @@ VOID MY_OPTION(VOID)
 
 					// 音量の設定
 					ChangeVolumeSoundMem(255 * 50 / 100, BGM.handle);
+					ChangeVolumeSoundMem(255 * 50 / 100, SYBERB.handle);
 
 				}
 
@@ -2692,6 +2717,7 @@ VOID MY_OPTION(VOID)
 
 					// 音量の設定
 					ChangeVolumeSoundMem(255 * 75 / 100, BGM.handle);
+					ChangeVolumeSoundMem(255 * 75 / 100, SYBERB.handle);
 
 				}
 
@@ -2775,6 +2801,7 @@ VOID MY_OPTION(VOID)
 
 					// 音量の設定
 					ChangeVolumeSoundMem(255 * 100 / 100, BGM.handle);
+					ChangeVolumeSoundMem(255 * 100 / 100, SYBERB.handle);
 
 				}
 
@@ -5301,6 +5328,8 @@ VOID MY_PLAY_DRAW4(VOID)
 
 	}
 
+	DrawGraph(player.image.x, player.image.y, playerChip1.handle[player.kind1], TRUE);//プレイヤの描画
+
 	RECT PlayerRect;
 	PlayerRect.left = player.CenterX - 40 / 20 + 5;
 	PlayerRect.top = player.CenterY + 200 / 20 + 5;
@@ -5328,7 +5357,6 @@ VOID MY_PLAY_DRAW4(VOID)
 
 	}
 
-	DrawGraph(player.image.x, player.image.y, playerChip1.handle[player.kind1], TRUE);//プレイヤの描画
 
 	//出口用
 	//DrawBox(GoalRect4.left, GoalRect4.top, GoalRect4.right, GoalRect4.bottom, GetColor(255, 255, 0), TRUE);
@@ -5630,6 +5658,29 @@ VOID MY_PLAY_KAKUSHI_DRAW(VOID)
 	
 
 	DrawGraph(player.image.x, player.image.y, playerChip1.handle[player.kind1], TRUE);//プレイヤの描画
+
+	if (MY_CHECK_RECT_COLL(PlayerRect, Itemflag) == TRUE && MY_KEY_PUSH(KEY_INPUT_RETURN) == TRUE)
+	{
+
+		hyouji7 = true;
+	}
+
+	if (hyouji7 == true)
+	{
+		DrawGraph(TEXT_WIDTH_POSITION, TEXT_HEIGHT_POSITION, TextBox_kakushi.handle, TRUE);
+
+		DrawGraph(TEXT_WIDTH_POSITION, 300, HINT_KAMI.handle, TRUE);
+
+
+		if (MY_KEY_PUSH(KEY_INPUT_ESCAPE) == TRUE)
+		{
+			hyouji7 = false;
+		}
+
+	}
+
+	DrawBox(Itemflag.left, Itemflag.top, Itemflag.right, Itemflag.bottom, GetColor(255, 255, 0), TRUE);
+
 	
 	return;
 }
@@ -6101,6 +6152,17 @@ BOOL LOAD_IMAGE(VOID)
 		return FALSE;
 	}
 
+	strcpy_s(TextBox_kakushi.path, TEXT_BOX_7); //隠し部屋
+	TextBox_kakushi.handle = LoadGraph(TextBox_kakushi.path);			//読み込み
+	if (TextBox_kakushi.handle == -1)
+	{
+		//エラーメッセージ表示
+		MessageBox(GetMainWindowHandle(), TEXT_BOX_7, IMAGE_LOAD_ERR_TITLE, MB_OK);
+		return FALSE;
+	}
+
+	
+
 	//###########################################################################
 
 	int mapRes = LoadDivGraph(
@@ -6173,6 +6235,19 @@ BOOL LOAD_IMAGE(VOID)
 		return FALSE;
 	}
 
+	//########################隠し部屋ヒント########################
+
+	strcpy_s(HINT_KAMI.path, HINT);	//隠し部屋ヒント画像読込
+	HINT_KAMI.handle = LoadGraph(HINT_KAMI.path);			//読み込み
+	if (HINT_KAMI.handle == -1)
+	{
+		//エラーメッセージ表示
+		MessageBox(GetMainWindowHandle(), HINT, IMAGE_LOAD_ERR_TITLE, MB_OK);
+		return FALSE;
+	}
+	GetGraphSize(HINT_KAMI.handle, &HINT_KAMI.width, &HINT_KAMI.height);	//画像の幅と高さを取得
+	HINT_KAMI.x = GAME_WIDTH / 2 - HINT_KAMI.width / 2;		//左右中央揃え
+	HINT_KAMI.y = GAME_HEIGHT / 2 - HINT_KAMI.height / 2;		//上下中央揃え
 
 
 	
@@ -6211,6 +6286,8 @@ VOID DELETE_IMAGE(VOID)
 	DeleteGraph(TextBox_GenkanKagi.handle);
 	DeleteGraph(TextBox_Kanban.handle);
 	DeleteGraph(TextBox_akanai.handle);
+	DeleteGraph(TextBox_kakushi.handle);
+	DeleteGraph(HINT_KAMI.handle);
 	DeleteGraph(GameMenu_START.image.handle);
 	DeleteGraph(GameMenu_EXIT.image.handle);
 	DeleteGraph(GameMenu_OPTION.image.handle);
@@ -6235,7 +6312,7 @@ VOID DELETE_IMAGE(VOID)
 	DeleteGraph(SOUND_DECISION4.image.handle);
 	DeleteGraph(SYBER.handle);
 	for (int i_num = 0; i_num < MAP_DIV_NUM; i_num++) { DeleteGraph(mapChip.handle[i_num]); }
-	for (int i_num = 0; i_num < MAP_DIV_NUM; i_num++) { DeleteGraph(mapChip2.handle[i_num]); }
+	for (int i_num2 = 0; i_num2 < MAP_DIV_NUM; i_num2++) { DeleteGraph(mapChip2.handle[i_num2]); }
 	return;
 }
 
@@ -6455,7 +6532,7 @@ BOOL MY_CHECK_SYBER_PLAYER_COLL(RECT player)
 
 				//プレイヤーとマップが当たっている
 
-
+				if (mapdata14[tate][yoko] == B) { return TRUE; }
 				if (mapdata15[tate][yoko] == d) { return TRUE; }
 
 			}
