@@ -55,6 +55,7 @@
 #define TEXT_BOX_5 TEXT(".\\IMAGE\\TextBox_kanban.png")//外の看板
 #define TEXT_BOX_6 TEXT(".\\IMAGE\\TextBox_akanai.png") //鍵が合わないとき
 #define TEXT_BOX_7 TEXT(".\\IMAGE\\TextBoxちぎり紙.png")//隠し部屋のテキストボックス
+#define TEXT_BOX_8 TEXT(".\\IMAGE\\TextBox_switch.png")//スイッチ
 #define GAME_MENU_BTN TEXT(".\\IMAGE\\Menu_btn1.png")//スタートボタン
 #define GAME_MENU_BTN2 TEXT(".\\IMAGE\\Menu_btn2.png")//終了ボタン
 #define GAME_MENU_BTN3 TEXT(".\\IMAGE\\Menu_btn3.png")//オプションボタン
@@ -356,6 +357,7 @@ IMAGE TextBox_GenkanKagiNasi;
 IMAGE TextBox_Kanban; //看板
 IMAGE TextBox_akanai; //鍵が合わないとき
 IMAGE TextBox_kakushi; //隠し部屋のテキストボックス
+IMAGE TextBox_switch; //スイッチが押されたとき
 IMAGE HINT_KAMI; //ヒント用紙
 IMAGE_ROTA GameMenu_START; //スタートボタン
 IMAGE_ROTA GameMenu_EXIT;	//終了ボタン
@@ -440,8 +442,9 @@ int yokoCnt = 0;		//横カウント用
 
 FILE* fp = NULL; //ファイルポインタ
 
-int flag = 0;  //アイテムフラグ
-int flag2 = 0; //アイテムフラグ
+int flag = false;  //アイテムフラグ
+int flag2 = false; //アイテムフラグ
+int flag3 = false; //隠し部屋アイテムフラグ
 
 //テキストボックスを表示するかの判定
 int hyouji;
@@ -451,6 +454,7 @@ int hyouji4;
 int hyouji5;
 int hyouji6;
 int hyouji7;
+int hyouji8;
 int KEY_A;
 int KEY_W;
 int KEY_S;
@@ -4818,7 +4822,7 @@ VOID MY_PLAY_PROC3(VOID)
 
 
 	//ゴールに触れているかチェック
-	if (MY_CHECK_RECT_COLL(PlayerRect, GoalRect3) == TRUE && flag2 == 1)
+	if (MY_CHECK_RECT_COLL(PlayerRect, GoalRect3) == TRUE && flag3 == 1)
 	{
 
 		//外へ遷移する
@@ -5026,7 +5030,10 @@ VOID MY_PLAY_DRAW3(VOID)
 
 	//一つ目のカギを取得しているが、開かないとき
 
-	if (MY_CHECK_RECT_COLL(PlayerRect, GoalRect3) == TRUE && flag == 1 && MY_KEY_PUSH(KEY_INPUT_RETURN))
+	if (MY_CHECK_RECT_COLL(PlayerRect, GoalRect3) == TRUE 
+		&& flag == 1 
+		&& MY_KEY_PUSH(KEY_INPUT_RETURN) 
+		|| flag2 == 1)
 	{
 		hyouji6 = true;
 
@@ -5659,6 +5666,8 @@ VOID MY_PLAY_KAKUSHI_DRAW(VOID)
 
 	DrawGraph(player.image.x, player.image.y, playerChip1.handle[player.kind1], TRUE);//プレイヤの描画
 
+
+	//紙
 	if (MY_CHECK_RECT_COLL(PlayerRect, Itemflag) == TRUE && MY_KEY_PUSH(KEY_INPUT_RETURN) == TRUE)
 	{
 
@@ -5679,7 +5688,26 @@ VOID MY_PLAY_KAKUSHI_DRAW(VOID)
 
 	}
 
-	DrawBox(Itemflag.left, Itemflag.top, Itemflag.right, Itemflag.bottom, GetColor(255, 255, 0), TRUE);
+	//スイッチを押すことで玄関の扉が開く
+	if (MY_CHECK_RECT_COLL(PlayerRect, Itemflag2) == TRUE && MY_KEY_PUSH(KEY_INPUT_RETURN) == TRUE)
+	{
+
+		hyouji8 = true;
+		flag3 = true;
+	}
+
+	if (hyouji8 == true)
+	{
+		DrawGraph(TEXT_WIDTH_POSITION, TEXT_HEIGHT_POSITION, TextBox_switch.handle, TRUE);
+
+
+
+		if (MY_KEY_PUSH(KEY_INPUT_ESCAPE) == TRUE)
+		{
+			hyouji8 = false;
+		}
+
+	}
 
 	
 	return;
@@ -6161,6 +6189,15 @@ BOOL LOAD_IMAGE(VOID)
 		return FALSE;
 	}
 
+	strcpy_s(TextBox_switch.path, TEXT_BOX_8); //隠し部屋スイッチ
+	TextBox_switch.handle = LoadGraph(TextBox_switch.path);			//読み込み
+	if (TextBox_switch.handle == -1)
+	{
+		//エラーメッセージ表示
+		MessageBox(GetMainWindowHandle(), TEXT_BOX_8, IMAGE_LOAD_ERR_TITLE, MB_OK);
+		return FALSE;
+	}
+
 	
 
 	//###########################################################################
@@ -6287,6 +6324,7 @@ VOID DELETE_IMAGE(VOID)
 	DeleteGraph(TextBox_Kanban.handle);
 	DeleteGraph(TextBox_akanai.handle);
 	DeleteGraph(TextBox_kakushi.handle);
+	DeleteGraph(TextBox_switch.handle);
 	DeleteGraph(HINT_KAMI.handle);
 	DeleteGraph(GameMenu_START.image.handle);
 	DeleteGraph(GameMenu_EXIT.image.handle);
