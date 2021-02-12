@@ -701,10 +701,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 				mapdata2[tateCnt][yokoCnt] = G;
 				yokoCnt++;
 
-				GoalRect.left = mapChip.width * yokoCnt;
+				GoalRect.left = (mapChip.width * yokoCnt) - (mapChip.width - 25);
 				GoalRect.top = mapChip.height * tateCnt;
-				GoalRect.right = mapChip.width * (yokoCnt + 1);
+				GoalRect.right = (mapChip.width * (yokoCnt + 1)) - mapChip.width;
 				GoalRect.bottom = mapChip.height * (tateCnt + 1);
+
+	
 
 			case 'M':
 				mapdata2[tateCnt][yokoCnt] = M;
@@ -911,9 +913,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 				mapdata5[tateCnt][yokoCnt] = G;
 				yokoCnt++;
 				//ゴールを計算
-				GoalRect2.left = mapChip.width * yokoCnt;
+				GoalRect2.left = (mapChip.width * yokoCnt) - (mapChip.width - 50);
 				GoalRect2.top = mapChip.height * tateCnt;
-				GoalRect2.right = mapChip.width * (yokoCnt + 1);
+				GoalRect2.right = (mapChip.width * (yokoCnt + 1)) - mapChip.width;
 				GoalRect2.bottom = mapChip.height * (tateCnt + 1);
 				break;
 
@@ -1140,9 +1142,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 				//壁のとき
 				mapdata8[tateCnt][yokoCnt] = M;
 				yokoCnt++;
-				Modoru2.left = mapChip.width * yokoCnt ;
-				Modoru2.top = mapChip.height * tateCnt ;
-				Modoru2.right = mapChip.width; //* (yokoCnt + 1);
+				Modoru2.left = (mapChip.width * yokoCnt) - mapChip.width;
+				Modoru2.top = mapChip.height * tateCnt;
+				Modoru2.right = (mapChip.width * (yokoCnt + 1)) - mapChip.width;
 				Modoru2.bottom = mapChip.height * (tateCnt + 1);
 
 				
@@ -4065,18 +4067,6 @@ VOID MY_PLAY_PROC(VOID)
 			return;	//強制的にエンド画面に飛ぶ
 		}
 
-		//プレイヤーが画面外に出たら
-		/*if (player.image.x > GAME_WIDTH || player.image.y > GAME_HEIGHT
-			|| player.image.x + player.image.width < 0 || player.image.y + player.image.height < 0)
-		{
-			
-			IsMove = false;
-			
-		}*/
-
-	
-
-		
 
 		//プレイヤーとマップがあたっていたら
 		if (MY_CHECK_MAP1_PLAYER_COLL(player.coll) == TRUE)
@@ -4098,9 +4088,7 @@ VOID MY_PLAY_PROC(VOID)
 		{
 		
 			{
-				////プレイヤーの位置に置き換える
-				//player.image.x = player.CenterX - player.image.width / 2;
-				//player.image.y = player.CenterY - player.image.height / 2;
+			
 
 				//あたっていないときの座標を取得
 				player.collBeforePt.x = player.CenterX;
@@ -4108,7 +4096,24 @@ VOID MY_PLAY_PROC(VOID)
 			}
 		}
 
-		
+
+		//画面外に行ったときの処理
+		if (player.image.x < 0)
+		{
+			player.image.x = 0;
+		}
+		if (player.image.x > GAME_WIDTH - mapChip.width)
+		{
+			player.image.x = GAME_WIDTH - mapChip.width;
+		}
+		if (player.image.y < 0)
+		{
+			player.image.y = 0;
+		}
+		if (player.image.y > GAME_HEIGHT - mapChip.height)
+		{
+			player.image.y = GAME_HEIGHT - mapChip.height;
+		}
 	
 	
 
@@ -4192,10 +4197,10 @@ VOID MY_PLAY_DRAW(VOID)
 	}
 
 	//ゴール当たり判定用
-	DrawBox(GoalRect.left, GoalRect.top, GoalRect.right, GoalRect.bottom, GetColor(255, 255, 0), TRUE);
+	/*DrawBox(GoalRect.left, GoalRect.top, GoalRect.right, GoalRect.bottom, GetColor(255, 255, 0), TRUE);*/
 	//プレイヤーの当たり判定用
-	DrawBox(player.coll.left, player.coll.top, player.coll.right, player.coll.bottom, GetColor(255, 0, 0), FALSE);
-	DrawBox(Item.left, Item.top, Item.right, Item.bottom, GetColor(255, 255, 0), TRUE);
+	/*DrawBox(player.coll.left, player.coll.top, player.coll.right, player.coll.bottom, GetColor(255, 0, 0), FALSE);
+	DrawBox(Item.left, Item.top, Item.right, Item.bottom, GetColor(255, 255, 0), TRUE);*/
 	
 
 	//現在は没の予定
@@ -4530,21 +4535,6 @@ VOID MY_PLAY_PROC2(VOID)
 		return;
 	}
 
-	
-
-
-	//プレイヤーが画面外に出たら
-	/*if (player.image.x > GAME_WIDTH || player.image.y > GAME_HEIGHT
-		|| player.image.x + player.image.width < 0 || player.image.y + player.image.height < 0)
-	{
-
-		IsMove = false;
-
-	}*/
-
-
-
-
 
 	//プレイヤーとマップがあたっていたら
 	if (MY_CHECK_MAP2_PLAYER_COLL(player.coll) == TRUE)
@@ -4567,14 +4557,30 @@ VOID MY_PLAY_PROC2(VOID)
 	{
 
 		{
-			////プレイヤーの位置に置き換える
-			//player.image.x = player.CenterX - player.image.width / 2;
-			//player.image.y = player.CenterY - player.image.height / 2;
+		
 
 			//あたっていないときの座標を取得
 			player.collBeforePt.x = player.CenterX;
 			player.collBeforePt.y = player.CenterY;
 		}
+	}
+
+	//画面外に行ったときの処理
+	if (player.image.x < 0)
+	{
+		player.image.x = 0;
+	}
+	if (player.image.x > GAME_WIDTH - mapChip.width)
+	{
+		player.image.x = GAME_WIDTH - mapChip.width;
+	}
+	if (player.image.y < 0)
+	{
+		player.image.y = 0;
+	}
+	if (player.image.y > GAME_HEIGHT - mapChip.height)
+	{
+		player.image.y = GAME_HEIGHT - mapChip.height;
 	}
 
 	return;
@@ -4675,6 +4681,8 @@ VOID MY_PLAY_DRAW2(VOID)
 	//プレイヤーの当たり判定用
 	/*DrawBox(player.coll.left, player.coll.top, player.coll.right, player.coll.bottom, GetColor(255, 0, 0), FALSE);*/
 	/*DrawBox(Kakushi.left, Kakushi.top, Kakushi.right, Kakushi.bottom, GetColor(255, 255, 0), TRUE);*/
+
+	DrawString(0, 0, "テキストボックスはESCキーで閉じることができます。", GetColor(255, 255, 255));
 
 	return;
 }
@@ -4932,6 +4940,26 @@ VOID MY_PLAY_PROC3(VOID)
 		}
 	}
 
+
+	//画面外に行ったときの処理
+	if (player.image.x < 0)
+	{
+		player.image.x = 0;
+	}
+	if (player.image.x > GAME_WIDTH - mapChip.width)
+	{
+		player.image.x = GAME_WIDTH - mapChip.width;
+	}
+	if (player.image.y < 0)
+	{
+		player.image.y = 0;
+	}
+	if (player.image.y > GAME_HEIGHT - mapChip.height)
+	{
+		player.image.y = GAME_HEIGHT - mapChip.height;
+	}
+
+
 	return;
 }
 
@@ -4994,7 +5022,7 @@ VOID MY_PLAY_DRAW3(VOID)
 	DrawBox(Modoru2.left, Modoru2.top, Modoru2.right, Modoru2.bottom, GetColor(255, 0, 0), TRUE);*/
 	
 	//アイテムフラグの判定用
-	DrawBox(Itemflag.left, Itemflag.top, Itemflag.right, Itemflag.bottom, GetColor(0, 255, 0), TRUE);
+	/*DrawBox(Itemflag.left, Itemflag.top, Itemflag.right, Itemflag.bottom, GetColor(0, 255, 0), TRUE);*/
 	
 	//当たり判定の描画（デバッグ用）
 	for (int tate = 0; tate < MAP_HEIGHT_MAX; tate++)
@@ -5070,7 +5098,7 @@ VOID MY_PLAY_DRAW3(VOID)
 	if (MY_CHECK_RECT_COLL(PlayerRect, GoalRect3) == TRUE 
 		&& flag == 1 
 		&& MY_KEY_PUSH(KEY_INPUT_RETURN) 
-		|| flag2 == 1)
+		)
 	{
 		hyouji6 = true;
 
@@ -5085,7 +5113,7 @@ VOID MY_PLAY_DRAW3(VOID)
 		}
 	}
 
-
+	DrawString(0, 0, "テキストボックスはESCキーで閉じることができます。", GetColor(255, 255, 255));
 	
 
 
@@ -5261,24 +5289,6 @@ VOID MY_PLAY_PROC4(VOID)
 	}
 
 
-	//家の中に戻れるようにする予定
-	//if (MY_CHECK_RECT_COLL(PlayerRect, Modoru2) == TRUE)
-	//{
-
-
-
-	//	player.CenterX = Modoru2Pt.x;
-	//	player.CenterY = Modoru2Pt.y;
-
-
-	//	player.image.x = player.CenterX + 100;
-	//	player.image.y = player.CenterY;
-
-	//	GameScene = GAME_SCENE_PLAY3;
-
-
-	//	return;	//強制的にエンド画面に飛ぶ
-	//}
 
 
 
@@ -5313,6 +5323,26 @@ VOID MY_PLAY_PROC4(VOID)
 			player.collBeforePt.y = player.CenterY;
 		}
 	}
+
+
+	//画面外に行ったときの処理
+	if (player.image.x < 0)
+	{
+		player.image.x = 0;
+	}
+	if (player.image.x > GAME_WIDTH - mapChip.width)
+	{
+		player.image.x = GAME_WIDTH - mapChip.width;
+	}
+	if (player.image.y < 0)
+	{
+		player.image.y = 0;
+	}
+	if (player.image.y > GAME_HEIGHT - mapChip.height)
+	{
+		player.image.y = GAME_HEIGHT - mapChip.height;
+	}
+
 
 	return;
 
@@ -5405,6 +5435,8 @@ VOID MY_PLAY_DRAW4(VOID)
 	//出口用
 	//DrawBox(GoalRect4.left, GoalRect4.top, GoalRect4.right, GoalRect4.bottom, GetColor(255, 255, 0), TRUE);
 	/*DrawBox(Kanban.left, Kanban.top, Kanban.right, Kanban.bottom, GetColor(255, 255, 0), TRUE);*/
+
+	DrawString(0, 0, "テキストボックスはESCキーで閉じることができます。", GetColor(255, 255, 255));
 	return;
 }
 
@@ -5593,30 +5625,6 @@ VOID MY_PLAY_PROC_KAKUSI(VOID)
 		return;
 	}
 
-
-	//家の中に戻れるようにする予定
-	//if (MY_CHECK_RECT_COLL(PlayerRect, Modoru2) == TRUE)
-	//{
-
-
-
-	//	player.CenterX = Modoru2Pt.x;
-	//	player.CenterY = Modoru2Pt.y;
-
-
-	//	player.image.x = player.CenterX + 100;
-	//	player.image.y = player.CenterY;
-
-	//	GameScene = GAME_SCENE_PLAY3;
-
-
-	//	return;	//強制的にエンド画面に飛ぶ
-	//}
-
-
-
-
-
 	//プレイヤーとマップがあたっていたら
 	if (MY_CHECK_SYBER_PLAYER_COLL(player.coll) == TRUE)
 	{
@@ -5646,6 +5654,26 @@ VOID MY_PLAY_PROC_KAKUSI(VOID)
 			player.collBeforePt.y = player.CenterY;
 		}
 	}
+
+
+	//画面外に行ったときの処理
+	if (player.image.x < 0)
+	{
+		player.image.x = 0;
+	}
+	if (player.image.x > GAME_WIDTH - mapChip.width)
+	{
+		player.image.x = GAME_WIDTH - mapChip.width;
+	}
+	if (player.image.y < 0)
+	{
+		player.image.y = 0;
+	}
+	if (player.image.y > GAME_HEIGHT - mapChip.height)
+	{
+		player.image.y = GAME_HEIGHT - mapChip.height;
+	}
+
 
 	return;
 }
@@ -5753,6 +5781,7 @@ VOID MY_PLAY_KAKUSHI_DRAW(VOID)
 
 	}
 
+	DrawString(0, 0, "テキストボックスはESCキーで閉じることができます。", GetColor(255, 255, 255));
 	
 	return;
 }
