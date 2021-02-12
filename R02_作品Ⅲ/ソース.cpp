@@ -145,7 +145,7 @@ enum GAME_MENU {
 	GAME_MENU_START,
 	GAME_MENU_EXIT,
 	GAME_MENU_OPTION
-};
+};//メニューのシーン
 
 enum VOLUME {
 	VOLUME0,
@@ -163,7 +163,7 @@ enum VOLUME {
 	DECISION50,
 	DECISION75,
 	DECISION100
-};
+};//ボリューム画像に要素を付ける。
 
 enum GAME_MAP_KIND
 {
@@ -337,9 +337,6 @@ int mapdata13[MAP_HEIGHT_MAX][MAP_WIDTH_MAX];
 int mapdata14[MAP_HEIGHT_MAX][MAP_WIDTH_MAX];
 int mapdata15[MAP_HEIGHT_MAX][MAP_WIDTH_MAX];
 
-
-int MapDataMode[MAP_HEIGHT_MAX][MAP_WIDTH_MAX];
-
 //マップチップの画像を管理
 MAPCHIP mapChip;
 MAPCHIP mapChip2;
@@ -464,6 +461,7 @@ int hyouji6 = false;
 int hyouji7 = false;
 int hyouji8 = false;
 int hyouji9 = false;
+//キーを光らせるためのフラグ
 int KEY_A;
 int KEY_W;
 int KEY_S;
