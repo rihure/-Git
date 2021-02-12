@@ -56,6 +56,7 @@
 #define TEXT_BOX_6 TEXT(".\\IMAGE\\TextBox_akanai.png") //鍵が合わないとき
 #define TEXT_BOX_7 TEXT(".\\IMAGE\\TextBoxちぎり紙.png")//隠し部屋のテキストボックス
 #define TEXT_BOX_8 TEXT(".\\IMAGE\\TextBox_switch.png")//スイッチ
+#define TEXT_BOX_9 TEXT(".\\IMAGE\\TextBox_hatena.png")//隠し部屋への壁
 #define GAME_MENU_BTN TEXT(".\\IMAGE\\Menu_btn1.png")//スタートボタン
 #define GAME_MENU_BTN2 TEXT(".\\IMAGE\\Menu_btn2.png")//終了ボタン
 #define GAME_MENU_BTN3 TEXT(".\\IMAGE\\Menu_btn3.png")//オプションボタン
@@ -90,6 +91,7 @@
 #define SERECT_EFFECT TEXT(".\\MUSIC\\セレクト音_3.mp3")//選択時の効果音
 #define DECISION_EFFECT TEXT(".\\MUSIC\\システム決定音_11.mp3")//決定時の効果音
 #define SYBER_BGM TEXT(".\\MUSIC\\Challenge_try_02.mp3")//隠し部屋BGM
+#define FIND TEXT(".\\MUSIC\\電灯スイッチ.mp3") //発見時効果音
 
 //エラーメッセージ
 #define IMAGE_LOAD_ERR_TITLE	TEXT("画像読み込みエラー")
@@ -358,6 +360,7 @@ IMAGE TextBox_Kanban; //看板
 IMAGE TextBox_akanai; //鍵が合わないとき
 IMAGE TextBox_kakushi; //隠し部屋のテキストボックス
 IMAGE TextBox_switch; //スイッチが押されたとき
+IMAGE TextBox_hatena; //条件を達成していないとき
 IMAGE HINT_KAMI; //ヒント用紙
 IMAGE_ROTA GameMenu_START; //スタートボタン
 IMAGE_ROTA GameMenu_EXIT;	//終了ボタン
@@ -402,7 +405,10 @@ RECT KakushiD = { -1,-1,-1,-1 };//隠し部屋からの脱出
 RECT Modoru = { -1, -1, -1,-1 }; //一つ前の部屋に戻る判定
 RECT Modoru2 = { -1,-1,-1,-1 };//廊下に戻る判定
 RECT Itemflag = { -1,-1,-1,-1 }; //アイテムフラグの当たり判定
+RECT Item = { -1,-1,-1,-1 };
 RECT Itemflag2 = { -1,-1,-1,-1 };//最初の部屋のフラグ判定
+RECT HINT_RE = { -1,-1,-1,-1 };
+RECT HINT_REG = { -1,-1,-1,-1 };
 RECT Kanban = { -1,-1,-1,-1 }; 
 iPOINT ModoruPt{ -1,-1 };
 iPOINT Modoru2Pt{ -1,-1, };
@@ -410,11 +416,13 @@ iPOINT Modoru2Pt{ -1,-1, };
 //BGM
 MUSIC BGM; //タイトルBGM
 MUSIC ROKA;//廊下のBGM
+MUSIC SYBERB;
 //SE
-MUSIC FLAG; //アイテム取得時の効果音※現在は没
+MUSIC FLAG; //アイテム取得時の効果音
 MUSIC SERECT; //セレクト効果音
 MUSIC DECISION; //決定
-MUSIC SYBERB;
+MUSIC FINDE; //発見時
+
 
 int GameScene;		//ゲームシーンを管理
 int GameMenu = 0;	//ゲームメニューを管理
@@ -447,14 +455,15 @@ int flag2 = false; //アイテムフラグ
 int flag3 = false; //隠し部屋アイテムフラグ
 
 //テキストボックスを表示するかの判定
-int hyouji;
-int hyouji2;
-int hyouji3;
-int hyouji4;
-int hyouji5;
-int hyouji6;
-int hyouji7;
-int hyouji8;
+int hyouji = false;
+int hyouji2 = false;
+int hyouji3 = false;
+int hyouji4 = false;
+int hyouji5 = false;
+int hyouji6 = false;
+int hyouji7 = false;
+int hyouji8 = false;
+int hyouji9 = false;
 int KEY_A;
 int KEY_W;
 int KEY_S;
@@ -709,10 +718,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			case'Z':
 				mapdata2[tateCnt][yokoCnt] = Z;
 				yokoCnt++;
-				Itemflag2.left = mapChip.width * yokoCnt;
-				Itemflag2.top = mapChip.height * tateCnt;
-				Itemflag2.right = mapChip.width * (yokoCnt + 1);
-				Itemflag2.bottom = mapChip.height * (tateCnt + 1);
+				Item.left = mapChip.width * yokoCnt;
+				Item.top = mapChip.height * tateCnt;
+				Item.right = mapChip.width * (yokoCnt + 1);
+				Item.bottom = mapChip.height * (tateCnt + 1);
 
 			default:
 				break;
@@ -1612,20 +1621,20 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 				mapdata14[tateCnt][yokoCnt] = B;
 				yokoCnt++;
 
-				Itemflag.left = (mapChip.width * yokoCnt) - mapChip.width;
-				Itemflag.top = (mapChip.height * tateCnt);
-				Itemflag.right = (mapChip.width * (yokoCnt + 1)) - mapChip.width;
-				Itemflag.bottom = mapChip.height * (tateCnt + 1);
+				HINT_REG.left = (mapChip.width * yokoCnt) - mapChip.width;
+				HINT_REG.top = (mapChip.height * tateCnt);
+				HINT_REG.right = (mapChip.width * (yokoCnt + 1)) - mapChip.width;
+				HINT_REG.bottom = mapChip.height * (tateCnt + 1);
 				break;
 
 			case 'Z':
 				mapdata14[tateCnt][yokoCnt] = Z;
 				yokoCnt++;
 
-				Itemflag2.left = (mapChip.width * yokoCnt) - mapChip.width;
-				Itemflag2.top = (mapChip.height * tateCnt);
-				Itemflag2.right = (mapChip.width * (yokoCnt + 1)) - mapChip.width;
-				Itemflag2.bottom = mapChip.height * (tateCnt + 1);
+				HINT_RE.left = (mapChip.width * yokoCnt) - mapChip.width;
+				HINT_RE.top = (mapChip.height * tateCnt);
+				HINT_RE.right = (mapChip.width * (yokoCnt + 1)) - mapChip.width;
+				HINT_RE.bottom = mapChip.height * (tateCnt + 1);
 
 			default:
 				break;
@@ -4183,9 +4192,11 @@ VOID MY_PLAY_DRAW(VOID)
 	}
 
 	//ゴール当たり判定用
-	//DrawBox(GoalRect.left, GoalRect.top, GoalRect.right, GoalRect.bottom, GetColor(255, 255, 0), TRUE);
+	DrawBox(GoalRect.left, GoalRect.top, GoalRect.right, GoalRect.bottom, GetColor(255, 255, 0), TRUE);
 	//プレイヤーの当たり判定用
-	/*DrawBox(player.coll.left, player.coll.top, player.coll.right, player.coll.bottom, GetColor(255, 0, 0), FALSE);*/
+	DrawBox(player.coll.left, player.coll.top, player.coll.right, player.coll.bottom, GetColor(255, 0, 0), FALSE);
+	DrawBox(Item.left, Item.top, Item.right, Item.bottom, GetColor(255, 255, 0), TRUE);
+	
 
 	//現在は没の予定
 	//DrawGraph(TEXT_WIDTH_POSITION, TEXT_HEIGHT_POSITION, TextBox_start.handle, TRUE);
@@ -4205,7 +4216,7 @@ VOID MY_PLAY_DRAW(VOID)
 
 	
 		//フラグを回収しているかどうかのイベント
-		if (MY_CHECK_RECT_COLL(PlayerRect, Itemflag2) == TRUE && flag == 1 && MY_KEY_PUSH(KEY_INPUT_RETURN) == TRUE)
+		if (MY_CHECK_RECT_COLL(PlayerRect, Item) == TRUE && flag == 1 && MY_KEY_PUSH(KEY_INPUT_RETURN) == TRUE)
 		{
 			flag2 = 1;
 			hyouji2 = true;
@@ -4235,7 +4246,7 @@ VOID MY_PLAY_DRAW(VOID)
 
 		
 		//鍵を取得していないとき
-		if (MY_CHECK_RECT_COLL(PlayerRect, Itemflag2) == TRUE && flag == 0 && MY_KEY_PUSH(KEY_INPUT_RETURN) == TRUE)
+		if (MY_CHECK_RECT_COLL(PlayerRect, Item) == TRUE && flag == 0 && MY_KEY_PUSH(KEY_INPUT_RETURN) == TRUE)
 		{
 			hyouji = true;
 			
@@ -4462,7 +4473,10 @@ VOID MY_PLAY_PROC2(VOID)
 			player.image.x = player.CenterX;
 			player.image.y = player.CenterY;
 
-
+			if (CheckSoundMem(ROKA.handle) != 0)
+			{
+				StopSoundMem(ROKA.handle);	//BGMを止める
+			}
 
 			GameScene = GAME_SCENE_PLAY3;
 		
@@ -4494,7 +4508,7 @@ VOID MY_PLAY_PROC2(VOID)
 	}
 
 	//全てを満たしているかチェック
-	if (MY_CHECK_RECT_COLL(PlayerRect, Kakushi) == TRUE && MY_KEY_DOWN(KEY_INPUT_RETURN) == TRUE /*&& flag2 == true*/)
+	if (MY_CHECK_RECT_COLL(PlayerRect, Kakushi) == TRUE && MY_KEY_DOWN(KEY_INPUT_RETURN) == TRUE && flag2 == true)
 	{
 
 		player.CenterX = startPt5.x;
@@ -4515,6 +4529,8 @@ VOID MY_PLAY_PROC2(VOID)
 
 		return;
 	}
+
+	
 
 
 	//プレイヤーが画面外に出たら
@@ -4633,6 +4649,27 @@ VOID MY_PLAY_DRAW2(VOID)
 
 		}
 	}
+
+	RECT PlayerRect;
+	PlayerRect.left = player.CenterX - 40 / 20 + 5;
+	PlayerRect.top = player.CenterY + 200 / 20 + 5;
+	PlayerRect.right = player.CenterX + 650 / 20 - 5;
+	PlayerRect.bottom = player.CenterY + 1000 / 20 - 5;
+
+	if (MY_CHECK_RECT_COLL(PlayerRect, Kakushi) == TRUE && MY_KEY_DOWN(KEY_INPUT_RETURN) == TRUE )
+	{
+		hyouji9 = true;
+	}
+
+	if (hyouji9 == true)
+	{
+		DrawGraph(TEXT_WIDTH_POSITION, TEXT_HEIGHT_POSITION, TextBox_hatena.handle, TRUE);
+		if (MY_KEY_PUSH(KEY_INPUT_ESCAPE) == TRUE)
+		{
+			hyouji9 = false;
+		}
+	}
+
 	//ゴール当たり判定用
 	/*DrawBox(GoalRect2.left, GoalRect2.top, GoalRect2.right, GoalRect2.bottom, GetColor(255, 255, 0), TRUE);*/
 	//プレイヤーの当たり判定用
@@ -4957,7 +4994,7 @@ VOID MY_PLAY_DRAW3(VOID)
 	DrawBox(Modoru2.left, Modoru2.top, Modoru2.right, Modoru2.bottom, GetColor(255, 0, 0), TRUE);*/
 	
 	//アイテムフラグの判定用
-	//DrawBox(Itemflag.left, Itemflag.top, Itemflag.right, Itemflag.bottom, GetColor(0, 255, 0), TRUE);
+	DrawBox(Itemflag.left, Itemflag.top, Itemflag.right, Itemflag.bottom, GetColor(0, 255, 0), TRUE);
 	
 	//当たり判定の描画（デバッグ用）
 	for (int tate = 0; tate < MAP_HEIGHT_MAX; tate++)
@@ -5668,7 +5705,7 @@ VOID MY_PLAY_KAKUSHI_DRAW(VOID)
 
 
 	//紙
-	if (MY_CHECK_RECT_COLL(PlayerRect, Itemflag) == TRUE && MY_KEY_PUSH(KEY_INPUT_RETURN) == TRUE)
+	if (MY_CHECK_RECT_COLL(PlayerRect, HINT_REG) == TRUE && MY_KEY_PUSH(KEY_INPUT_RETURN) == TRUE)
 	{
 
 		hyouji7 = true;
@@ -5689,11 +5726,18 @@ VOID MY_PLAY_KAKUSHI_DRAW(VOID)
 	}
 
 	//スイッチを押すことで玄関の扉が開く
-	if (MY_CHECK_RECT_COLL(PlayerRect, Itemflag2) == TRUE && MY_KEY_PUSH(KEY_INPUT_RETURN) == TRUE)
+	if (MY_CHECK_RECT_COLL(PlayerRect, HINT_RE) == TRUE && MY_KEY_PUSH(KEY_INPUT_RETURN) == TRUE)
 	{
 
 		hyouji8 = true;
 		flag3 = true;
+		if (CheckSoundMem(FINDE.handle) == 0)
+		{
+			//BGMの音量を下げる
+			ChangeVolumeSoundMem(255 * 100 / 100, FINDE.handle);	
+
+			PlaySoundMem(FINDE.handle, DX_PLAYTYPE_BACK);
+		}
 	}
 
 	if (hyouji8 == true)
@@ -6198,6 +6242,15 @@ BOOL LOAD_IMAGE(VOID)
 		return FALSE;
 	}
 
+	strcpy_s(TextBox_hatena.path, TEXT_BOX_9); //隠し部屋の壁
+	TextBox_hatena.handle = LoadGraph(TextBox_hatena.path);			//読み込み
+	if (TextBox_hatena.handle == -1)
+	{
+		//エラーメッセージ表示
+		MessageBox(GetMainWindowHandle(), TEXT_BOX_9, IMAGE_LOAD_ERR_TITLE, MB_OK);
+		return FALSE;
+	}
+
 	
 
 	//###########################################################################
@@ -6325,6 +6378,7 @@ VOID DELETE_IMAGE(VOID)
 	DeleteGraph(TextBox_akanai.handle);
 	DeleteGraph(TextBox_kakushi.handle);
 	DeleteGraph(TextBox_switch.handle);
+	DeleteGraph(TextBox_hatena.handle);
 	DeleteGraph(HINT_KAMI.handle);
 	DeleteGraph(GameMenu_START.image.handle);
 	DeleteGraph(GameMenu_EXIT.image.handle);
@@ -6403,7 +6457,7 @@ BOOL LOAD_MUSIC(VOID)
 		return FALSE;
 	}
 
-	strcpy_s(SYBERB.path, SYBER_BGM);		//決定時効果音の設定
+	strcpy_s(SYBERB.path, SYBER_BGM);		//BGMの設定
 	SYBERB.handle = LoadSoundMem(SYBERB.path);	//読み込み
 	if (SYBERB.handle == -1)
 	{
@@ -6412,10 +6466,14 @@ BOOL LOAD_MUSIC(VOID)
 		return FALSE;
 	}
 
-
-
-
-
+	strcpy_s(FINDE.path, FIND);		//BGMの設定
+	FINDE.handle = LoadSoundMem(FINDE.path);	//読み込み
+	if (FINDE.handle == -1)
+	{
+		//エラーメッセージ表示
+		MessageBox(GetMainWindowHandle(), FIND, MUSIC_LOAD_ERR_TITLE, MB_OK);
+		return FALSE;
+	}
 
 	return TRUE;
 }
@@ -6429,6 +6487,7 @@ VOID DELETE_MUSIC(VOID)
 	DeleteSoundMem(SERECT.handle);
 	DeleteSoundMem(DECISION.handle);
 	DeleteSoundMem(SYBERB.handle);
+	DeleteSoundMem(FINDE.handle);
 
 	return;
 }
