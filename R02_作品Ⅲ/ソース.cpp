@@ -3928,8 +3928,9 @@ VOID MY_PLAY_PROC(VOID)
 			else //画像を変えるタイミングになったら
 			{
 				player.kind1++;			//次の画像にする
-				player.imgChangeCnt = 0;	//変更カウンタ初期化
+				
 			}
+			player.imgChangeCnt = 0;	//変更カウンタ初期化
 		}
 		else
 		{
@@ -3957,8 +3958,9 @@ VOID MY_PLAY_PROC(VOID)
 			else //画像を変えるタイミングになったら
 			{
 				player.kind1++;			//次の画像にする
-				player.imgChangeCnt = 0;	//変更カウンタ初期化
+				
 			}
+			player.imgChangeCnt = 0;	//変更カウンタ初期化
 		}
 		else
 		{
@@ -3985,8 +3987,8 @@ VOID MY_PLAY_PROC(VOID)
 			else //画像を変えるタイミングになったら
 			{
 				player.kind1++;			//次の画像にする
-				player.imgChangeCnt = 0;	//変更カウンタ初期化
 			}
+			player.imgChangeCnt = 0;	//変更カウンタ初期化
 		}
 		else
 		{
@@ -4013,8 +4015,9 @@ VOID MY_PLAY_PROC(VOID)
 			else //画像を変えるタイミングになったら
 			{
 				player.kind1++;			//次の画像にする
-				player.imgChangeCnt = 0;	//変更カウンタ初期化
+			
 			}
+			player.imgChangeCnt = 0;	//変更カウンタ初期化
 		}
 		else
 		{
